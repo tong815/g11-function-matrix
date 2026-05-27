@@ -75,22 +75,25 @@ export function getExponentialFeatures(params, currentLang) {
 
   const domainText =
     lang === "zh" ? "定义域：全体实数 ℝ" : "Domain: all real numbers ℝ";
-  const rangeText =
-  k > 0
-    ? lang === "zh"
-      ? "值域：y > " + fmt(k)
-      : "Range: y > " + fmt(k)
-    : k < 0
+  const kNearZero = Math.abs(k) < EPS;
+  let rangeText;
+  if (a > 0) {
+    rangeText = kNearZero
       ? lang === "zh"
+        ? "值域：y > 0"
+        : "Range: y > 0"
+      : lang === "zh"
+        ? "值域：y > " + fmt(k)
+        : "Range: y > " + fmt(k);
+  } else {
+    rangeText = kNearZero
+      ? lang === "zh"
+        ? "值域：y < 0"
+        : "Range: y < 0"
+      : lang === "zh"
         ? "值域：y < " + fmt(k)
-        : "Range: y < " + fmt(k)
-      : a > 0
-        ? lang === "zh"
-          ? "值域：y > 0"
-          : "Range: y > 0"
-        : lang === "zh"
-          ? "值域：y < 0"
-          : "Range: y < 0";
+        : "Range: y < " + fmt(k);
+  }
 
   return {
     valid: true,
