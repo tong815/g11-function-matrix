@@ -112,12 +112,6 @@
     html.device-desktop .right .block:last-child {
       margin-bottom: 0;
     }
-
-    html.device-desktop .block-info {
-      position: sticky;
-      top: 12px;
-      z-index: 10;
-    }
     .block {
       border: 1px solid var(--line);
       border-radius: 10px;
@@ -380,16 +374,7 @@
     }
 
     html.device-mobile .block-q-matrix { order: 1; }
-    html.device-mobile .block-info {
-      order: 2;
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    }
-    html.device-mobile .block-info.is-active {
-      border-color: #9ca3af;
-    }
+    html.device-mobile .block-info { order: 2; }
     html.device-mobile .block-graph { order: 3; }
     html.device-mobile .block-l-matrix { order: 4; }
     html.device-mobile .block-flow { order: 5; }
@@ -1185,17 +1170,6 @@
       return isMobile ? "mobile" : "desktop";
     }
 
-    function isMobileLayout() {
-      return document.documentElement.classList.contains("device-mobile");
-    }
-
-    function scrollToInfoPanel() {
-      const panel = document.getElementById("infoPanelBlock");
-      if (!panel || !isMobileLayout()) return;
-      panel.classList.add("is-active");
-      panel.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-
     function readableLevel(level) {
       const t = i18n[currentLang];
       if (level === "direct") return t.levelDirect;
@@ -1257,7 +1231,6 @@
           graphState.mode = matrixKey;
           updateGraphLabel(matrixKey, formId);
           drawMainGraph();
-          scrollToInfoPanel();
         });
       });
     }
