@@ -79,6 +79,33 @@ export const transformationRules = [
     labelEN: "solve for y",
     labelZH: "化成斜截式",
     text: "Standard -> Slope-Intercept\n\n1) Move Ax and C\n2) Divide by B (if B≠0)\n3) Read y=mx+b"
+  },
+  {
+    topic: "exponential",
+    id: "exp_basic_to_transformed",
+    from: "Basic",
+    to: "Transformed",
+    labelEN: "add shifts",
+    labelZH: "加平移",
+    text: "Basic -> Transformed\n\n1) Start with y=b^x\n2) Introduce vertical stretch a\n3) Add horizontal shift h and vertical shift k\n4) Write y=a·b^(x-h)+k"
+  },
+  {
+    topic: "exponential",
+    id: "exp_transformed_to_basic",
+    from: "Transformed",
+    to: "Basic",
+    labelEN: "normalize",
+    labelZH: "归一化",
+    text: "Transformed -> Basic\n\n1) Set a=1, h=0, k=0\n2) Keep base b\n3) Obtain y=b^x"
+  },
+  {
+    topic: "exponential",
+    id: "exp_growth_to_transformed",
+    from: "Growth/Decay",
+    to: "Transformed",
+    labelEN: "match parameters",
+    labelZH: "对应参数",
+    text: "Growth/Decay -> Transformed\n\n1) Identify A and r in y=A·r^x\n2) Set a=A, b=r, h=0, k=0\n3) Add shifts if needed for y=a·b^(x-h)+k"
   }
 ];
 
@@ -118,5 +145,17 @@ export const flowContent = {
   lin_standard_to_slope: {
     en: { route: "Standard -> Slope-Intercept", sections: [{ heading: "Steps", numbered: true, lines: ["Move Ax and C", "Divide by B (B≠0)", "Write y=mx+b"] }] },
     zh: { route: "标准式 -> 斜截式", sections: [{ heading: "步骤", numbered: true, lines: ["移项得到 By=-Ax-C", "两边除以 B（B≠0）", "写成 y=mx+b"] }] }
+  },
+  exp_basic_to_transformed: {
+    en: { route: "Basic -> Transformed", sections: [{ heading: "Steps", numbered: true, lines: ["Keep base b", "Choose stretch a", "Add horizontal shift h", "Add vertical shift k", "Write y=a·b^(x-h)+k"] }] },
+    zh: { route: "基础式 -> 变换式", sections: [{ heading: "步骤", numbered: true, lines: ["保留底数 b", "确定伸缩 a", "加入水平平移 h", "加入竖直平移 k", "写成 y=a·b^(x-h)+k"] }] }
+  },
+  exp_transformed_to_basic: {
+    en: { route: "Transformed -> Basic", sections: [{ heading: "Steps", numbered: true, lines: ["Set a=1, h=0, k=0", "Keep b unchanged", "Result: y=b^x"] }] },
+    zh: { route: "变换式 -> 基础式", sections: [{ heading: "步骤", numbered: true, lines: ["令 a=1, h=0, k=0", "底数 b 不变", "得到 y=b^x"] }] }
+  },
+  exp_growth_to_transformed: {
+    en: { route: "Growth/Decay -> Transformed", sections: [{ heading: "Steps", numbered: true, lines: ["Read A and r from y=A·r^x", "Set a=A, b=r, h=0, k=0", "Add h,k if shifts are needed"] }] },
+    zh: { route: "增长衰减式 -> 变换式", sections: [{ heading: "步骤", numbered: true, lines: ["从 y=A·r^x 读取 A,r", "对应 a=A, b=r, h=0, k=0", "若有平移再补 h,k"] }] }
   }
 };

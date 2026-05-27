@@ -23,15 +23,18 @@ export function getDetail(matrixKey, formId, infoKey, detailLibrary, currentLang
 export function renderMatrix({ targetId, matrixData, i18n, currentLang, LevelClass, statusPill }) {
   const mount = document.getElementById(targetId);
   const t = i18n[currentLang];
-  const formLabels = matrixData.key === "quadratic" ? t.qForms : t.lForms;
-  const infoLabels = matrixData.key === "quadratic" ? t.qInfo : t.lInfo;
+  const legacyFormLabels =
+    matrixData.key === "quadratic" ? t.qForms : matrixData.key === "linear" ? t.lForms : t.eForms || [];
+  const legacyInfoLabels =
+    matrixData.key === "quadratic" ? t.qInfo : matrixData.key === "linear" ? t.lInfo : t.eInfo || [];
   let html = "<table><thead><tr><th>" + t.tableInfo + "</th>";
   matrixData.forms.forEach((f, idx) => {
-    html += "<th>" + formLabels[idx] + "<br><span style='color:#6b7280;font-weight:400'>" + f.equation + "</span></th>";
+    const formTitle = f.labelKey ? t[f.labelKey] : legacyFormLabels[idx];
+    html += "<th>" + formTitle + "<br><span style='color:#6b7280;font-weight:400'>" + f.equation + "</span></th>";
   });
   html += "</tr></thead><tbody>";
   matrixData.info.forEach((infoKey, idx) => {
-    html += "<tr><td class='label'>" + infoLabels[idx] + "</td>";
+    html += "<tr><td class='label'>" + legacyInfoLabels[idx] + "</td>";
     matrixData.forms.forEach(f => {
       const level = matrixData.cells[infoKey][f.id];
       html += "<td class='clickable " + LevelClass[level] + "' " +

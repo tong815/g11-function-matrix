@@ -395,5 +395,105 @@ export const detailLibrary = {
     ["令 y=0 求 x 截距 x=-C/A", "令 x=0 求 y 截距 y=-C/B", "画两点连线"],
     "2x-3y+6=0 -> x 截距 (-3,0), y 截距 (0,2)",
     "解截距方程时计算错误。"
+  ),
+  "exponential|eBasic|base": D(
+    "In y=b^x the base b is visible directly.",
+    ["Read b from the equation", "Check b>0 and b≠1", "Use b to decide growth vs decay"],
+    "y=2^x -> base b=2 (growth)",
+    "Confusing exponent with coefficient.",
+    "y=b^x 中底数 b 可直接读取。",
+    ["读出 b", "确认 b>0 且 b≠1", "用 b 判断增长或衰减"],
+    "y=2^x -> 底数 b=2（增长）",
+    "把指数和系数混淆。"
+  ),
+  "exponential|eBasic|growthDecay": D(
+    "Compare b to 1: b>1 growth, 0<b<1 decay.",
+    ["Read b", "If b>1: growth", "If 0<b<1: decay"],
+    "y=0.5^x -> decay because 0.5<1",
+    "Thinking any b<2 is decay.",
+    "比较 b 与 1：b>1 增长，0<b<1 衰减。",
+    ["读 b", "b>1 为增长", "0<b<1 为衰减"],
+    "y=0.5^x -> 0.5<1 为衰减",
+    "误以为小于 2 就是衰减。"
+  ),
+  "exponential|eBasic|asymptote": D(
+    "Basic form has asymptote y=0; derive from transformed view.",
+    ["Recognize k=0 in y=b^x", "Horizontal asymptote y=k", "Here k=0"],
+    "y=2^x -> asymptote y=0",
+    "Looking for vertical asymptote.",
+    "基础式渐近线为 y=0，需从变换式理解。",
+    ["y=b^x 时 k=0", "水平渐近线 y=k", "此处 k=0"],
+    "y=2^x -> 渐近线 y=0",
+    "误找竖直渐近线。"
+  ),
+  "exponential|eBasic|domainRange": D(
+    "Domain is all reals; range depends on shifts (here y>0).",
+    ["Domain: ℝ", "For y=b^x with b>0, range is y>0", "Add k in transformed form later"],
+    "y=2^x: domain ℝ, range (0,∞)",
+    "Saying domain x>0 only.",
+    "定义域为全体实数；值域在此为 y>0。",
+    ["定义域 ℝ", "y=b^x 且 b>0 时值域 y>0", "有 k 时在变换式中调整"],
+    "y=2^x：定义域 ℝ，值域 (0,∞)",
+    "误以为定义域只有 x>0。"
+  ),
+  "exponential|eTransformed|base": D(
+    "Base b appears explicitly in y=a·b^(x-h)+k.",
+    ["Identify b", "Check b>0, b≠1", "Relate to growth/decay"],
+    "y=3·2^(x-1)+4 -> b=2",
+    "Using a as the base.",
+    "变换式中底数 b 直接可见。",
+    ["识别 b", "确认 b>0, b≠1", "联系增长/衰减"],
+    "y=3·2^(x-1)+4 -> b=2",
+    "误把 a 当底数。"
+  ),
+  "exponential|eTransformed|asymptote": D(
+    "Vertical shift k gives horizontal asymptote y=k.",
+    ["Read k", "Write asymptote line y=k", "Graph approaches but does not cross (typical)"],
+    "y=2^(x-1)+4 -> asymptote y=4",
+    "Using b or h as asymptote.",
+    "竖直平移 k 给出水平渐近线 y=k。",
+    ["读取 k", "写渐近线 y=k", "图像趋近但通常不穿过"],
+    "y=2^(x-1)+4 -> 渐近线 y=4",
+    "误用 b 或 h 当渐近线。"
+  ),
+  "exponential|eTransformed|transformations": D(
+    "Transformed form shows stretch and shifts directly.",
+    ["a controls vertical stretch/reflection", "h shifts horizontally", "k shifts vertically"],
+    "y=-2·3^(x+1)-1: reflect/stretch, left 1, down 1",
+    "Mixing up signs on h.",
+    "变换式直接显示伸缩与平移。",
+    ["a 控制竖直伸缩/反射", "h 水平平移", "k 竖直平移"],
+    "y=-2·3^(x+1)-1：反射伸缩、左移 1、下移 1",
+    "h 的符号搞反。"
+  ),
+  "exponential|eGrowthDecay|base": D(
+    "In y=A·r^x the base is r (growth/decay factor).",
+    ["Read r", "Check r>0, r≠1", "Compare r to 1"],
+    "y=5·1.2^x -> r=1.2 (growth)",
+    "Using A as base.",
+    "y=A·r^x 中底数为 r。",
+    ["读取 r", "确认 r>0, r≠1", "与 1 比较"],
+    "y=5·1.2^x -> r=1.2（增长）",
+    "误把 A 当底数。"
+  ),
+  "exponential|eGrowthDecay|initialValue": D(
+    "At x=0, y=A·r^0=A.",
+    ["Set x=0", "Compute y=A", "Initial value is A"],
+    "y=5·1.2^x -> initial value 5",
+    "Using r as initial value.",
+    "x=0 时 y=A·r^0=A。",
+    ["令 x=0", "得 y=A", "初始值为 A"],
+    "y=5·1.2^x -> 初始值 5",
+    "误把 r 当初始值。"
+  ),
+  "exponential|eGrowthDecay|growthDecay": D(
+    "r>1 growth, 0<r<1 decay.",
+    ["Read r", "Compare to 1", "Label growth or decay"],
+    "r=0.8 -> decay",
+    "Using A to decide growth/decay.",
+    "r>1 增长，0<r<1 衰减。",
+    ["读 r", "与 1 比较", "判断增长或衰减"],
+    "r=0.8 -> 衰减",
+    "用 A 判断增长衰减。"
   )
 };

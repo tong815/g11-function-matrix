@@ -24,6 +24,35 @@ export const quadraticMatrix = {
   }
 };
 
+export const exponentialMatrix = {
+  key: "exponential",
+  objectLabelKey: "graphExponential",
+  forms: [
+    { id: "eBasic", equation: "y = b^x", representationType: "algebraic", labelKey: "formExponentialBasicLabel" },
+    {
+      id: "eTransformed",
+      equation: "y = a·b^(x-h) + k",
+      representationType: "transform",
+      labelKey: "formExponentialTransformedLabel"
+    },
+    {
+      id: "eGrowthDecay",
+      equation: "y = A·r^x",
+      representationType: "analytic",
+      labelKey: "formExponentialGrowthDecayLabel"
+    }
+  ],
+  info: ["base", "initialValue", "growthDecay", "asymptote", "domainRange", "transformations"],
+  cells: {
+    base: { eBasic: "direct", eTransformed: "direct", eGrowthDecay: "direct" },
+    initialValue: { eBasic: "derivable", eTransformed: "derivable", eGrowthDecay: "direct" },
+    growthDecay: { eBasic: "direct", eTransformed: "derivable", eGrowthDecay: "direct" },
+    asymptote: { eBasic: "derivable", eTransformed: "direct", eGrowthDecay: "derivable" },
+    domainRange: { eBasic: "derivable", eTransformed: "derivable", eGrowthDecay: "derivable" },
+    transformations: { eBasic: "weak", eTransformed: "direct", eGrowthDecay: "weak" }
+  }
+};
+
 export const linearMatrix = {
   key: "linear",
   objectLabelKey: "graphLinear",
