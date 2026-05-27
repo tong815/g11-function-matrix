@@ -46,6 +46,30 @@ export const transformationRules = [
     labelEN: "solve roots",
     labelZH: "解根",
     text: "Vertex -> Factored\n\n1) Set y=0\n2) Solve a(x-h)²+k=0\n3) Rewrite by roots\n\nExample:\ny=(x-2)²-4=(x-4)(x)"
+  },
+  {
+    id: "lin_slope_to_point",
+    from: "Slope-Intercept",
+    to: "Point-Slope",
+    labelEN: "point form",
+    labelZH: "点斜式",
+    text: "Slope-Intercept -> Point-Slope\n\n1) Pick a point on the line\n2) Keep slope m\n3) Write y-y₁=m(x-x₁)"
+  },
+  {
+    id: "lin_point_to_standard",
+    from: "Point-Slope",
+    to: "Standard",
+    labelEN: "rearrange",
+    labelZH: "移项整理",
+    text: "Point-Slope -> Standard\n\n1) Expand right side\n2) Move all terms to one side\n3) Write Ax+By+C=0"
+  },
+  {
+    id: "lin_standard_to_slope",
+    from: "Standard",
+    to: "Slope-Intercept",
+    labelEN: "solve for y",
+    labelZH: "化成斜截式",
+    text: "Standard -> Slope-Intercept\n\n1) Move Ax and C\n2) Divide by B (if B≠0)\n3) Read y=mx+b"
   }
 ];
 
@@ -73,5 +97,17 @@ export const flowContent = {
   vertex_to_fact: {
     en: { route: "Vertex -> Factored", sections: [{ heading: "Steps", numbered: true, lines: ["Set y=0", "Isolate square term: (x-h)²=-k/a", "Solve roots x=h±sqrt(-k/a)", "Write y=a(x-r₁)(x-r₂)"] }, { heading: "Example", numbered: false, lines: ["y=(x-2)²-4 -> x=2±2 -> r₁=4,r₂=0", "=> y=(x-4)x"], mono: true }] },
     zh: { route: "顶点式 -> 因式分解式", sections: [{ heading: "步骤", numbered: true, lines: ["令 y=0", "先孤立平方项：(x-h)²=-k/a", "解根 x=h±sqrt(-k/a)", "写成 y=a(x-r₁)(x-r₂)"] }, { heading: "示例", numbered: false, lines: ["y=(x-2)²-4 -> x=2±2 -> r₁=4,r₂=0", "=> y=(x-4)x"], mono: true }] }
+  },
+  lin_slope_to_point: {
+    en: { route: "Slope-Intercept -> Point-Slope", sections: [{ heading: "Steps", numbered: true, lines: ["Read slope m", "Pick a point (x₁,y₁) on the line", "Write y-y₁=m(x-x₁)"] }] },
+    zh: { route: "斜截式 -> 点斜式", sections: [{ heading: "步骤", numbered: true, lines: ["读取斜率 m", "在线上取一点 (x₁,y₁)", "写成 y-y₁=m(x-x₁)"] }] }
+  },
+  lin_point_to_standard: {
+    en: { route: "Point-Slope -> Standard", sections: [{ heading: "Steps", numbered: true, lines: ["Expand y-y₁=m(x-x₁)", "Move all terms to one side", "Collect as Ax+By+C=0"] }] },
+    zh: { route: "点斜式 -> 标准式", sections: [{ heading: "步骤", numbered: true, lines: ["展开 y-y₁=m(x-x₁)", "移项到一侧", "整理为 Ax+By+C=0"] }] }
+  },
+  lin_standard_to_slope: {
+    en: { route: "Standard -> Slope-Intercept", sections: [{ heading: "Steps", numbered: true, lines: ["Move Ax and C", "Divide by B (B≠0)", "Write y=mx+b"] }] },
+    zh: { route: "标准式 -> 斜截式", sections: [{ heading: "步骤", numbered: true, lines: ["移项得到 By=-Ax-C", "两边除以 B（B≠0）", "写成 y=mx+b"] }] }
   }
 };

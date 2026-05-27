@@ -19,13 +19,10 @@ export function renderRouterTable({ title, rows, i18n, currentLang }) {
   `;
 }
 
-export function renderProblemRouter({ mountId, i18n, currentLang, problemRouterData }) {
+export function renderProblemRouter({ mountId, i18n, currentLang, problemRouterData, topic }) {
   const mount = document.getElementById(mountId);
   const t = i18n[currentLang];
-  mount.innerHTML = `
-    <div class="router-tables">
-      ${renderRouterTable({ title: t.formulaGroupQuadratic, rows: problemRouterData.quadratic, i18n, currentLang })}
-      ${renderRouterTable({ title: t.formulaGroupLinear, rows: problemRouterData.linear, i18n, currentLang })}
-    </div>
-  `;
+  const rows = problemRouterData[topic.routerKey] || [];
+  const title = topic.id === "quadratic" ? t.formulaGroupQuadratic : t.formulaGroupLinear;
+  mount.innerHTML = `<div class="router-tables">${renderRouterTable({ title, rows, i18n, currentLang })}</div>`;
 }

@@ -1,11 +1,9 @@
-export function renderCards({ mountId, i18n, currentLang, formulaCards }) {
+export function renderCards({ mountId, i18n, currentLang, formulaCards, topic }) {
   const mount = document.getElementById(mountId);
   const t = i18n[currentLang];
-  const groups = [
-    { id: "quadratic", title: t.formulaGroupQuadratic },
-    { id: "linear", title: t.formulaGroupLinear },
-    { id: "trig", title: t.formulaGroupTrig }
-  ];
+  const groups = topic.id === "quadratic"
+    ? [{ id: "quadratic", title: t.formulaGroupQuadratic }]
+    : [{ id: "linear", title: t.formulaGroupLinear }];
   mount.innerHTML = groups.map(group => {
     const items = formulaCards.filter(card => card.group === group.id);
     return `
