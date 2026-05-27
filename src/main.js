@@ -20,6 +20,15 @@ let currentTopicId = "quadratic";
 
 const graphState = {
   mode: "quadratic",
+  paramsByAdapter: {
+    quadratic: { a: 1, b: 0, c: -4 },
+    linear: { mode: "normal", m: 2, b: -1, point: [1, 1], A: 2, B: -1, C: -1, xConst: null }
+  },
+  activeFormByAdapter: {
+    quadratic: "qVertex",
+    linear: "lSlope"
+  },
+  // Backward compatibility for existing topic-specific modules.
   quadratic: { a: 1, b: 0, c: -4 },
   quadraticForm: "qVertex",
   linear: { mode: "normal", m: 2, b: -1, point: [1, 1], A: 2, B: -1, C: -1, xConst: null },
@@ -78,8 +87,9 @@ function syncGraphModeFromTopic(topic) {
 
 function applyFormSelectionToGraphState(topic, formId) {
   const adapterId = topic.graph.adapterId;
+  graphState.activeFormByAdapter[adapterId] = formId;
   if (adapterId === "quadratic") graphState.quadraticForm = formId;
-  else if (adapterId === "linear") graphState.linearForm = formId;
+  if (adapterId === "linear") graphState.linearForm = formId;
 }
 
 function bindMatrixClicks() {

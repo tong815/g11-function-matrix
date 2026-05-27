@@ -7,6 +7,7 @@ import {
   abcFromFactored,
   abcFromVertex
 } from "../math/quadratic.js";
+import { EPS, fmt } from "../math/format.js";
 import { buildQuadraticAnnotations, getQuadraticAnnotationNote } from "./quadraticGraphAnnotations.js";
 
 export const quadraticGraphAdapter = {
@@ -31,12 +32,14 @@ export const quadraticGraphAdapter = {
     return { xMin: -10, xMax: 10, sampleStep: 0.05, pixelScale: 22 };
   },
 
-  getExampleForms(features) {
+  getExampleForms(features, t) {
     if (!features.valid) return null;
     return {
-      standard: features.standardFormText,
-      vertex: features.vertexFormText,
-      factored: features.factoredFormText
+      cards: [
+        { className: "card-standard", title: t.formStandardLabel, expr: features.standardFormText },
+        { className: "card-vertex", title: t.formVertexLabel, expr: features.vertexFormText },
+        { className: "card-factored", title: t.formFactoredLabel, expr: features.factoredFormText }
+      ]
     };
   },
 
@@ -48,7 +51,110 @@ export const quadraticGraphAdapter = {
 
   getActiveFormId(graphState, lastSelected) {
     if (lastSelected?.matrixKey === "quadratic") return lastSelected.formId;
-    return graphState.quadraticForm || "qVertex";
+    return graphState.activeFormByAdapter?.quadratic || graphState.quadraticForm || "qVertex";
+  },
+
+  getCurrentParams(graphState) {
+    return graphState.paramsByAdapter?.quadratic || graphState.quadratic;
+  },
+
+  setCurrentParams(graphState, next) {
+    if (!graphState.paramsByAdapter) graphState.paramsByAdapter = {};
+    graphState.paramsByAdapter.quadratic = next;
+    graphState.quadratic = next;
+  },
+
+  setActiveFormId(graphState, formId) {
+    if (!graphState.activeFormByAdapter) graphState.activeFormByAdapter = {};
+    graphState.activeFormByAdapter.quadratic = formId;
+    graphState.quadraticForm = formId;
+  },
+
+  renderParameterFields({ graphState, formId, mount, t, currentLang, i18n, setNote, bindEnter }) {
+    this.setActiveFormId(graphState, formId);
+    document.getElementById("graphParamsSubtitle").textContent = t["paramSubtitle_" + formId] || "";
+    const params = this.getCurrentParams(graphState);
+    const aInput = (val) =>
+      `<label><span>a:</span> <input type="number" step="any" id="quadInputA" value="${val}" /></label>`;
+    if (formId === "qStandard") {
+      const p = this.getStandardParams(params);
+      mount.innerHTML =
+        aInput(fmt(p.a)) +
+        `<label><span>b:</span> <input type="number" step="any" id="quadInputB" value="${fmt(p.b)}" /></label>` +
+        `<label><span>c:</span> <input type="number" step="any" id="quadInputC" value="${fmt(p.c)}" /></label>`;
+    } else if (formId === "qFactored") {
+      const p = this.getFactoredParams(params);
+      if (!p.hasRealRoots) {
+        mount.innerHTML =
+          aInput(fmt(p.a)) +
+          `<label><span>${t.paramLabelR1}:</span> <input type="text" id="quadInputR1" value="${t.noRealRootLabel}" disabled /></label>` +
+          `<label><span>${t.paramLabelR2}:</span> <input type="text" id="quadInputR2" value="${t.noRealRootLabel}" disabled /></label>`;
+        setNote(t.noRealFactoredParamNote);
+      } else {
+        mount.innerHTML =
+          aInput(fmt(p.a)) +
+          `<label><span>${t.paramLabelR1}:</span> <input type="number" step="any" id="quadInputR1" value="${fmt(p.r1)}" /></label>` +
+          `<label><span>${t.paramLabelR2}:</span> <input type="number" step="any" id="quadInputR2" value="${fmt(p.isDouble ? p.r1 : p.r2)}" /></label>`;
+      }
+    } else {
+      const p = this.getVertexParams(params, currentLang, i18n);
+      mount.innerHTML =
+        aInput(fmt(p.a)) +
+        `<label><span>${t.paramLabelH}:</span> <input type="number" step="any" id="quadInputH" value="${fmt(p.h)}" /></label>` +
+        `<label><span>${t.paramLabelK}:</span> <input type="number" step="any" id="quadInputK" value="${fmt(p.k)}" /></label>`;
+    }
+    bindEnter(mount);
+  },
+
+  applyParameterInputs({ graphState, formId, t, setError }) {
+    const aEl = document.getElementById("quadInputA");
+    if (!aEl) return { changed: false };
+    const a = Number(aEl.value);
+    let next = null;
+    const current = this.getCurrentParams(graphState);
+
+    if (!Number.isFinite(a)) {
+      setError(t.quadErrorInvalid);
+      return { changed: false };
+    }
+    if (formId === "qStandard") {
+      const b = Number(document.getElementById("quadInputB").value);
+      const c = Number(document.getElementById("quadInputC").value);
+      if (!Number.isFinite(b) || !Number.isFinite(c)) {
+        setError(t.quadErrorInvalid);
+        return { changed: false };
+      }
+      next = { a, b, c };
+    } else if (formId === "qFactored") {
+      const fp = this.getFactoredParams(current);
+      if (!fp.hasRealRoots) {
+        next = { a, b: current.b, c: current.c };
+      } else {
+        const r1 = Number(document.getElementById("quadInputR1").value);
+        const r2 = Number(document.getElementById("quadInputR2").value);
+        if (!Number.isFinite(r1) || !Number.isFinite(r2)) {
+          setError(t.quadErrorInvalid);
+          return { changed: false };
+        }
+        next = this.abcFromFactored(a, r1, r2);
+      }
+    } else {
+      const h = Number(document.getElementById("quadInputH").value);
+      const k = Number(document.getElementById("quadInputK").value);
+      if (!Number.isFinite(h) || !Number.isFinite(k)) {
+        setError(t.quadErrorInvalid);
+        return { changed: false };
+      }
+      next = this.abcFromVertex(a, h, k);
+    }
+
+    this.setCurrentParams(graphState, next);
+    if (Math.abs(next.a) < EPS) {
+      setError(t.quadErrorAZero);
+      return { changed: true };
+    }
+    setError("");
+    return { changed: true };
   },
 
   isValidParams(features) {

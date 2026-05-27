@@ -20,7 +20,8 @@ export function buildQuadraticAnnotations({
 }) {
   const { formId, infoKey } = selection;
   const t = i18n[currentLang];
-  const g = getQuadraticFeatures(graphState.quadratic, currentLang, i18n);
+  const currentParams = graphState.paramsByAdapter?.quadratic || graphState.quadratic;
+  const g = getQuadraticFeatures(currentParams, currentLang, i18n);
   const annotations = [];
   if (!g.valid) return annotations;
 
@@ -81,7 +82,8 @@ export function buildQuadraticAnnotations({
 export function getQuadraticAnnotationNote({ graphState, selection, currentLang, i18n, getQuadraticFeatures, getCellLevel }) {
   const t = i18n[currentLang];
   const isZH = currentLang === "zh";
-  const g = getQuadraticFeatures(graphState.quadratic, currentLang, i18n);
+  const currentParams = graphState.paramsByAdapter?.quadratic || graphState.quadratic;
+  const g = getQuadraticFeatures(currentParams, currentLang, i18n);
   if (!g.valid) {
     return g.error === "aZero" ? t.quadErrorAZero : t.quadErrorInvalid;
   }

@@ -6,10 +6,11 @@ export const LevelClass = {
 
 export const quadraticMatrix = {
   key: "quadratic",
+  objectLabelKey: "graphQuadratic",
   forms: [
-    { id: "qStandard", equation: "y = ax² + bx + c", representationType: "algebraic" },
-    { id: "qFactored", equation: "y = a(x-r₁)(x-r₂)", representationType: "algebraic" },
-    { id: "qVertex", equation: "y = a(x-h)² + k", representationType: "transform" }
+    { id: "qStandard", equation: "y = ax² + bx + c", representationType: "algebraic", labelKey: "formStandardLabel" },
+    { id: "qFactored", equation: "y = a(x-r₁)(x-r₂)", representationType: "algebraic", labelKey: "formFactoredLabel" },
+    { id: "qVertex", equation: "y = a(x-h)² + k", representationType: "transform", labelKey: "formVertexLabel" }
   ],
   info: ["vertex", "xint", "yint", "axis", "extreme", "opening", "transform"],
   cells: {
@@ -25,10 +26,11 @@ export const quadraticMatrix = {
 
 export const linearMatrix = {
   key: "linear",
+  objectLabelKey: "graphLinear",
   forms: [
-    { id: "lSlope", equation: "y = mx + b", representationType: "algebraic" },
-    { id: "lPoint", equation: "y - y₁ = m(x - x₁)", representationType: "geometric" },
-    { id: "lStandard", equation: "Ax + By + C = 0", representationType: "algebraic" }
+    { id: "lSlope", equation: "y = mx + b", representationType: "algebraic", labelKey: "formLinearSlopeLabel" },
+    { id: "lPoint", equation: "y - y₁ = m(x - x₁)", representationType: "geometric", labelKey: "formLinearPointLabel" },
+    { id: "lStandard", equation: "Ax + By + C = 0", representationType: "algebraic", labelKey: "formLinearStandardLabel" }
   ],
   info: ["slope", "yint", "knownPoint", "parallel", "perpendicular", "graphing"],
   cells: {

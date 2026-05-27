@@ -52,21 +52,22 @@ export function createGraphHandlers(deps) {
 
   function getActiveQuadraticFormId() {
     const adapter = getGraphAdapter("quadratic");
-    return adapter.getActiveFormId(graphState, getLastSelected());
+    return adapter?.getActiveFormId(graphState, getLastSelected()) || "qVertex";
   }
 
   function getActiveLinearFormId() {
     const adapter = getGraphAdapter("linear");
-    return adapter.getActiveFormId(graphState, getLastSelected());
+    return adapter?.getActiveFormId(graphState, getLastSelected()) || "lSlope";
   }
 
   function updateGraphLabel(matrixKey, formId) {
     const matrix = matrixByKey[matrixKey];
     const t = i18n[currentLang()];
-    const formIndex = matrix.forms.findIndex((f) => f.id === formId);
-    const formLabels = matrixKey === "quadratic" ? t.qForms : t.lForms;
-    const objectLabel = matrixKey === "quadratic" ? t.graphQuadratic : t.graphLinear;
-    const label = formIndex >= 0 ? objectLabel + " / " + formLabels[formIndex] : objectLabel;
+    if (!matrix) return;
+    const form = matrix.forms.find((f) => f.id === formId);
+    const objectLabel = matrix.objectLabelKey ? t[matrix.objectLabelKey] : matrixKey;
+    const formLabel = form?.labelKey ? t[form.labelKey] : form?.id;
+    const label = formLabel ? objectLabel + " / " + formLabel : objectLabel;
     document.getElementById("graphLabel").textContent = label;
   }
 
@@ -285,7 +286,8 @@ export function createGraphHandlers(deps) {
     if (!adapter) return;
 
     const t = i18n[currentLang()];
-    const params = graphState.mode === "quadratic" ? graphState.quadratic : graphState.linear;
+    const params = graphState.paramsByAdapter?.[adapter.id];
+    if (!params) return;
     const features = adapter.getFeatures(params, currentLang(), i18n);
 
     if (!adapter.isValidParams(features)) {
