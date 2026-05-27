@@ -498,9 +498,27 @@
     }
     .graph-params-title {
       font-weight: 700;
-      margin-bottom: 8px;
+      margin-bottom: 4px;
       font-size: 12px;
       color: var(--muted);
+    }
+    .graph-params-subtitle {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 8px;
+      font-family: "Consolas", "Courier New", monospace;
+      line-height: 1.35;
+    }
+    .graph-params-factored-note {
+      font-size: 11px;
+      color: #b45309;
+      margin-top: 6px;
+      line-height: 1.35;
+    }
+    .graph-params-row input:disabled {
+      background: #f3f4f6;
+      color: #9ca3af;
+      cursor: not-allowed;
     }
     .graph-params-row {
       display: flex;
@@ -743,18 +761,16 @@
           <div class="small-note"><span id="currentObjectLabel">Current object:</span> <span id="graphLabel"></span></div>
           <div class="graph-params" id="graphParamsBlock">
             <div class="graph-params-inner">
-              <div class="graph-params-title" id="graphParamsTitle">Quadratic Example</div>
-              <div class="graph-params-row">
-                <label><span id="labelQuadA">a:</span> <input type="number" step="any" id="quadInputA" value="1" /></label>
-                <label><span id="labelQuadB">b:</span> <input type="number" step="any" id="quadInputB" value="0" /></label>
-                <label><span id="labelQuadC">c:</span> <input type="number" step="any" id="quadInputC" value="-4" /></label>
-              </div>
+              <div class="graph-params-title" id="graphParamsTitle">Current Representation Parameters</div>
+              <div class="graph-params-subtitle" id="graphParamsSubtitle"></div>
+              <div class="graph-params-row" id="graphParamsFieldsMount"></div>
               <div class="graph-params-actions">
                 <button type="button" class="btn-primary" id="btnUpdateGraph">Update Graph</button>
                 <button type="button" class="btn-reset" id="btnResetGraph">Reset</button>
               </div>
             </div>
             <div id="graphParamError" class="graph-param-error"></div>
+            <div id="graphParamsFactoredNote" class="graph-params-factored-note"></div>
           </div>
           <div id="currentExampleForms" class="current-example-forms"></div>
           <canvas id="graphCanvas" width="560" height="280"></canvas>
@@ -892,7 +908,35 @@
         markerXInt: "x-int",
         markerDoubleRoot: "double root",
         graphAnnotationDefault: "Click a matrix cell to highlight what that form reads directly on the graph.",
-        graphParamsTitle: "Quadratic Example",
+        graphParamsTitle: "Current Representation Parameters",
+        paramSubtitle_qStandard: "Standard Form: y = ax² + bx + c",
+        paramSubtitle_qFactored: "Factored Form: y = a(x-r₁)(x-r₂)",
+        paramSubtitle_qVertex: "Vertex Form: y = a(x-h)² + k",
+        paramLabelR1: "r₁",
+        paramLabelR2: "r₂",
+        paramLabelH: "h",
+        paramLabelK: "k",
+        noRealRootLabel: "No real root",
+        noRealFactoredParamNote: "This quadratic has no real factored form.",
+        paramSubtitle_lSlope: "Slope-Intercept: y = mx + b",
+        paramSubtitle_lPoint: "Point-Slope: y - y₁ = m(x - x₁)",
+        paramSubtitle_lStandard: "Standard: Ax + By + C = 0",
+        paramLabelM: "m",
+        paramLabelB: "b",
+        paramLabelX1: "x₁",
+        paramLabelY1: "y₁",
+        paramLabelA: "A",
+        paramLabelBigB: "B",
+        paramLabelC: "C",
+        formLinearSlopeLabel: "Slope-Intercept",
+        formLinearPointLabel: "Point-Slope",
+        formLinearStandardLabel: "Standard",
+        noSlopeInterceptNote: "Vertical line has no slope-intercept form.",
+        noPointSlopeNote: "Vertical line has no point-slope form.",
+        linearErrorABZero: "A and B cannot both be 0.",
+        linearErrorInvalid: "Please enter valid numbers.",
+        canvasErrorLinearInvalid: "Invalid line — cannot graph.",
+        naLabel: "N/A",
         btnUpdateGraph: "Update Graph",
         btnResetGraph: "Reset",
         currentExampleTitle: "Current Example",
@@ -901,7 +945,7 @@
         formFactoredLabel: "Factored",
         noRealFactored: "No real factored form over real numbers.",
         quadErrorAZero: "a cannot be 0 for a quadratic.",
-        quadErrorInvalid: "Please enter valid numbers for a, b, and c.",
+        quadErrorInvalid: "Please enter valid numbers.",
         canvasErrorAZero: "a cannot be 0 — not a quadratic."
       },
       zh: {
@@ -976,7 +1020,35 @@
         markerXInt: "x截距",
         markerDoubleRoot: "重根",
         graphAnnotationDefault: "点击矩阵格子，图像会高亮该形式可直接读取的信息。",
-        graphParamsTitle: "二次函数示例",
+        graphParamsTitle: "当前表示参数",
+        paramSubtitle_qStandard: "标准式：y = ax² + bx + c",
+        paramSubtitle_qFactored: "因式分解式：y = a(x-r₁)(x-r₂)",
+        paramSubtitle_qVertex: "顶点式：y = a(x-h)² + k",
+        paramLabelR1: "r₁",
+        paramLabelR2: "r₂",
+        paramLabelH: "h",
+        paramLabelK: "k",
+        noRealRootLabel: "无实根",
+        noRealFactoredParamNote: "该二次函数没有实数因式分解形式。",
+        paramSubtitle_lSlope: "斜截式：y = mx + b",
+        paramSubtitle_lPoint: "点斜式：y - y₁ = m(x - x₁)",
+        paramSubtitle_lStandard: "标准式：Ax + By + C = 0",
+        paramLabelM: "m",
+        paramLabelB: "b",
+        paramLabelX1: "x₁",
+        paramLabelY1: "y₁",
+        paramLabelA: "A",
+        paramLabelBigB: "B",
+        paramLabelC: "C",
+        formLinearSlopeLabel: "斜截式",
+        formLinearPointLabel: "点斜式",
+        formLinearStandardLabel: "标准式",
+        noSlopeInterceptNote: "竖直线没有斜截式。",
+        noPointSlopeNote: "竖直线没有点斜式。",
+        linearErrorABZero: "A 和 B 不能同时为 0。",
+        linearErrorInvalid: "请输入有效数字。",
+        canvasErrorLinearInvalid: "直线无效，无法作图。",
+        naLabel: "不适用",
         btnUpdateGraph: "更新图像",
         btnResetGraph: "恢复默认",
         currentExampleTitle: "当前例子",
@@ -985,7 +1057,7 @@
         formFactoredLabel: "因式分解式",
         noRealFactored: "实数范围内无法写成因式分解式。",
         quadErrorAZero: "a 不能为 0，否则不是二次函数。",
-        quadErrorInvalid: "请在 a、b、c 中输入有效数字。",
+        quadErrorInvalid: "请输入有效数字。",
         canvasErrorAZero: "a 不能为 0，无法绘制二次函数图像。"
       }
     };
@@ -1512,11 +1584,14 @@
 
     const EPS = 1e-9;
     const DEFAULT_QUADRATIC = { a: 1, b: 0, c: -4 };
+    const DEFAULT_LINEAR = { mode: "normal", m: 2, b: -1, point: [1, 1], A: 2, B: -1, C: -1, xConst: null };
 
     const graphState = {
       mode: "quadratic",
       quadratic: { a: 1, b: 0, c: -4 },
-      linear: { m: 2, b: -1, point: [1, 1], A: 2, B: -1, C: -1 }
+      quadraticForm: "qVertex",
+      linear: { mode: "normal", m: 2, b: -1, point: [1, 1], A: 2, B: -1, C: -1, xConst: null },
+      linearForm: "lSlope"
     };
 
     function renderMatrix(targetId, matrixData) {
@@ -1635,8 +1710,13 @@
           document.getElementById("infoPanelText").innerHTML = buildInfoPanel(matrixKey, formId, infoKey);
 
           graphState.mode = matrixKey;
+          if (matrixKey === "quadratic") {
+            graphState.quadraticForm = formId;
+          } else {
+            graphState.linearForm = formId;
+          }
           updateGraphLabel(matrixKey, formId);
-          updateGraphParamsLabels();
+          renderParameterInputs();
           updateCurrentExampleForms();
           drawMainGraph();
           updateGraphAnnotationText(lastSelected);
@@ -1878,94 +1958,549 @@
       return "r≈" + fmt(g.roots[0]) + " (" + t.markerDoubleRoot + ")";
     }
 
-    function syncQuadraticInputs() {
-      document.getElementById("quadInputA").value = graphState.quadratic.a;
-      document.getElementById("quadInputB").value = graphState.quadratic.b;
-      document.getElementById("quadInputC").value = graphState.quadratic.c;
+    function getActiveQuadraticFormId() {
+      if (lastSelected && lastSelected.matrixKey === "quadratic") {
+        return lastSelected.formId;
+      }
+      return graphState.quadraticForm || "qVertex";
+    }
+
+    function getStandardParams() {
+      const { a, b, c } = graphState.quadratic;
+      return { a, b, c };
+    }
+
+    function getFactoredParams() {
+      const { a, b, c } = graphState.quadratic;
+      if (Math.abs(a) < EPS) {
+        return { a, r1: null, r2: null, hasRealRoots: false, isDouble: false };
+      }
+      const delta = b * b - 4 * a * c;
+      if (delta < -EPS) {
+        return { a, r1: null, r2: null, hasRealRoots: false, isDouble: false };
+      }
+      const sqrtD = Math.sqrt(Math.max(0, delta));
+      let r1 = (-b - sqrtD) / (2 * a);
+      let r2 = (-b + sqrtD) / (2 * a);
+      if (r1 > r2) {
+        const tmp = r1;
+        r1 = r2;
+        r2 = tmp;
+      }
+      return {
+        a,
+        r1,
+        r2,
+        hasRealRoots: true,
+        isDouble: Math.abs(delta) <= EPS
+      };
+    }
+
+    function getVertexParams() {
+      const g = getQuadraticFeatures();
+      if (!g.valid) {
+        return { a: graphState.quadratic.a, h: 0, k: graphState.quadratic.c };
+      }
+      return { a: g.a, h: g.h, k: g.k };
+    }
+
+    function abcFromFactored(a, r1, r2) {
+      return { a, b: -a * (r1 + r2), c: a * r1 * r2 };
+    }
+
+    function abcFromVertex(a, h, k) {
+      return { a, b: -2 * a * h, c: a * h * h + k };
+    }
+
+    function getActiveLinearFormId() {
+      if (lastSelected && lastSelected.matrixKey === "linear") {
+        return lastSelected.formId;
+      }
+      return graphState.linearForm || "lSlope";
+    }
+
+    function buildLinearSlopeInterceptText(m, b) {
+      if (Math.abs(m) < EPS) return "y = " + fmt(b);
+      let s = "y = ";
+      if (Math.abs(m - 1) < EPS) s += "x";
+      else if (Math.abs(m + 1) < EPS) s += "-x";
+      else s += fmt(m) + "x";
+      if (Math.abs(b) >= EPS) s += b > 0 ? " + " + fmt(b) : " - " + fmt(Math.abs(b));
+      return s;
+    }
+
+    function buildLinearPointSlopeText(m, x1, y1) {
+      const yPart = Math.abs(y1) < EPS ? "y" : (y1 > 0 ? "y - " + fmt(y1) : "y + " + fmt(Math.abs(y1)));
+      const xPart = Math.abs(x1) < EPS ? "x" : (x1 > 0 ? "x - " + fmt(x1) : "x + " + fmt(Math.abs(x1)));
+      return yPart + " = " + fmt(m) + "(" + xPart + ")";
+    }
+
+    function buildLinearStandardText(A, B, C) {
+      const term = (coeff, variable) => {
+        if (Math.abs(coeff) < EPS) return "";
+        const sign = coeff >= 0 ? " + " : " - ";
+        const abs = fmt(Math.abs(coeff));
+        if (!variable) return sign + abs;
+        if (Math.abs(coeff - 1) < EPS && variable) return sign + variable;
+        if (Math.abs(coeff + 1) < EPS && variable) return sign + variable;
+        return sign + abs + variable;
+      };
+      let s = "";
+      if (Math.abs(A) >= EPS) {
+        if (Math.abs(A - 1) < EPS) s = "x";
+        else if (Math.abs(A + 1) < EPS) s = "-x";
+        else s = fmt(A) + "x";
+      }
+      s += term(B, "y");
+      s += term(C, "");
+      if (s.startsWith(" + ")) s = s.slice(3);
+      if (s.startsWith(" - ")) s = "-" + s.slice(3);
+      if (!s) s = "0";
+      return s + " = 0";
+    }
+
+    function syncLinearFromNormal(m, b, point) {
+      const x1 = point ? point[0] : 1;
+      const y1 = point ? point[1] : m * x1 + b;
+      return {
+        mode: "normal",
+        m,
+        b,
+        point: [x1, y1],
+        A: m,
+        B: -1,
+        C: b,
+        xConst: null
+      };
+    }
+
+    function syncLinearFromVertical(A, B, C, xConst) {
+      return {
+        mode: "vertical",
+        m: null,
+        b: null,
+        point: [xConst, 0],
+        A,
+        B,
+        C,
+        xConst
+      };
+    }
+
+    function getLinearFeatures() {
+      const lin = graphState.linear;
+      if (lin.mode === "vertical") {
+        return {
+          valid: true,
+          isVertical: true,
+          xConst: lin.xConst,
+          A: lin.A,
+          B: lin.B,
+          C: lin.C,
+          m: null,
+          b: null,
+          point: [lin.xConst, 0],
+          slopeInterceptText: null,
+          pointSlopeText: null,
+          standardFormText: buildLinearStandardText(lin.A, lin.B, lin.C)
+        };
+      }
+      const { m, b, point, A, B, C } = lin;
+      if (!Number.isFinite(m) || !Number.isFinite(b) || !point) {
+        return { valid: false, error: "invalid" };
+      }
+      const xInt = Math.abs(A) >= EPS ? -C / A : null;
+      const yInt = Math.abs(B) >= EPS ? -C / B : b;
+      return {
+        valid: true,
+        isVertical: false,
+        m,
+        b,
+        point,
+        A,
+        B,
+        C,
+        xInt,
+        yInt,
+        slopeInterceptText: buildLinearSlopeInterceptText(m, b),
+        pointSlopeText: buildLinearPointSlopeText(m, point[0], point[1]),
+        standardFormText: buildLinearStandardText(A, B, C)
+      };
+    }
+
+    function getSlopeInterceptParams() {
+      const lf = getLinearFeatures();
+      if (!lf.valid) return { isVertical: false, m: graphState.linear.m, b: graphState.linear.b };
+      return { isVertical: lf.isVertical, m: lf.m, b: lf.b };
+    }
+
+    function getPointSlopeParams() {
+      const lf = getLinearFeatures();
+      if (!lf.valid || lf.isVertical) return { isVertical: true, m: null, x1: null, y1: null };
+      return { isVertical: false, m: lf.m, x1: lf.point[0], y1: lf.point[1] };
+    }
+
+    function getLinearStandardParams() {
+      const lf = getLinearFeatures();
+      if (!lf.valid) {
+        return { A: graphState.linear.A, B: graphState.linear.B, C: graphState.linear.C };
+      }
+      return { A: lf.A, B: lf.B, C: lf.C };
+    }
+
+    function linearFromStandard(A, B, C) {
+      if (Math.abs(A) < EPS && Math.abs(B) < EPS) {
+        return { valid: false, error: "abZero" };
+      }
+      if (Math.abs(B) <= EPS) {
+        if (Math.abs(A) < EPS) return { valid: false, error: "abZero" };
+        const xConst = -C / A;
+        return { valid: true, state: syncLinearFromVertical(A, B, C, xConst) };
+      }
+      const m = -A / B;
+      const b = -C / B;
+      return { valid: true, state: syncLinearFromNormal(m, b, [1, m + b]) };
+    }
+
+    function bindParamEnterKeys(mount) {
+      mount.querySelectorAll("input:not([disabled])").forEach(input => {
+        input.addEventListener("keydown", e => {
+          if (e.key === "Enter") applyGraphParams();
+        });
+      });
+    }
+
+    function renderParameterInputs() {
+      const t = i18n[currentLang];
+      const showParams = graphState.mode === "quadratic" || graphState.mode === "linear";
+      document.getElementById("graphParamsBlock").style.display = showParams ? "block" : "none";
+      document.getElementById("currentExampleForms").style.display = showParams ? "block" : "none";
+      if (!showParams) return;
+
+      document.getElementById("graphParamsTitle").textContent = t.graphParamsTitle;
+      document.getElementById("btnUpdateGraph").textContent = t.btnUpdateGraph;
+      document.getElementById("btnResetGraph").textContent = t.btnResetGraph;
+      document.getElementById("graphParamsFactoredNote").textContent = "";
+
+      const mount = document.getElementById("graphParamsFieldsMount");
+      if (graphState.mode === "quadratic") {
+        renderQuadraticParamFields(mount, t);
+      } else {
+        renderLinearParamFields(mount, t);
+      }
+    }
+
+    function renderQuadraticParamFields(mount, t) {
+      const formId = getActiveQuadraticFormId();
+      graphState.quadraticForm = formId;
+      document.getElementById("graphParamsSubtitle").textContent = t["paramSubtitle_" + formId] || "";
+      const aInput = (val) => `<label><span>a:</span> <input type="number" step="any" id="quadInputA" value="${val}" /></label>`;
+
+      if (formId === "qStandard") {
+        const p = getStandardParams();
+        mount.innerHTML =
+          aInput(fmt(p.a)) +
+          `<label><span>b:</span> <input type="number" step="any" id="quadInputB" value="${fmt(p.b)}" /></label>` +
+          `<label><span>c:</span> <input type="number" step="any" id="quadInputC" value="${fmt(p.c)}" /></label>`;
+      } else if (formId === "qFactored") {
+        const p = getFactoredParams();
+        if (!p.hasRealRoots) {
+          mount.innerHTML =
+            aInput(fmt(p.a)) +
+            `<label><span>${t.paramLabelR1}:</span> <input type="text" id="quadInputR1" value="${t.noRealRootLabel}" disabled /></label>` +
+            `<label><span>${t.paramLabelR2}:</span> <input type="text" id="quadInputR2" value="${t.noRealRootLabel}" disabled /></label>`;
+          document.getElementById("graphParamsFactoredNote").textContent = t.noRealFactoredParamNote;
+        } else {
+          mount.innerHTML =
+            aInput(fmt(p.a)) +
+            `<label><span>${t.paramLabelR1}:</span> <input type="number" step="any" id="quadInputR1" value="${fmt(p.r1)}" /></label>` +
+            `<label><span>${t.paramLabelR2}:</span> <input type="number" step="any" id="quadInputR2" value="${fmt(p.isDouble ? p.r1 : p.r2)}" /></label>`;
+        }
+      } else {
+        const p = getVertexParams();
+        mount.innerHTML =
+          aInput(fmt(p.a)) +
+          `<label><span>${t.paramLabelH}:</span> <input type="number" step="any" id="quadInputH" value="${fmt(p.h)}" /></label>` +
+          `<label><span>${t.paramLabelK}:</span> <input type="number" step="any" id="quadInputK" value="${fmt(p.k)}" /></label>`;
+      }
+      bindParamEnterKeys(mount);
+    }
+
+    function renderLinearParamFields(mount, t) {
+      const formId = getActiveLinearFormId();
+      graphState.linearForm = formId;
+      document.getElementById("graphParamsSubtitle").textContent = t["paramSubtitle_" + formId] || "";
+      const numInput = (label, id, val) =>
+        `<label><span>${label}:</span> <input type="number" step="any" id="${id}" value="${val}" /></label>`;
+      const disabledInput = (label, id, val) =>
+        `<label><span>${label}:</span> <input type="text" id="${id}" value="${val}" disabled /></label>`;
+
+      if (formId === "lSlope") {
+        const p = getSlopeInterceptParams();
+        if (p.isVertical) {
+          mount.innerHTML =
+            disabledInput(t.paramLabelM, "linInputM", t.naLabel) +
+            disabledInput(t.paramLabelB, "linInputB", t.naLabel);
+          document.getElementById("graphParamsFactoredNote").textContent = t.noSlopeInterceptNote;
+        } else {
+          mount.innerHTML =
+            numInput(t.paramLabelM, "linInputM", fmt(p.m)) +
+            numInput(t.paramLabelB, "linInputB", fmt(p.b));
+        }
+      } else if (formId === "lPoint") {
+        const p = getPointSlopeParams();
+        if (p.isVertical) {
+          mount.innerHTML =
+            disabledInput(t.paramLabelM, "linInputM", t.naLabel) +
+            disabledInput(t.paramLabelX1, "linInputX1", t.naLabel) +
+            disabledInput(t.paramLabelY1, "linInputY1", t.naLabel);
+          document.getElementById("graphParamsFactoredNote").textContent = t.noPointSlopeNote;
+        } else {
+          mount.innerHTML =
+            numInput(t.paramLabelM, "linInputM", fmt(p.m)) +
+            numInput(t.paramLabelX1, "linInputX1", fmt(p.x1)) +
+            numInput(t.paramLabelY1, "linInputY1", fmt(p.y1));
+        }
+      } else {
+        const p = getLinearStandardParams();
+        mount.innerHTML =
+          numInput(t.paramLabelA, "linInputA", fmt(p.A)) +
+          numInput(t.paramLabelBigB, "linInputBigB", fmt(p.B)) +
+          numInput(t.paramLabelC, "linInputC", fmt(p.C));
+      }
+      bindParamEnterKeys(mount);
     }
 
     function updateCurrentExampleForms() {
       const mount = document.getElementById("currentExampleForms");
       const t = i18n[currentLang];
-      if (graphState.mode !== "quadratic") {
-        mount.innerHTML = "";
+      if (graphState.mode === "quadratic") {
+        const g = getQuadraticFeatures();
+        if (!g.valid) {
+          mount.innerHTML = "<div class=\"example-form-cards\"><div class=\"example-form-card card-standard\"><div class=\"efc-title\">" + t.formStandardLabel + "</div><div class=\"efc-expr\">" + (g.error === "aZero" ? t.quadErrorAZero : t.quadErrorInvalid) + "</div></div></div>";
+          return;
+        }
+        mount.innerHTML = `
+          <div class="example-form-cards">
+            <div class="example-form-card card-standard">
+              <div class="efc-title">${t.formStandardLabel}</div>
+              <div class="efc-expr">${g.standardFormText}</div>
+            </div>
+            <div class="example-form-card card-vertex">
+              <div class="efc-title">${t.formVertexLabel}</div>
+              <div class="efc-expr">${g.vertexFormText}</div>
+            </div>
+            <div class="example-form-card card-factored">
+              <div class="efc-title">${t.formFactoredLabel}</div>
+              <div class="efc-expr">${g.factoredFormText}</div>
+            </div>
+          </div>
+        `;
         return;
       }
-      const g = getQuadraticFeatures();
-      if (!g.valid) {
-        mount.innerHTML = "<div class=\"example-form-cards\"><div class=\"example-form-card card-standard\"><div class=\"efc-title\">" + t.formStandardLabel + "</div><div class=\"efc-expr\">" + (g.error === "aZero" ? t.quadErrorAZero : t.quadErrorInvalid) + "</div></div></div>";
+      if (graphState.mode === "linear") {
+        const lf = getLinearFeatures();
+        if (!lf.valid) {
+          mount.innerHTML = "<div class=\"example-form-cards\"><div class=\"example-form-card card-standard\"><div class=\"efc-title\">" + t.formLinearStandardLabel + "</div><div class=\"efc-expr\">" + t.linearErrorInvalid + "</div></div></div>";
+          return;
+        }
+        const slopeText = lf.isVertical ? t.noSlopeInterceptNote : lf.slopeInterceptText;
+        const pointText = lf.isVertical ? t.noPointSlopeNote : lf.pointSlopeText;
+        mount.innerHTML = `
+          <div class="example-form-cards">
+            <div class="example-form-card card-standard">
+              <div class="efc-title">${t.formLinearSlopeLabel}</div>
+              <div class="efc-expr">${slopeText}</div>
+            </div>
+            <div class="example-form-card card-vertex">
+              <div class="efc-title">${t.formLinearPointLabel}</div>
+              <div class="efc-expr">${pointText}</div>
+            </div>
+            <div class="example-form-card card-factored">
+              <div class="efc-title">${t.formLinearStandardLabel}</div>
+              <div class="efc-expr">${lf.standardFormText}</div>
+            </div>
+          </div>
+        `;
         return;
       }
-      mount.innerHTML = `
-        <div class="example-form-cards">
-          <div class="example-form-card card-standard">
-            <div class="efc-title">${t.formStandardLabel}</div>
-            <div class="efc-expr">${g.standardFormText}</div>
-          </div>
-          <div class="example-form-card card-vertex">
-            <div class="efc-title">${t.formVertexLabel}</div>
-            <div class="efc-expr">${g.vertexFormText}</div>
-          </div>
-          <div class="example-form-card card-factored">
-            <div class="efc-title">${t.formFactoredLabel}</div>
-            <div class="efc-expr">${g.factoredFormText}</div>
-          </div>
-        </div>
-      `;
-    }
-
-    function updateGraphParamsLabels() {
-      const t = i18n[currentLang];
-      document.getElementById("graphParamsTitle").textContent = t.graphParamsTitle;
-      document.getElementById("btnUpdateGraph").textContent = t.btnUpdateGraph;
-      document.getElementById("btnResetGraph").textContent = t.btnResetGraph;
-      const showParams = graphState.mode === "quadratic";
-      document.getElementById("graphParamsBlock").style.display = showParams ? "block" : "none";
-      document.getElementById("currentExampleForms").style.display = showParams ? "block" : "none";
+      mount.innerHTML = "";
     }
 
     function applyQuadraticParams() {
       const t = i18n[currentLang];
       const errEl = document.getElementById("graphParamError");
-      const a = Number(document.getElementById("quadInputA").value);
-      const b = Number(document.getElementById("quadInputB").value);
-      const c = Number(document.getElementById("quadInputC").value);
-      if (!Number.isFinite(a) || !Number.isFinite(b) || !Number.isFinite(c)) {
+      const formId = getActiveQuadraticFormId();
+      const aEl = document.getElementById("quadInputA");
+      if (!aEl) return;
+      const a = Number(aEl.value);
+      let next = null;
+
+      if (!Number.isFinite(a)) {
         errEl.textContent = t.quadErrorInvalid;
         return;
       }
-      if (Math.abs(a) < EPS) {
+
+      if (formId === "qStandard") {
+        const b = Number(document.getElementById("quadInputB").value);
+        const c = Number(document.getElementById("quadInputC").value);
+        if (!Number.isFinite(b) || !Number.isFinite(c)) {
+          errEl.textContent = t.quadErrorInvalid;
+          return;
+        }
+        next = { a, b, c };
+      } else if (formId === "qFactored") {
+        const fp = getFactoredParams();
+        if (!fp.hasRealRoots) {
+          next = { a, b: graphState.quadratic.b, c: graphState.quadratic.c };
+        } else {
+          const r1 = Number(document.getElementById("quadInputR1").value);
+          const r2 = Number(document.getElementById("quadInputR2").value);
+          if (!Number.isFinite(r1) || !Number.isFinite(r2)) {
+            errEl.textContent = t.quadErrorInvalid;
+            return;
+          }
+          next = abcFromFactored(a, r1, r2);
+        }
+      } else {
+        const h = Number(document.getElementById("quadInputH").value);
+        const k = Number(document.getElementById("quadInputK").value);
+        if (!Number.isFinite(h) || !Number.isFinite(k)) {
+          errEl.textContent = t.quadErrorInvalid;
+          return;
+        }
+        next = abcFromVertex(a, h, k);
+      }
+
+      if (Math.abs(next.a) < EPS) {
         errEl.textContent = t.quadErrorAZero;
-        graphState.quadratic = { a, b, c };
+        graphState.quadratic = next;
         updateCurrentExampleForms();
+        renderParameterInputs();
         drawMainGraph();
         updateGraphAnnotationText(lastSelected);
         return;
       }
+
       errEl.textContent = "";
-      graphState.quadratic = { a, b, c };
+      graphState.quadratic = next;
       updateCurrentExampleForms();
+      renderParameterInputs();
       drawMainGraph();
       updateGraphAnnotationText(lastSelected);
     }
 
-    function resetQuadraticParams() {
-      graphState.quadratic = { ...DEFAULT_QUADRATIC };
-      document.getElementById("graphParamError").textContent = "";
-      syncQuadraticInputs();
+    function applyLinearParams() {
+      const t = i18n[currentLang];
+      const errEl = document.getElementById("graphParamError");
+      const formId = getActiveLinearFormId();
+      let next = null;
+
+      if (formId === "lSlope") {
+        const p = getSlopeInterceptParams();
+        if (p.isVertical) {
+          errEl.textContent = "";
+          return;
+        }
+        const m = Number(document.getElementById("linInputM").value);
+        const b = Number(document.getElementById("linInputB").value);
+        if (!Number.isFinite(m) || !Number.isFinite(b)) {
+          errEl.textContent = t.linearErrorInvalid;
+          return;
+        }
+        next = syncLinearFromNormal(m, b, [1, m + b]);
+      } else if (formId === "lPoint") {
+        const p = getPointSlopeParams();
+        if (p.isVertical) {
+          errEl.textContent = "";
+          return;
+        }
+        const m = Number(document.getElementById("linInputM").value);
+        const x1 = Number(document.getElementById("linInputX1").value);
+        const y1 = Number(document.getElementById("linInputY1").value);
+        if (!Number.isFinite(m) || !Number.isFinite(x1) || !Number.isFinite(y1)) {
+          errEl.textContent = t.linearErrorInvalid;
+          return;
+        }
+        const b = y1 - m * x1;
+        next = syncLinearFromNormal(m, b, [x1, y1]);
+      } else {
+        const A = Number(document.getElementById("linInputA").value);
+        const B = Number(document.getElementById("linInputBigB").value);
+        const C = Number(document.getElementById("linInputC").value);
+        if (!Number.isFinite(A) || !Number.isFinite(B) || !Number.isFinite(C)) {
+          errEl.textContent = t.linearErrorInvalid;
+          return;
+        }
+        const converted = linearFromStandard(A, B, C);
+        if (!converted.valid) {
+          errEl.textContent = converted.error === "abZero" ? t.linearErrorABZero : t.linearErrorInvalid;
+          return;
+        }
+        next = converted.state;
+      }
+
+      errEl.textContent = "";
+      graphState.linear = next;
       updateCurrentExampleForms();
+      renderParameterInputs();
+      drawMainGraph();
+      updateGraphAnnotationText(lastSelected);
+    }
+
+    function applyGraphParams() {
+      if (graphState.mode === "quadratic") applyQuadraticParams();
+      else if (graphState.mode === "linear") applyLinearParams();
+    }
+
+    function resetGraphParams() {
+      const t = i18n[currentLang];
+      document.getElementById("graphParamError").textContent = "";
+      document.getElementById("graphParamsFactoredNote").textContent = "";
+      if (graphState.mode === "quadratic") {
+        graphState.quadratic = { ...DEFAULT_QUADRATIC };
+      } else if (graphState.mode === "linear") {
+        graphState.linear = { ...DEFAULT_LINEAR };
+      }
+      updateCurrentExampleForms();
+      renderParameterInputs();
       drawMainGraph();
       updateGraphAnnotationText(lastSelected);
     }
 
     function bindGraphParamControls() {
-      document.getElementById("btnUpdateGraph").addEventListener("click", applyQuadraticParams);
-      document.getElementById("btnResetGraph").addEventListener("click", resetQuadraticParams);
-      ["quadInputA", "quadInputB", "quadInputC"].forEach(id => {
-        document.getElementById(id).addEventListener("keydown", e => {
-          if (e.key === "Enter") applyQuadraticParams();
-        });
-      });
+      document.getElementById("btnUpdateGraph").addEventListener("click", applyGraphParams);
+      document.getElementById("btnResetGraph").addEventListener("click", resetGraphParams);
+    }
+
+    function getQuadraticAnnotationStrength(formId, targetInfo, infoKey) {
+      let strength = getAnnotationStrength("quadratic", formId, targetInfo, infoKey);
+      const formBoost = {
+        qStandard: ["yint", "opening"],
+        qFactored: ["xint"],
+        qVertex: ["vertex", "axis", "extreme"]
+      }[formId] || [];
+      if (formBoost.includes(targetInfo)) {
+        const level = getCellLevel("quadratic", formId, targetInfo);
+        if (targetInfo === infoKey) return "focus";
+        if (level === "direct") return "direct";
+      }
+      return strength;
+    }
+
+    function getLinearAnnotationStrength(formId, targetInfo, infoKey) {
+      let strength = getAnnotationStrength("linear", formId, targetInfo, infoKey);
+      const formBoost = {
+        lSlope: ["slope", "yint"],
+        lPoint: ["knownPoint", "slope"],
+        lStandard: ["graphing", "yint"]
+      }[formId] || [];
+      if (formBoost.includes(targetInfo)) {
+        const level = getCellLevel("linear", formId, targetInfo);
+        if (targetInfo === infoKey) return "focus";
+        if (level === "direct") return "direct";
+      }
+      return strength;
     }
 
     function getCellLevel(matrixKey, formId, infoKey) {
@@ -2014,7 +2549,11 @@
       const { matrixKey, formId, infoKey } = selection;
       const t = i18n[currentLang];
       const annotations = [];
-      const s = (target) => getAnnotationStrength(matrixKey, formId, target, infoKey);
+      const s = (target) => {
+        if (matrixKey === "quadratic") return getQuadraticAnnotationStrength(formId, target, infoKey);
+        if (matrixKey === "linear") return getLinearAnnotationStrength(formId, target, infoKey);
+        return getAnnotationStrength(matrixKey, formId, target, infoKey);
+      };
 
       if (matrixKey === "quadratic") {
         const g = getQuadraticFeatures();
@@ -2060,12 +2599,25 @@
           annotations.push({ type: "verticalLine", x: g.h, label: labelAxis(g), strength: s("transform"), target: "transform" });
         }
       } else {
-        const { m, b, point, A, B, C } = graphState.linear;
+        const lf = getLinearFeatures();
+        if (!lf.valid) return annotations;
+
+        if (lf.isVertical) {
+          const vx = lf.xConst;
+          const vLabel = "x=" + fmt(vx);
+          const vStrength = s("graphing") || s("yint") || (formId === "lStandard" ? "direct" : null);
+          if (vStrength) {
+            annotations.push({ type: "verticalLine", x: vx, label: vLabel, strength: vStrength, target: "graphing" });
+          }
+          return annotations;
+        }
+
+        const { m, b, point } = lf;
         const x1 = point[0];
         const y1 = point[1];
 
         if (formId === "lSlope") {
-          if (s("yint")) pushPoint(annotations, 0, b, t.markerYInt, s("yint"), "yint");
+          if (s("yint")) pushPoint(annotations, 0, b, t.markerYInt + " (0," + fmt(b) + ")", s("yint"), "yint");
           if (s("slope") || s("graphing")) {
             annotations.push({ type: "slopeTriangle", x0: 0, y0: b, m, strength: s("slope") || s("graphing"), target: "slope" });
           }
@@ -2075,28 +2627,30 @@
         }
 
         if (formId === "lPoint") {
-          if (s("knownPoint")) pushPoint(annotations, x1, y1, t.markerKnownPoint, s("knownPoint"), "knownPoint");
+          if (s("knownPoint")) pushPoint(annotations, x1, y1, t.markerKnownPoint + " (" + fmt(x1) + "," + fmt(y1) + ")", s("knownPoint"), "knownPoint");
           if (s("slope") || s("graphing")) {
             annotations.push({ type: "slopeTriangle", x0: x1, y0: y1, m, strength: s("slope") || s("graphing"), target: "slope" });
           }
           if (s("yint")) {
             const yInt = y1 - m * x1;
-            pushPoint(annotations, 0, yInt, t.markerYInt, s("yint"), "yint");
+            pushPoint(annotations, 0, yInt, t.markerYInt + " (0," + fmt(yInt) + ")", s("yint"), "yint");
           }
         }
 
         if (formId === "lStandard") {
-          const yInt = B !== 0 ? -C / B : null;
-          const xInt = A !== 0 ? -C / A : null;
-          if (s("yint") && yInt !== null) pushPoint(annotations, 0, yInt, t.markerYInt, s("yint"), "yint");
-          if ((s("graphing") || s("knownPoint")) && xInt !== null) {
-            pushPoint(annotations, xInt, 0, t.markerXInt, s("graphing") || s("knownPoint"), "graphing");
+          const yInt = lf.yInt;
+          const xInt = lf.xInt;
+          if (s("yint") && yInt !== null && Number.isFinite(yInt)) {
+            pushPoint(annotations, 0, yInt, t.markerYInt + " (0," + fmt(yInt) + ")", s("yint"), "yint");
           }
-          if (s("graphing") && yInt !== null && xInt !== null) {
+          if ((s("graphing") || s("knownPoint")) && xInt !== null && Number.isFinite(xInt)) {
+            pushPoint(annotations, xInt, 0, t.markerXInt + " (" + fmt(xInt) + ",0)", s("graphing") || s("knownPoint"), "graphing");
+          }
+          if (s("graphing") && yInt !== null && xInt !== null && Number.isFinite(yInt) && Number.isFinite(xInt)) {
             annotations.push({ type: "interceptLine", xInt, yInt, strength: s("graphing"), target: "graphing" });
           }
-          if (s("slope") && B !== 0) {
-            annotations.push({ type: "slopeTriangle", x0: 0, y0: yInt, m: -A / B, strength: s("slope"), target: "slope" });
+          if (s("slope")) {
+            annotations.push({ type: "slopeTriangle", x0: 0, y0: yInt, m: lf.m, strength: s("slope"), target: "slope" });
           }
         }
       }
@@ -2268,25 +2822,84 @@
             ? "顶点式 y=a(x-h)²+k 直接显示平移：h≈" + fmt(g.h) + "，k≈" + fmt(g.k) + "，a=" + fmt(g.a) + "。"
             : "Vertex form y=a(x-h)²+k shows transformations directly: h≈" + fmt(g.h) + ", k≈" + fmt(g.k) + ", a=" + fmt(g.a) + ".";
         }
+
+        if (selection.formId === "qStandard") {
+          return isZH
+            ? "标准式参数 a,b,c：重点可看 y 截距 c=" + fmt(g.c) + " 与开口方向（a=" + fmt(g.a) + "，" + g.openingText + "）。"
+            : "Standard form parameters a,b,c: focus on y-intercept c=" + fmt(g.c) + " and opening (a=" + fmt(g.a) + ", " + g.openingText + ").";
+        }
+        if (selection.formId === "qFactored") {
+          if (g.noRealRoots) return t.noRealFactoredParamNote;
+          if (g.hasDoubleRoot) {
+            return isZH
+              ? "因式分解式参数 a,r₁,r₂：根 r≈" + fmt(g.roots[0]) + " 是 x 轴交点（重根）。"
+              : "Factored form parameters a,r₁,r₂: root r≈" + fmt(g.roots[0]) + " is the x-intercept (double root).";
+          }
+          return isZH
+            ? "因式分解式参数 a,r₁,r₂：根 r₁≈" + fmt(g.roots[0]) + "、r₂≈" + fmt(g.roots[1]) + " 即 x 轴交点。"
+            : "Factored form parameters a,r₁,r₂: roots r₁≈" + fmt(g.roots[0]) + " and r₂≈" + fmt(g.roots[1]) + " are the x-intercepts.";
+        }
+        if (selection.formId === "qVertex") {
+          const kind = g.a > 0 ? (isZH ? "最小值" : "minimum") : (isZH ? "最大值" : "maximum");
+          return isZH
+            ? "顶点式参数 a,h,k：顶点 (" + fmt(g.h) + "," + fmt(g.k) + ")，对称轴 x=" + fmt(g.h) + "，极值 k≈" + fmt(g.k) + "（" + kind + "）。"
+            : "Vertex form parameters a,h,k: vertex (" + fmt(g.h) + "," + fmt(g.k) + "), axis x=" + fmt(g.h) + ", extremum k≈" + fmt(g.k) + " (" + kind + ").";
+        }
       }
 
       if (selection.matrixKey === "linear") {
+        const lf = getLinearFeatures();
         const linKey = selection.formId + "|" + selection.infoKey;
-        if (linKey === "lSlope|slope") {
+
+        if (linKey === "lSlope|slope" && !lf.isVertical) {
           return isZH
-            ? "斜截式可直接读斜率 m=" + fmt(graphState.linear.m) + "；rise/run 表示 x 增加 1 时 y 的变化。"
-            : "Slope-intercept form exposes slope m=" + fmt(graphState.linear.m) + " directly; rise/run shows the change when x increases by 1.";
+            ? "斜截式直接暴露斜率：m=" + fmt(lf.m) + "。升跑三角表示 run=1 时 rise=" + fmt(lf.m) + "。"
+            : "Slope-intercept form exposes the slope directly: m=" + fmt(lf.m) + ". The rise/run triangle shows rise=" + fmt(lf.m) + " for run=1.";
         }
-        if (linKey === "lPoint|knownPoint") {
-          const p = graphState.linear.point;
+        if (linKey === "lSlope|yint" && !lf.isVertical) {
           return isZH
-            ? "点斜式直接给出已知点 (x₁,y₁)=(" + fmt(p[0]) + "," + fmt(p[1]) + ")。"
-            : "Point-slope form exposes the known point (x₁,y₁)=(" + fmt(p[0]) + "," + fmt(p[1]) + ") directly.";
+            ? "斜截式直接暴露 y 截距：(0,b)=(" + fmt(0) + "," + fmt(lf.b) + ")。"
+            : "Slope-intercept form exposes the y-intercept directly: (0,b)=(" + fmt(0) + "," + fmt(lf.b) + ").";
         }
-        if (linKey === "lStandard|graphing" || linKey === "lStandard|yint") {
+        if (linKey === "lPoint|knownPoint" && !lf.isVertical) {
+          const p = lf.point;
           return isZH
-            ? "标准式适合截距作图：先标 x、y 截距，再连线。"
-            : "Standard form is best for intercept graphing: plot x-intercept and y-intercept, then connect.";
+            ? "点斜式直接暴露一个已知点：(x₁,y₁)=(" + fmt(p[0]) + "," + fmt(p[1]) + ")。"
+            : "Point-slope form exposes a point directly: (x₁,y₁)=(" + fmt(p[0]) + "," + fmt(p[1]) + ").";
+        }
+        if ((linKey === "lStandard|graphing" || linKey === "lStandard|yint") && !lf.isVertical) {
+          return isZH
+            ? "标准式适合截距作图：令 x=0 得 y 截距，令 y=0 得 x 截距。"
+            : "Standard form is convenient for intercept graphing: set x=0 for y-intercept and y=0 for x-intercept.";
+        }
+        if (lf.isVertical && selection.formId === "lStandard") {
+          return isZH
+            ? "竖直线 x=" + fmt(lf.xConst) + "；标准式 Ax+By+C=0 在 B=0 时表示 x 为常数。"
+            : "Vertical line x=" + fmt(lf.xConst) + "; standard form Ax+By+C=0 with B=0 gives constant x.";
+        }
+
+        if (selection.formId === "lSlope") {
+          if (lf.isVertical) return t.noSlopeInterceptNote;
+          return isZH
+            ? "斜截式参数 m,b：斜率 m=" + fmt(lf.m) + "，y 截距 (0," + fmt(lf.b) + ")。"
+            : "Slope-intercept parameters m,b: slope m=" + fmt(lf.m) + ", y-intercept (0," + fmt(lf.b) + ").";
+        }
+        if (selection.formId === "lPoint") {
+          if (lf.isVertical) return t.noPointSlopeNote;
+          const p = lf.point;
+          return isZH
+            ? "点斜式参数 m,x₁,y₁：已知点 (" + fmt(p[0]) + "," + fmt(p[1]) + ")，斜率 m=" + fmt(lf.m) + "。"
+            : "Point-slope parameters m,x₁,y₁: known point (" + fmt(p[0]) + "," + fmt(p[1]) + "), slope m=" + fmt(lf.m) + ".";
+        }
+        if (selection.formId === "lStandard") {
+          if (lf.isVertical) {
+            return isZH
+              ? "标准式参数 A,B,C：竖直线 x=" + fmt(lf.xConst) + "（B=0）。"
+              : "Standard parameters A,B,C: vertical line x=" + fmt(lf.xConst) + " (B=0).";
+          }
+          return isZH
+            ? "标准式参数 A,B,C：x 截距≈" + fmt(lf.xInt) + "，y 截距≈" + fmt(lf.yInt) + "，等价于 y=" + fmt(lf.m) + "x" + (lf.b >= 0 ? "+" : "") + fmt(lf.b) + "。"
+            : "Standard parameters A,B,C: x-int≈" + fmt(lf.xInt) + ", y-int≈" + fmt(lf.yInt) + ", equivalent to y=" + fmt(lf.m) + "x" + (lf.b >= 0 ? "+" : "") + fmt(lf.b) + ".";
         }
       }
 
@@ -2350,14 +2963,29 @@
         }
         ctx.stroke();
       } else {
-        const { m, b } = graphState.linear;
+        const lf = getLinearFeatures();
+        if (!lf.valid) {
+          ctx.fillStyle = "#6b7280";
+          ctx.font = "13px Segoe UI";
+          ctx.textAlign = "center";
+          ctx.fillText(i18n[currentLang].canvasErrorLinearInvalid, w / 2, h / 2);
+          ctx.textAlign = "left";
+          return;
+        }
         ctx.strokeStyle = "#111827";
         ctx.lineWidth = 2;
         ctx.beginPath();
-        const x1 = -12, y1 = m * x1 + b;
-        const x2 = 12, y2 = m * x2 + b;
-        ctx.moveTo(toCanvasX(x1, w), toCanvasY(y1, h));
-        ctx.lineTo(toCanvasX(x2, w), toCanvasY(y2, h));
+        if (lf.isVertical) {
+          const px = toCanvasX(lf.xConst, w);
+          ctx.moveTo(px, 0);
+          ctx.lineTo(px, h);
+        } else {
+          const { m, b } = lf;
+          const x1 = -12, y1 = m * x1 + b;
+          const x2 = 12, y2 = m * x2 + b;
+          ctx.moveTo(toCanvasX(x1, w), toCanvasY(y1, h));
+          ctx.lineTo(toCanvasX(x2, w), toCanvasY(y2, h));
+        }
         ctx.stroke();
       }
 
@@ -2421,7 +3049,7 @@
       document.getElementById("discNegText").innerHTML = t.discNegText + '<canvas id="discNeg" class="disc-canvas" width="190" height="90"></canvas>';
       document.getElementById("btnEN").classList.toggle("active", currentLang === "en");
       document.getElementById("btnZH").classList.toggle("active", currentLang === "zh");
-      updateGraphParamsLabels();
+      renderParameterInputs();
       updateCurrentExampleForms();
     }
 
@@ -2577,7 +3205,6 @@
         drawMainGraph();
       });
       bindGraphParamControls();
-      syncQuadraticInputs();
       document.getElementById("btnEN").addEventListener("click", () => switchLang("en"));
       document.getElementById("btnZH").addEventListener("click", () => switchLang("zh"));
       switchLang("en");
