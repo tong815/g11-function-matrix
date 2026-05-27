@@ -1,5 +1,6 @@
 export const transformationRules = [
   {
+    topic: "quadratic",
     id: "std_to_fact",
     from: "Standard",
     to: "Factored",
@@ -8,6 +9,7 @@ export const transformationRules = [
     text: "Standard -> Factored\n\n1) Set y=0\n2) Factor ax²+bx+c\n3) Rewrite as a(x-r₁)(x-r₂)\n\nExample:\ny = x² - 5x + 6\n= (x-2)(x-3)"
   },
   {
+    topic: "quadratic",
     id: "fact_to_std",
     from: "Factored",
     to: "Standard",
@@ -16,6 +18,7 @@ export const transformationRules = [
     text: "Factored -> Standard\n\n1) Expand product\n2) Collect like terms\n3) Keep as ax²+bx+c\n\nExample:\ny=(x-2)(x-3)=x²-5x+6"
   },
   {
+    topic: "quadratic",
     id: "std_to_vertex",
     from: "Standard",
     to: "Vertex",
@@ -24,6 +27,7 @@ export const transformationRules = [
     text: "Standard -> Vertex\n\n1) Factor a from x-terms\n2) Complete square inside bracket\n3) Balance constants\n\nExample:\ny=x²-4x+1=(x-2)²-3"
   },
   {
+    topic: "quadratic",
     id: "vertex_to_std",
     from: "Vertex",
     to: "Standard",
@@ -32,6 +36,7 @@ export const transformationRules = [
     text: "Vertex -> Standard\n\n1) Expand (x-h)²\n2) Multiply by a\n3) Add k\n\nExample:\ny=(x-2)²-3=x²-4x+1"
   },
   {
+    topic: "quadratic",
     id: "fact_to_vertex",
     from: "Factored",
     to: "Vertex",
@@ -40,6 +45,7 @@ export const transformationRules = [
     text: "Factored -> Vertex\n\n1) Read roots r₁,r₂\n2) Axis h=(r₁+r₂)/2\n3) Substitute h into function to get k\n\nExample:\ny=(x-1)(x-5), h=3, k=-4\n=> y=(x-3)²-4"
   },
   {
+    topic: "quadratic",
     id: "vertex_to_fact",
     from: "Vertex",
     to: "Factored",
@@ -48,6 +54,7 @@ export const transformationRules = [
     text: "Vertex -> Factored\n\n1) Set y=0\n2) Solve a(x-h)²+k=0\n3) Rewrite by roots\n\nExample:\ny=(x-2)²-4=(x-4)(x)"
   },
   {
+    topic: "linear",
     id: "lin_slope_to_point",
     from: "Slope-Intercept",
     to: "Point-Slope",
@@ -56,6 +63,7 @@ export const transformationRules = [
     text: "Slope-Intercept -> Point-Slope\n\n1) Pick a point on the line\n2) Keep slope m\n3) Write y-y₁=m(x-x₁)"
   },
   {
+    topic: "linear",
     id: "lin_point_to_standard",
     from: "Point-Slope",
     to: "Standard",
@@ -64,6 +72,7 @@ export const transformationRules = [
     text: "Point-Slope -> Standard\n\n1) Expand right side\n2) Move all terms to one side\n3) Write Ax+By+C=0"
   },
   {
+    topic: "linear",
     id: "lin_standard_to_slope",
     from: "Standard",
     to: "Slope-Intercept",

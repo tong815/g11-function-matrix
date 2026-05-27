@@ -2,9 +2,6 @@
 // py -m http.server 8000  then open http://localhost:8000
 import { i18n } from "./data/i18n.js";
 import { LevelClass, quadraticMatrix, linearMatrix } from "./data/matrices.js";
-import { detailLibrary } from "./data/details.js";
-import { formulaCards, problemRouterData } from "./data/formulas.js";
-import { flowContent } from "./data/transformationRules.js";
 import { topicRegistry, topicOrder } from "./data/topicRegistry.js";
 import { detectDeviceMode, createGraphHandlers } from "./render/graphRenderer.js";
 import { createControlsHandlers } from "./render/controlsRenderer.js";
@@ -31,11 +28,6 @@ const getLang = () => currentLang;
 const getLastSelected = () => lastSelected;
 const getCurrentTopic = () => topicRegistry[currentTopicId];
 
-const topicDefaults = {
-  quadratic: { matrixKey: "quadratic", formId: "qVertex", infoKey: "vertex", flowRuleId: "std_to_fact" },
-  linear: { matrixKey: "linear", formId: "lSlope", infoKey: "slope", flowRuleId: "lin_slope_to_point" }
-};
-
 const graphHandlers = createGraphHandlers({
   graphState,
   getLang,
@@ -61,6 +53,9 @@ function pill(level) {
 }
 
 function panel(matrixKey, formId, infoKey) {
+  const topic = getCurrentTopic();
+  const detailsNamespace = topic.details?.namespace || matrixKey;
+  const detailsLibrary = topic.details?.library || {};
   return buildInfoPanel({
     matrixKey,
     formId,
@@ -70,7 +65,7 @@ function panel(matrixKey, formId, infoKey) {
     quadraticMatrix,
     linearMatrix,
     readableLevel: (level) => readableLevel(level, i18n, currentLang),
-    getDetail: (mk, fid, ik) => getDetail(mk, fid, ik, detailLibrary, currentLang)
+    getDetail: (_mk, fid, ik) => getDetail(detailsNamespace, fid, ik, detailsLibrary, currentLang)
   });
 }
 
@@ -119,10 +114,11 @@ function renderTopicSelector() {
       const nextTopicId = btn.dataset.topic;
       if (nextTopicId === currentTopicId) return;
       currentTopicId = nextTopicId;
-      const defaults = topicDefaults[currentTopicId];
-      graphState.mode = defaults.matrixKey;
-      lastSelected = { matrixKey: defaults.matrixKey, formId: defaults.formId, infoKey: defaults.infoKey };
-      lastFlowRuleId = defaults.flowRuleId;
+      const topic = getCurrentTopic();
+      const defaults = topic.graph.defaultSelection;
+      graphState.mode = topic.graph.type;
+      lastSelected = { ...defaults };
+      lastFlowRuleId = topic.transformations.defaultFlowRuleId;
       switchLang(currentLang);
     });
   });
@@ -132,15 +128,17 @@ function applyTopicVisibility() {
   const topic = getCurrentTopic();
   const sameGeo = document.querySelector(".block-same-geo");
   const disc = document.querySelector(".block-disc");
-  if (sameGeo) sameGeo.style.display = topic.showSameGeometry ? "block" : "none";
-  if (disc) disc.style.display = topic.showDiscriminant ? "block" : "none";
+  if (sameGeo) sameGeo.style.display = topic.visibility.showSameGeometry ? "block" : "none";
+  if (disc) disc.style.display = topic.visibility.showDiscriminant ? "block" : "none";
 }
 
 function onFlowRuleClick(ruleId) {
   lastFlowRuleId = ruleId;
+  const topic = getCurrentTopic();
+  const topicFlowContent = topic.transformations.flowContent;
   const flowEl = document.getElementById("flowText");
-  if (flowContent[ruleId]) {
-    flowEl.innerHTML = renderFlowHtml({ ruleId, flowContent, currentLang });
+  if (topicFlowContent[ruleId]) {
+    flowEl.innerHTML = renderFlowHtml({ ruleId, flowContent: topicFlowContent, currentLang });
   } else {
     flowEl.textContent = i18n[currentLang].flowDefault;
   }
@@ -186,6 +184,7 @@ function switchLang(lang) {
   currentLang = lang;
   const topic = getCurrentTopic();
   const t = i18n[currentLang];
+  const topicFlowContent = topic.transformations.flowContent;
   localizeStaticText();
   renderTopicSelector();
   applyTopicVisibility();
@@ -193,19 +192,30 @@ function switchLang(lang) {
   document.getElementById("matrixNote").textContent = t[topic.matrixNoteKey];
   renderMatrix({ targetId: "matrixMount", matrixData: topic.matrix, i18n, currentLang, LevelClass, statusPill: pill });
   bindMatrixClicks();
-  renderNetwork({ mountId: "networkMount", i18n, currentLang, onRuleClick: onFlowRuleClick, topic });
-  renderCards({ mountId: "cardsMount", i18n, currentLang, formulaCards, topic });
-  renderProblemRouter({ mountId: "problemRouterMount", i18n, currentLang, problemRouterData, topic });
+  renderNetwork({ mountId: "networkMount", i18n, currentLang, onRuleClick: onFlowRuleClick, transformations: topic.transformations });
+  renderCards({
+    mountId: "cardsMount",
+    i18n,
+    currentLang,
+    formulas: topic.formulas,
+    title: t[topic.formulasTitleKey]
+  });
+  renderProblemRouter({
+    mountId: "problemRouterMount",
+    i18n,
+    currentLang,
+    router: topic.router,
+    title: t[topic.routerTitleKey]
+  });
   if (lastSelected) {
     document.getElementById("infoPanelText").innerHTML = panel(lastSelected.matrixKey, lastSelected.formId, lastSelected.infoKey);
     graphHandlers.updateGraphLabel(lastSelected.matrixKey, lastSelected.formId);
   } else {
     document.getElementById("infoPanelText").textContent = i18n[currentLang].infoPanelDefault;
-    const defaults = topicDefaults[currentTopicId];
-    graphHandlers.updateGraphLabel(defaults.matrixKey, defaults.formId);
+    graphHandlers.updateGraphLabel(topic.graph.defaultSelection.matrixKey, topic.graph.defaultSelection.formId);
   }
-  if (flowContent[lastFlowRuleId]) {
-    document.getElementById("flowText").innerHTML = renderFlowHtml({ ruleId: lastFlowRuleId, flowContent, currentLang });
+  if (topicFlowContent[lastFlowRuleId]) {
+    document.getElementById("flowText").innerHTML = renderFlowHtml({ ruleId: lastFlowRuleId, flowContent: topicFlowContent, currentLang });
   } else {
     document.getElementById("flowText").textContent = currentTopicId === "linear" ? i18n[currentLang].linearFlowDefault : i18n[currentLang].flowDefault;
   }
@@ -225,10 +235,10 @@ function init() {
   controlsHandlers.bindGraphParamControls();
   document.getElementById("btnEN").addEventListener("click", () => switchLang("en"));
   document.getElementById("btnZH").addEventListener("click", () => switchLang("zh"));
-  const defaults = topicDefaults[currentTopicId];
-  graphState.mode = defaults.matrixKey;
-  lastSelected = { matrixKey: defaults.matrixKey, formId: defaults.formId, infoKey: defaults.infoKey };
-  lastFlowRuleId = defaults.flowRuleId;
+  const topic = getCurrentTopic();
+  graphState.mode = topic.graph.type;
+  lastSelected = { ...topic.graph.defaultSelection };
+  lastFlowRuleId = topic.transformations.defaultFlowRuleId;
   switchLang("en");
 }
 

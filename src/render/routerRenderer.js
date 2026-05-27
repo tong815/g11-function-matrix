@@ -19,10 +19,8 @@ export function renderRouterTable({ title, rows, i18n, currentLang }) {
   `;
 }
 
-export function renderProblemRouter({ mountId, i18n, currentLang, problemRouterData, topic }) {
+export function renderProblemRouter({ mountId, i18n, currentLang, router, title }) {
   const mount = document.getElementById(mountId);
-  const t = i18n[currentLang];
-  const rows = problemRouterData[topic.routerKey] || [];
-  const title = topic.id === "quadratic" ? t.formulaGroupQuadratic : t.formulaGroupLinear;
+  const rows = router || [];
   mount.innerHTML = `<div class="router-tables">${renderRouterTable({ title, rows, i18n, currentLang })}</div>`;
 }
