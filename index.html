@@ -1,0 +1,1442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>G11 Function Matrix</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --good: #d1fae5;
+      --derive: #fef3c7;
+      --weak: #f3f4f6;
+      --card: #fafafa;
+      --accent: #111827;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .app {
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .lang-switch {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      padding: 4px;
+      display: inline-flex;
+      gap: 4px;
+    }
+    .lang-btn {
+      border: 1px solid transparent;
+      background: #fff;
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      color: var(--muted);
+    }
+    .lang-btn.active {
+      border-color: var(--line);
+      color: var(--text);
+      background: #f9fafb;
+      font-weight: 600;
+    }
+    h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+    }
+    .subtitle {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 18px;
+      min-height: 75vh;
+    }
+
+    .left, .right {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 14px;
+      background: #fff;
+    }
+    .block {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 12px;
+      background: #fff;
+    }
+    .block h2 {
+      margin: 0 0 10px;
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .small-note {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 13px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 8px 6px;
+      text-align: center;
+      vertical-align: middle;
+    }
+    th {
+      background: #fcfcfc;
+      font-weight: 600;
+    }
+    td.label {
+      text-align: left;
+      font-weight: 600;
+      background: #fcfcfc;
+      width: 160px;
+    }
+    td.clickable {
+      cursor: pointer;
+      transition: filter 0.15s ease;
+    }
+    td.clickable:hover {
+      filter: brightness(0.95);
+    }
+    td.active-cell {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+    }
+    .good { background: var(--good); }
+    .derive { background: var(--derive); }
+    .weak { background: var(--weak); color: #6b7280; }
+
+    .legend {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--muted);
+      flex-wrap: wrap;
+    }
+    .dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      margin-right: 5px;
+      border: 1px solid #d1d5db;
+      vertical-align: middle;
+    }
+
+    .network {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1fr;
+      align-items: center;
+      gap: 8px;
+      margin: 6px 0;
+      font-size: 13px;
+    }
+    .node {
+      border: 1px solid var(--line);
+      padding: 8px;
+      border-radius: 8px;
+      text-align: center;
+      background: var(--card);
+      font-weight: 600;
+    }
+    .edge-btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 999px;
+      padding: 4px 8px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .edge-btn:hover {
+      background: #f9fafb;
+    }
+
+    .info-panel pre {
+      white-space: pre-wrap;
+      background: #fafafa;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px;
+      margin: 7px 0 0;
+      font-family: "Consolas", "Courier New", monospace;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .axis-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .axis-item {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px;
+      background: var(--card);
+      font-size: 13px;
+    }
+    .axis-item b {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .axis-foot {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .disc-wrap {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .disc-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px;
+      background: #fff;
+      text-align: center;
+      font-size: 12px;
+    }
+    .disc-canvas {
+      width: 100%;
+      height: 90px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      margin-top: 6px;
+      background: #fff;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 8px;
+    }
+    .formula-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fffef9;
+      padding: 10px;
+      font-size: 13px;
+    }
+    .formula-card b {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .router-section {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px;
+      margin-bottom: 8px;
+      background: #fcfcfc;
+      font-size: 13px;
+    }
+    .router-section b {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .router-item {
+      margin: 3px 0;
+    }
+
+    #graphCanvas {
+      width: 100%;
+      height: 280px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      display: block;
+    }
+
+    .transform-flow {
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.4;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      background: #fafafa;
+    }
+
+    @media (max-width: 1100px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="header-row">
+        <div>
+          <h1 id="pageTitle">G11 Function Matrix</h1>
+          <div class="subtitle" id="pageSubtitle">One mathematical object, multiple representations.</div>
+        </div>
+        <div class="lang-switch">
+          <button class="lang-btn active" id="btnEN" type="button">EN</button>
+          <button class="lang-btn" id="btnZH" type="button">中文</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="layout">
+      <section class="left">
+        <div class="block">
+          <h2 id="qMatrixTitle">Quadratic Matrix</h2>
+          <div class="small-note" id="qMatrixNote">Readability map: which form exposes which information.</div>
+          <div id="quadraticMatrixMount"></div>
+        </div>
+
+        <div class="block">
+          <h2 id="lMatrixTitle">Linear Matrix</h2>
+          <div class="small-note" id="lMatrixNote">Same idea, now for line representations.</div>
+          <div id="linearMatrixMount"></div>
+        </div>
+
+        <div class="block">
+          <h2 id="transRulesTitle">Transformation Rules</h2>
+          <div class="small-note" id="transRulesNote">Click edge labels to inspect conversion workflow.</div>
+          <div id="networkMount"></div>
+        </div>
+
+        <div class="block">
+          <h2 id="formulaCardsTitle">Formula Cards</h2>
+          <div id="cardsMount" class="cards"></div>
+        </div>
+
+        <div class="block">
+          <h2 id="problemRouterTitle">Problem → Best Form</h2>
+          <div id="problemRouterMount"></div>
+        </div>
+      </section>
+
+      <section class="right">
+        <div class="block info-panel">
+          <h2 id="infoPanelTitle">Information Read Panel</h2>
+          <div id="infoPanelText">Click any matrix cell to inspect how information is extracted.</div>
+        </div>
+
+        <div class="block">
+          <h2 id="graphPreviewTitle">Graph Preview</h2>
+          <div class="small-note"><span id="currentObjectLabel">Current object:</span> <span id="graphLabel"></span></div>
+          <canvas id="graphCanvas" width="560" height="280"></canvas>
+        </div>
+
+        <div class="block">
+          <h2 id="flowTitle">Transformation Flow</h2>
+          <div id="flowText" class="transform-flow">Click an arrow in Transformation Rules.</div>
+        </div>
+
+        <div class="block">
+          <h2 id="sameGeoTitle">Same Geometry, Different Representation</h2>
+          <div class="axis-grid">
+            <div class="axis-item"><b id="axisStandardLabel">Standard</b>x = -b / 2a</div>
+            <div class="axis-item"><b id="axisFactoredLabel">Factored</b>x = (x₁ + x₂) / 2</div>
+            <div class="axis-item"><b id="axisVertexLabel">Vertex</b>x = h</div>
+          </div>
+          <div class="axis-foot" id="axisFootText">All describe the same symmetry axis.</div>
+        </div>
+
+        <div class="block">
+          <h2 id="discPanelTitle">Discriminant Panel</h2>
+          <div class="small-note" id="discFormulaText">Δ = b² - 4ac</div>
+          <div class="disc-wrap">
+            <div class="disc-card" id="discPosText">
+              Δ &gt; 0<br/>2 real roots
+              <canvas id="discPos" class="disc-canvas" width="190" height="90"></canvas>
+            </div>
+            <div class="disc-card" id="discZeroText">
+              Δ = 0<br/>1 real root
+              <canvas id="discZero" class="disc-canvas" width="190" height="90"></canvas>
+            </div>
+            <div class="disc-card" id="discNegText">
+              Δ &lt; 0<br/>No real roots
+              <canvas id="discNeg" class="disc-canvas" width="190" height="90"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const LevelClass = {
+      direct: "good",
+      derivable: "derive",
+      weak: "weak"
+    };
+
+    let currentLang = "en";
+    let lastSelected = null;
+    let lastFlowRuleId = "std_to_fact";
+
+    const i18n = {
+      en: {
+        pageTitle: "G11 Function Matrix",
+        pageSubtitle: "One mathematical object, multiple representations.",
+        qMatrixTitle: "Quadratic Matrix",
+        qMatrixNote: "Readability map: which form exposes which information.",
+        lMatrixTitle: "Linear Matrix",
+        lMatrixNote: "Same idea, now for line representations.",
+        transRulesTitle: "Transformation Rules",
+        transRulesNote: "Click edge labels to inspect conversion workflow.",
+        formulaCardsTitle: "Formula Cards",
+        problemRouterTitle: "Problem \u2192 Best Form",
+        infoPanelTitle: "Information Read Panel",
+        infoPanelDefault: "Click any matrix cell to inspect how information is extracted.",
+        graphPreviewTitle: "Graph Preview",
+        currentObjectLabel: "Current object:",
+        flowTitle: "Transformation Flow",
+        flowDefault: "Click an arrow in Transformation Rules.",
+        sameGeoTitle: "Same Geometry, Different Representation",
+        axisStandardLabel: "Standard",
+        axisFactoredLabel: "Factored",
+        axisVertexLabel: "Vertex",
+        axisFootText: "All describe the same symmetry axis.",
+        discPanelTitle: "Discriminant Panel",
+        discFormulaText: "Δ = b² - 4ac",
+        discPosText: "Δ &gt; 0<br/>2 real roots",
+        discZeroText: "Δ = 0<br/>1 real root",
+        discNegText: "Δ &lt; 0<br/>No real roots",
+        tableInfo: "Information",
+        levelDirect: "Direct",
+        levelDerive: "Derive",
+        levelWeak: "Weak",
+        legendDirect: "Direct Read",
+        legendDerive: "Derivable",
+        legendWeak: "Not Preferred",
+        matrixLabel: "Matrix",
+        formLabel: "Form",
+        infoLabel: "Information",
+        readLabel: "Readability",
+        whyLabel: "Why:",
+        stepsLabel: "Mechanical Steps:",
+        exampleLabel: "Example:",
+        mistakeLabel: "Common Mistake:",
+        graphQuadratic: "Quadratic",
+        graphLinear: "Linear",
+        nodeStandard: "Standard",
+        nodeFactored: "Factored",
+        nodeVertex: "Vertex",
+        qInfo: ["Vertex", "x-intercepts", "y-intercept", "Axis of Symmetry", "Max/Min", "Opening Direction", "Transformations"],
+        lInfo: ["Slope", "y-intercept", "Known Point", "Parallel", "Perpendicular", "Graphing"],
+        qForms: ["Standard Form", "Factored Form", "Vertex Form"],
+        lForms: ["Slope-Intercept", "Point-Slope", "Standard Form"],
+        markerVertex: "vertex",
+        markerRoot: "root",
+        markerYInt: "y-int"
+      },
+      zh: {
+        pageTitle: "G11 函数矩阵",
+        pageSubtitle: "同一个数学对象，多种表示形式。",
+        qMatrixTitle: "二次函数矩阵",
+        qMatrixNote: "可读性地图：哪种形式更容易读取哪类信息。",
+        lMatrixTitle: "一次函数矩阵",
+        lMatrixNote: "同样思路，用于直线表示。",
+        transRulesTitle: "形式转换规则",
+        transRulesNote: "点击箭头标签查看转换流程。",
+        formulaCardsTitle: "公式保命卡",
+        problemRouterTitle: "题目 \u2192 最优形式",
+        infoPanelTitle: "信息读取面板",
+        infoPanelDefault: "点击任意矩阵格子，查看该信息如何读取。",
+        graphPreviewTitle: "图像预览",
+        currentObjectLabel: "当前对象：",
+        flowTitle: "转换流程",
+        flowDefault: "点击“形式转换规则”中的箭头。",
+        sameGeoTitle: "同一几何，不同表示",
+        axisStandardLabel: "标准式",
+        axisFactoredLabel: "因式分解式",
+        axisVertexLabel: "顶点式",
+        axisFootText: "三者描述的是同一条对称轴。",
+        discPanelTitle: "判别式面板",
+        discFormulaText: "Δ = b² - 4ac",
+        discPosText: "Δ &gt; 0<br/>两个实根",
+        discZeroText: "Δ = 0<br/>一个实根",
+        discNegText: "Δ &lt; 0<br/>无实根",
+        tableInfo: "信息",
+        levelDirect: "直读",
+        levelDerive: "可推导",
+        levelWeak: "不优先",
+        legendDirect: "直接读取",
+        legendDerive: "可推导得到",
+        legendWeak: "不适合优先",
+        matrixLabel: "矩阵",
+        formLabel: "形式",
+        infoLabel: "信息",
+        readLabel: "可读性",
+        whyLabel: "为什么：",
+        stepsLabel: "机械步骤：",
+        exampleLabel: "示例：",
+        mistakeLabel: "常见错误：",
+        graphQuadratic: "二次函数",
+        graphLinear: "一次函数",
+        nodeStandard: "标准式",
+        nodeFactored: "因式分解式",
+        nodeVertex: "顶点式",
+        qInfo: ["顶点", "x 截距", "y 截距", "对称轴", "最大/最小值", "开口方向", "平移/伸缩变换"],
+        lInfo: ["斜率", "y 截距", "已知点", "平行", "垂直", "作图"],
+        qForms: ["标准式", "因式分解式", "顶点式"],
+        lForms: ["斜截式", "点斜式", "标准式"],
+        markerVertex: "顶点",
+        markerRoot: "根",
+        markerYInt: "y截距"
+      }
+    };
+
+    const quadraticMatrix = {
+      key: "quadratic",
+      forms: [
+        { id: "qStandard", equation: "y = ax² + bx + c" },
+        { id: "qFactored", equation: "y = a(x-r₁)(x-r₂)" },
+        { id: "qVertex", equation: "y = a(x-h)² + k" }
+      ],
+      info: ["vertex", "xint", "yint", "axis", "extreme", "opening", "transform"],
+      cells: {
+        vertex: { qStandard: "derivable", qFactored: "derivable", qVertex: "direct" },
+        xint: { qStandard: "derivable", qFactored: "direct", qVertex: "derivable" },
+        yint: { qStandard: "direct", qFactored: "derivable", qVertex: "derivable" },
+        axis: { qStandard: "derivable", qFactored: "derivable", qVertex: "direct" },
+        extreme: { qStandard: "derivable", qFactored: "derivable", qVertex: "direct" },
+        opening: { qStandard: "direct", qFactored: "direct", qVertex: "direct" },
+        transform: { qStandard: "weak", qFactored: "derivable", qVertex: "direct" }
+      }
+    };
+
+    const linearMatrix = {
+      key: "linear",
+      forms: [
+        { id: "lSlope", equation: "y = mx + b" },
+        { id: "lPoint", equation: "y - y₁ = m(x - x₁)" },
+        { id: "lStandard", equation: "Ax + By + C = 0" }
+      ],
+      info: ["slope", "yint", "knownPoint", "parallel", "perpendicular", "graphing"],
+      cells: {
+        slope: { lSlope: "direct", lPoint: "direct", lStandard: "derivable" },
+        yint: { lSlope: "direct", lPoint: "derivable", lStandard: "derivable" },
+        knownPoint: { lSlope: "weak", lPoint: "direct", lStandard: "derivable" },
+        parallel: { lSlope: "direct", lPoint: "direct", lStandard: "derivable" },
+        perpendicular: { lSlope: "direct", lPoint: "direct", lStandard: "derivable" },
+        graphing: { lSlope: "direct", lPoint: "derivable", lStandard: "derivable" }
+      }
+    };
+
+    function D(whyEN, stepsEN, exEN, misEN, whyZH, stepsZH, exZH, misZH) {
+      return {
+        en: { why: whyEN, steps: stepsEN, example: exEN, mistake: misEN },
+        zh: { why: whyZH, steps: stepsZH, example: exZH, mistake: misZH }
+      };
+    }
+    const detailLibrary = {
+      "quadratic|qStandard|vertex": D(
+        "Standard form does not show vertex directly; compute axis first, then substitute.",
+        ["Identify a, b, c", "Compute h=-b/(2a)", "Substitute x=h into y=ax²+bx+c", "Vertex=(h,k)"],
+        "y=x²-6x+5: h=3, k=9-18+5=-4, Vertex=(3,-4)",
+        "Missing the minus in -b/(2a), or forgetting brackets around 2a.",
+        "标准式不能直读顶点，先求对称轴再代回即可稳定得到。",
+        ["识别 a,b,c", "计算 h=-b/(2a)", "把 x=h 代回 y=ax²+bx+c", "顶点=(h,k)"],
+        "y=x²-6x+5: h=3, k=9-18+5=-4, 顶点=(3,-4)",
+        "-b/(2a) 的负号或 2a 括号容易错。"
+      ),
+      "quadratic|qStandard|xint": D(
+        "Set y=0 and solve a quadratic equation.",
+        ["Set y=0", "Solve ax²+bx+c=0", "Use factoring if easy; otherwise quadratic formula", "Write (x1,0),(x2,0)"],
+        "y=x²-5x+6 -> 0=(x-2)(x-3), intercepts: (2,0),(3,0); Δ=b²-4ac controls root count.",
+        "Forgetting discriminant logic: Δ>0 two roots, Δ=0 one, Δ<0 no real roots.",
+        "令 y=0 后解二次方程即可。",
+        ["令 y=0", "解 ax²+bx+c=0", "能因式分解先分解，不能就用求根公式", "写出 (x1,0),(x2,0)"],
+        "y=x²-5x+6 -> 0=(x-2)(x-3)，截距：(2,0),(3,0)；根的个数由 Δ=b²-4ac 决定。",
+        "忘记判别式结论：Δ>0 两个，Δ=0 一个，Δ<0 无实根。"
+      ),
+      "quadratic|qStandard|yint": D(
+        "At x=0, the value is c.",
+        ["Set x=0", "Get y=c", "Write point (0,c)"],
+        "y=x²-6x+5 -> y-int=(0,5)",
+        "y-intercept is a point (0,c), not just 'c'.",
+        "x=0 时只剩 c。",
+        ["令 x=0", "得到 y=c", "写点 (0,c)"],
+        "y=x²-6x+5 -> y 截距=(0,5)",
+        "y 截距是点 (0,c)，不是只写 c。"
+      ),
+      "quadratic|qStandard|axis": D(
+        "Axis is computed from coefficients.",
+        ["Identify a and b", "Compute x=-b/(2a)", "Write axis line x=h"],
+        "y=2x²+8x+1 -> axis x=-8/4=-2",
+        "Using -b/2*a instead of -b/(2a).",
+        "对称轴由系数公式直接算。",
+        ["识别 a 和 b", "计算 x=-b/(2a)", "写成直线 x=h"],
+        "y=2x²+8x+1 -> 对称轴 x=-8/4=-2",
+        "把 -b/(2a) 错写成 -b/2*a。"
+      ),
+      "quadratic|qStandard|extreme": D(
+        "Need vertex first, then read extremum from vertex y.",
+        ["Compute vertex (h,k)", "Check sign of a", "a>0 minimum, a<0 maximum", "Extremum value is k"],
+        "y=x²-6x+5 -> vertex (3,-4), a>0 so minimum is -4",
+        "Deciding max/min before checking sign of a.",
+        "先求顶点，再由 a 的符号判断极值类型。",
+        ["先求顶点 (h,k)", "看 a 的符号", "a>0 最小值，a<0 最大值", "极值就是 k"],
+        "y=x²-6x+5 -> 顶点 (3,-4)，a>0，所以最小值 -4",
+        "还没看 a 的符号就判断最大/最小。"
+      ),
+      "quadratic|qStandard|opening": D(
+        "a controls opening directly.",
+        ["Read coefficient a", "a>0 opens up, a<0 opens down", "|a|>1 narrower, 0<|a|<1 wider"],
+        "y=-0.5x²+2 -> opens down and wider",
+        "Confusing sign with width; sign decides direction, |a| decides width.",
+        "开口由 a 直接决定。",
+        ["读取系数 a", "a>0 开口向上，a<0 向下", "|a|>1 更窄，0<|a|<1 更宽"],
+        "y=-0.5x²+2 -> 向下且更宽",
+        "把方向和宽窄混为一谈。"
+      ),
+      "quadratic|qStandard|transform": D(
+        "Standard form hides transformation parameters.",
+        ["Recognize readability is weak", "Convert to vertex form", "Read h,k,a there"],
+        "x²-6x+5=(x-3)²-4 -> right 3, down 4",
+        "Trying to read shifts directly from b and c.",
+        "标准式对平移信息不直观。",
+        ["先判断为弱读取", "先转顶点式", "再读 h,k,a"],
+        "x²-6x+5=(x-3)²-4 -> 右移3，下移4",
+        "直接从 b、c 硬读平移。"
+      ),
+      "quadratic|qFactored|vertex": D(
+        "Roots are visible, so midpoint gives axis then vertex.",
+        ["Read roots r1,r2", "Compute h=(r1+r2)/2", "Substitute x=h to get k", "Vertex=(h,k)"],
+        "y=(x-1)(x-5): h=3, k=(3-1)(3-5)=-4 -> Vertex=(3,-4)",
+        "Averaging with wrong signs from factors.",
+        "因式分解式能直读根，用中点可快速找顶点。",
+        ["读出根 r1,r2", "计算 h=(r1+r2)/2", "代入 x=h 求 k", "顶点=(h,k)"],
+        "y=(x-1)(x-5): h=3, k=(3-1)(3-5)=-4 -> 顶点=(3,-4)",
+        "因式里的符号看反，导致中点错。"
+      ),
+      "quadratic|qFactored|xint": D(
+        "Each factor equals zero gives an intercept.",
+        ["Set each bracket to 0", "Solve x from each bracket", "Write x-intercept points", "Check repeated factor for touching root"],
+        "y=(x-4)(x+1) -> x=4,-1; y=(x-2)² has one touching root at x=2",
+        "Forgetting inside sign reversal.",
+        "每个因式=0 就得到一个截距。",
+        ["令每个括号=0", "分别解出 x", "写出 x 截距点", "重根时是相切根"],
+        "y=(x-4)(x+1) -> x=4,-1；y=(x-2)² 在 x=2 相切",
+        "括号内符号看反。"
+      ),
+      "quadratic|qFactored|yint": D(
+        "Substitute x=0 into product form.",
+        ["Set x=0", "Compute y=a(0-r1)(0-r2)=a r1 r2", "Write point (0, a r1 r2)"],
+        "y=2(x-3)(x+1): y=2(-3)(1)=-6 -> (0,-6)",
+        "Dropping coefficient a.",
+        "代入 x=0 直接算。",
+        ["令 x=0", "计算 y=a(0-r1)(0-r2)=a r1 r2", "写点 (0, a r1 r2)"],
+        "y=2(x-3)(x+1): y=2(-3)(1)=-6 -> (0,-6)",
+        "漏乘前面的 a。"
+      ),
+      "quadratic|qFactored|axis": D(
+        "Axis is midpoint of two roots.",
+        ["Read roots r1,r2", "Compute x=(r1+r2)/2", "Write axis line"],
+        "y=(x-1)(x-5) -> axis x=(1+5)/2=3",
+        "Using factor numbers without sign correction.",
+        "对称轴是两根中点。",
+        ["读根 r1,r2", "算 x=(r1+r2)/2", "写出对称轴"],
+        "y=(x-1)(x-5) -> 对称轴 x=(1+5)/2=3",
+        "未处理好因式的符号。"
+      ),
+      "quadratic|qFactored|extreme": D(
+        "Get vertex by midpoint first, then decide by a.",
+        ["Find h from roots midpoint", "Substitute h for k", "Check sign of a for max/min"],
+        "y=-2(x-1)(x-5): h=3, k=8, a<0 -> maximum 8",
+        "Computing midpoint but not evaluating y-value.",
+        "先用中点找顶点，再看 a 判定极值类型。",
+        ["先取两根中点得 h", "代入求 k", "看 a 符号判最大/最小"],
+        "y=-2(x-1)(x-5): h=3, k=8, a<0 -> 最大值 8",
+        "只算了中点没算顶点 y 值。"
+      ),
+      "quadratic|qFactored|opening": D(
+        "a is visible in front of factors.",
+        ["Read a", "a>0 up, a<0 down", "Use |a| for narrow/wide"],
+        "y=3(x-1)(x+2): opens up, narrower",
+        "Ignoring a when factors look symmetric.",
+        "因式前的 a 可直接读开口。",
+        ["读 a", "a>0 向上，a<0 向下", "看 |a| 判断宽窄"],
+        "y=3(x-1)(x+2): 向上且更窄",
+        "只看根，不看 a。"
+      ),
+      "quadratic|qFactored|transform": D(
+        "Transformations are not explicit in factored form.",
+        ["Treat readability as derivable", "Convert to vertex form", "Read shifts and stretch there"],
+        "y=(x-1)(x-5) -> y=(x-3)²-4",
+        "Reading h and k directly from r1,r2.",
+        "因式分解式不直观显示平移参数。",
+        ["先判为可推导", "转成顶点式", "再读平移和伸缩"],
+        "y=(x-1)(x-5) -> y=(x-3)²-4",
+        "把 r1、r2 直接当 h、k。"
+      ),
+      "quadratic|qVertex|vertex": D(
+        "Vertex form encodes turning point directly.",
+        ["Read h from (x-h)", "Read k from +k", "Vertex=(h,k)", "Axis is x=h"],
+        "y=(x-2)²-3 -> vertex (2,-3), axis x=2",
+        "Inside sign is reversed: (x+3) means h=-3.",
+        "顶点式直接编码转折点。",
+        ["从 (x-h) 读 h", "从 +k 读 k", "顶点=(h,k)", "对称轴 x=h"],
+        "y=(x-2)²-3 -> 顶点 (2,-3)，轴 x=2",
+        "括号内符号相反：(x+3) 对应 h=-3。"
+      ),
+      "quadratic|qVertex|xint": D(
+        "Set y=0 and isolate square term.",
+        ["Set y=0", "Solve a(x-h)²+k=0", "(x-h)²=-k/a", "If -k/a<0: no real roots", "x=h±sqrt(-k/a)"],
+        "y=(x-2)²-9 -> (x-2)²=9 -> x=2±3 -> x=-1,5",
+        "Taking square root before isolating the square.",
+        "令 y=0 后解平方项。",
+        ["令 y=0", "解 a(x-h)²+k=0", "化成 (x-h)²=-k/a", "-k/a<0 则无实根", "x=h±sqrt(-k/a)"],
+        "y=(x-2)²-9 -> (x-2)²=9 -> x=2±3 -> x=-1,5",
+        "平方项未先孤立就开方。"
+      ),
+      "quadratic|qVertex|yint": D(
+        "Plug x=0 into vertex form.",
+        ["Set x=0", "Compute y=a(0-h)²+k=ah²+k", "Write point (0,ah²+k)"],
+        "y=2(x-3)²-4 -> y=2*9-4=14 -> (0,14)",
+        "Forgetting square on h.",
+        "把 x=0 代入顶点式。",
+        ["令 x=0", "算 y=a(0-h)²+k=ah²+k", "写点 (0,ah²+k)"],
+        "y=2(x-3)²-4 -> y=2*9-4=14 -> (0,14)",
+        "忘记 h 要平方。"
+      ),
+      "quadratic|qVertex|axis": D(
+        "Axis is directly x=h.",
+        ["Read h", "Write x=h"],
+        "y=-(x+1)²+2 -> axis x=-1",
+        "Sign error from (x-h).",
+        "对称轴可直读 x=h。",
+        ["读 h", "写 x=h"],
+        "y=-(x+1)²+2 -> 对称轴 x=-1",
+        "把 (x-h) 的符号看反。"
+      ),
+      "quadratic|qVertex|extreme": D(
+        "Vertex y-value is extremum.",
+        ["Read k", "Check sign of a", "a>0 minimum=k, a<0 maximum=k", "Vertex is turning point"],
+        "y=-2(x-1)²+5 -> max value is 5",
+        "Calling k a minimum when a<0.",
+        "顶点 y 值就是极值。",
+        ["读 k", "看 a 的符号", "a>0 最小值=k，a<0 最大值=k", "顶点是转折点"],
+        "y=-2(x-1)²+5 -> 最大值为 5",
+        "a<0 时却写成最小值。"
+      ),
+      "quadratic|qVertex|opening": D(
+        "a controls both direction and width.",
+        ["Read a", "Sign -> up/down", "Absolute value -> narrow/wide"],
+        "y=0.5(x-2)²-1 -> opens up and wider",
+        "Thinking smaller |a| makes graph steeper.",
+        "a 同时控制方向和宽窄。",
+        ["读取 a", "符号决定上下", "绝对值决定宽窄"],
+        "y=0.5(x-2)²-1 -> 向上且更宽",
+        "误以为 |a| 变小会更陡。"
+      ),
+      "quadratic|qVertex|transform": D(
+        "Vertex form is the best transformation view.",
+        ["Read y=a(x-h)²+k", "h: horizontal shift", "k: vertical shift", "a: reflection/stretch-compression"],
+        "y=-2(x+3)²+4 -> left 3, up 4, reflect over x-axis, vertical stretch 2",
+        "(x-3) is right 3; (x+3) is left 3.",
+        "顶点式最适合读变换。",
+        ["读取 y=a(x-h)²+k", "h: 水平平移", "k: 竖直平移", "a: 翻折与伸缩"],
+        "y=-2(x+3)²+4 -> 左移3，上移4，关于x轴翻折，纵向拉伸2倍",
+        "(x-3) 是右移3，(x+3) 是左移3。"
+      ),
+      "linear|lSlope|slope": D(
+        "Slope-intercept exposes slope directly as m.",
+        ["Read coefficient m of x"],
+        "y=2x-3 -> slope=2",
+        "Using b as slope by mistake.",
+        "斜截式可直读斜率 m。",
+        ["读取 x 的系数 m"],
+        "y=2x-3 -> 斜率=2",
+        "把 b 当成斜率。"
+      ),
+      "linear|lSlope|yint": D(
+        "Intercept is directly b.",
+        ["Read b", "Write point (0,b)"],
+        "y=2x-3 -> y-intercept (0,-3)",
+        "Writing y-intercept as -3 only, not point.",
+        "截距可直读 b。",
+        ["读取 b", "写点 (0,b)"],
+        "y=2x-3 -> y 截距 (0,-3)",
+        "只写 -3，不写点。"
+      ),
+      "linear|lSlope|knownPoint": D(
+        "Only one guaranteed point is (0,b); arbitrary known point is not explicit.",
+        ["Use (0,b) if needed", "Or substitute x to generate a point"],
+        "y=2x-3 -> known point (0,-3)",
+        "Assuming a point-slope style point is directly given.",
+        "只能直接得到 (0,b)，不直接给任意已知点。",
+        ["可先用 (0,b)", "或代入一个 x 生成新点"],
+        "y=2x-3 -> 已知点可取 (0,-3)",
+        "误以为像点斜式那样直接给了任意点。"
+      ),
+      "linear|lSlope|parallel": D(
+        "Parallel lines share same slope.",
+        ["Read m", "Use same m for new line", "Change intercept/point"],
+        "Given y=2x-3, a parallel line: y=2x+5",
+        "Changing slope when building a parallel line.",
+        "平行线斜率相同。",
+        ["读出 m", "新直线保持同 m", "改截距或过点即可"],
+        "已知 y=2x-3，平行线可写 y=2x+5",
+        "平行线却改了斜率。"
+      ),
+      "linear|lSlope|perpendicular": D(
+        "Perpendicular slope is negative reciprocal.",
+        ["Read m1", "Compute m2=-1/m1", "Use m2 to form new line"],
+        "If m1=2, then perpendicular slope m2=-1/2",
+        "Using only reciprocal (1/m) without negative sign.",
+        "垂线斜率是负倒数。",
+        ["读 m1", "算 m2=-1/m1", "用 m2 写新方程"],
+        "若 m1=2，则垂直斜率 m2=-1/2",
+        "只取倒数没取负号。"
+      ),
+      "linear|lSlope|graphing": D(
+        "Best graphing flow is intercept then rise/run.",
+        ["Plot (0,b)", "Use slope rise/run to get second point", "Draw line through points"],
+        "y=2x-3: plot (0,-3), then rise 2 run 1",
+        "Rise/run direction mismatch when slope is negative.",
+        "作图流程很机械：先截距再斜率。",
+        ["先画 (0,b)", "按斜率升/跑找第二点", "连线"],
+        "y=2x-3：先画 (0,-3)，再上2右1",
+        "负斜率时升/跑方向搞反。"
+      ),
+      "linear|lPoint|slope": D(
+        "Point-slope also shows m directly.",
+        ["Read m from y-y1=m(x-x1)"],
+        "y-3=-4(x-1) -> slope=-4",
+        "Confusing x1,y1 with slope.",
+        "点斜式也可直读 m。",
+        ["从 y-y1=m(x-x1) 读 m"],
+        "y-3=-4(x-1) -> 斜率=-4",
+        "把 x1,y1 当成斜率。"
+      ),
+      "linear|lPoint|yint": D(
+        "Need substitution or conversion first.",
+        ["Substitute x=0 and solve y", "OR expand to y=mx+b then read b"],
+        "y-3=2(x-1): x=0 -> y-3=-2 -> y=1 -> y-int (0,1)",
+        "Forgetting to move y1 to right side correctly.",
+        "y 截距需推导，不能直读。",
+        ["代入 x=0 解 y", "或先化成 y=mx+b 再读 b"],
+        "y-3=2(x-1): x=0 -> y-3=-2 -> y=1 -> y 截距 (0,1)",
+        "移项时符号错。"
+      ),
+      "linear|lPoint|knownPoint": D(
+        "Known point is explicit in form.",
+        ["Read (x1,y1) from y-y1=m(x-x1)", "Correct signs carefully"],
+        "y-3=2(x-1) -> point (1,3); y+3=2(x-1) -> point (1,-3)",
+        "Not reversing sign inside parentheses.",
+        "点斜式直接给已知点。",
+        ["从 y-y1=m(x-x1) 读 (x1,y1)", "特别注意括号内符号"],
+        "y-3=2(x-1) -> 点 (1,3)；y+3=2(x-1) -> 点 (1,-3)",
+        "括号内符号不反转。"
+      ),
+      "linear|lPoint|parallel": D(
+        "Parallel decision still depends on slope m.",
+        ["Read m", "Keep same m for parallel line"],
+        "y-3=2(x-1) -> any parallel line has slope 2",
+        "Changing m and still calling it parallel.",
+        "平行判断仍看 m。",
+        ["读 m", "平行线保持同 m"],
+        "y-3=2(x-1) -> 平行线斜率都应为 2",
+        "改了 m 还说平行。"
+      ),
+      "linear|lPoint|perpendicular": D(
+        "Use negative reciprocal of m.",
+        ["Read m1", "Compute m2=-1/m1", "Build line with m2"],
+        "If y-3=2(x-1), perpendicular slope is -1/2",
+        "Reciprocal computed but sign not flipped.",
+        "垂直判断用负倒数。",
+        ["读 m1", "算 m2=-1/m1", "用 m2 写直线"],
+        "若 y-3=2(x-1)，垂线斜率是 -1/2",
+        "只倒数不取负。"
+      ),
+      "linear|lPoint|graphing": D(
+        "Point-slope is graph-friendly: point + slope.",
+        ["Plot known point (x1,y1)", "Use slope rise/run for second point", "Draw line"],
+        "y-3=2(x-1): plot (1,3), then rise 2 run 1",
+        "Plotting (-x1,-y1) by sign mistake.",
+        "点斜式作图很直接：已知点+斜率。",
+        ["先画已知点 (x1,y1)", "按斜率升/跑找第二点", "连线"],
+        "y-3=2(x-1)：先画 (1,3)，再上2右1",
+        "把点画成 (-x1,-y1)。"
+      ),
+      "linear|lStandard|slope": D(
+        "Need solve for y to read slope.",
+        ["Start from Ax+By+C=0", "Rearrange: By=-Ax-C", "y=(-A/B)x-C/B", "Slope=-A/B"],
+        "2x-3y+6=0 -> y=(2/3)x+2 -> slope 2/3",
+        "Dropping minus signs when dividing by B.",
+        "标准式需先化成斜截式。",
+        ["从 Ax+By+C=0 出发", "移项：By=-Ax-C", "化简：y=(-A/B)x-C/B", "斜率=-A/B"],
+        "2x-3y+6=0 -> y=(2/3)x+2 -> 斜率 2/3",
+        "除以 B 时负号丢失。"
+      ),
+      "linear|lStandard|yint": D(
+        "Set x=0 in standard form.",
+        ["Set x=0", "Get By+C=0", "Compute y=-C/B", "Write point (0,-C/B)"],
+        "2x-3y+6=0 -> x=0 => -3y+6=0 => y=2 -> (0,2)",
+        "Assuming y-intercept is C directly.",
+        "在标准式里令 x=0。",
+        ["令 x=0", "得到 By+C=0", "算 y=-C/B", "写点 (0,-C/B)"],
+        "2x-3y+6=0 -> x=0 => -3y+6=0 => y=2 -> (0,2)",
+        "把 C 直接当 y 截距。"
+      ),
+      "linear|lStandard|knownPoint": D(
+        "No explicit fixed point; derive one from intercepts or substitution.",
+        ["Find y-intercept or x-intercept", "Use resulting point as known point"],
+        "2x-3y+6=0 -> y-int (0,2), x-int (-3,0)",
+        "Thinking A,B,C are coordinates.",
+        "标准式不直接给固定点，需要推导。",
+        ["先求 y 截距或 x 截距", "把得到的点作为已知点"],
+        "2x-3y+6=0 -> y 截距 (0,2), x 截距 (-3,0)",
+        "把 A,B,C 误当坐标。"
+      ),
+      "linear|lStandard|parallel": D(
+        "Need slope first from -A/B.",
+        ["Compute slope m=-A/B", "Parallel line uses same m", "Convert if needed to compare"],
+        "2x-3y+6=0 has m=2/3; parallel line must keep m=2/3",
+        "Comparing A,B directly when equations are scaled differently.",
+        "先求斜率再判断平行。",
+        ["先算 m=-A/B", "平行线用同 m", "必要时先化简再比较"],
+        "2x-3y+6=0 的 m=2/3；平行线也应是 2/3",
+        "方程倍数不同却直接比 A、B。"
+      ),
+      "linear|lStandard|perpendicular": D(
+        "Get slope then take negative reciprocal.",
+        ["Find m1=-A/B", "Compute m2=-1/m1", "Build/check line with m2"],
+        "If m1=2/3, then perpendicular slope is -3/2",
+        "Using reciprocal B/A without sign check.",
+        "先求斜率，再取负倒数。",
+        ["先算 m1=-A/B", "再算 m2=-1/m1", "据此写或判定垂线"],
+        "若 m1=2/3，则垂直斜率是 -3/2",
+        "只取 B/A，符号没处理。"
+      ),
+      "linear|lStandard|graphing": D(
+        "Intercept method is fastest for standard form.",
+        ["Set y=0 -> x-intercept x=-C/A", "Set x=0 -> y-intercept y=-C/B", "Plot two intercepts and connect"],
+        "2x-3y+6=0 -> x-int (-3,0), y-int (0,2)",
+        "Arithmetic slip when solving intercept equations.",
+        "标准式作图最稳是双截距法。",
+        ["令 y=0 求 x 截距 x=-C/A", "令 x=0 求 y 截距 y=-C/B", "画两点连线"],
+        "2x-3y+6=0 -> x 截距 (-3,0), y 截距 (0,2)",
+        "解截距方程时计算错误。"
+      )
+    };
+
+    const transformationRules = [
+      {
+        id: "std_to_fact",
+        from: "Standard",
+        to: "Factored",
+        labelEN: "factoring",
+        labelZH: "因式分解",
+        text: "Standard -> Factored\n\n1) Set y=0\n2) Factor ax²+bx+c\n3) Rewrite as a(x-r₁)(x-r₂)\n\nExample:\ny = x² - 5x + 6\n= (x-2)(x-3)"
+      },
+      {
+        id: "fact_to_std",
+        from: "Factored",
+        to: "Standard",
+        labelEN: "expand",
+        labelZH: "展开",
+        text: "Factored -> Standard\n\n1) Expand product\n2) Collect like terms\n3) Keep as ax²+bx+c\n\nExample:\ny=(x-2)(x-3)=x²-5x+6"
+      },
+      {
+        id: "std_to_vertex",
+        from: "Standard",
+        to: "Vertex",
+        labelEN: "completing square",
+        labelZH: "配方",
+        text: "Standard -> Vertex\n\n1) Factor a from x-terms\n2) Complete square inside bracket\n3) Balance constants\n\nExample:\ny=x²-4x+1=(x-2)²-3"
+      },
+      {
+        id: "vertex_to_std",
+        from: "Vertex",
+        to: "Standard",
+        labelEN: "expand",
+        labelZH: "展开",
+        text: "Vertex -> Standard\n\n1) Expand (x-h)²\n2) Multiply by a\n3) Add k\n\nExample:\ny=(x-2)²-3=x²-4x+1"
+      },
+      {
+        id: "fact_to_vertex",
+        from: "Factored",
+        to: "Vertex",
+        labelEN: "midpoint + substitute",
+        labelZH: "中点+代入",
+        text: "Factored -> Vertex\n\n1) Read roots r₁,r₂\n2) Axis h=(r₁+r₂)/2\n3) Substitute h into function to get k\n\nExample:\ny=(x-1)(x-5), h=3, k=-4\n=> y=(x-3)²-4"
+      },
+      {
+        id: "vertex_to_fact",
+        from: "Vertex",
+        to: "Factored",
+        labelEN: "solve roots",
+        labelZH: "解根",
+        text: "Vertex -> Factored\n\n1) Set y=0\n2) Solve a(x-h)²+k=0\n3) Rewrite by roots\n\nExample:\ny=(x-2)²-4=(x-4)(x)"
+      }
+    ];
+
+    const formulaCards = [
+      { titleEN: "Quadratic Formula", titleZH: "求根公式", expr: "x = (-b ± √(b² - 4ac)) / 2a" },
+      { titleEN: "Vertex from Standard", titleZH: "标准式求顶点", expr: "h = -b/(2a),  k = f(h)" },
+      { titleEN: "Discriminant", titleZH: "判别式", expr: "Δ = b² - 4ac" },
+      { titleEN: "Axis from Roots", titleZH: "由两根求对称轴", expr: "x = (r₁ + r₂)/2" },
+      { titleEN: "Vertex Form", titleZH: "顶点式", expr: "y = a(x-h)² + k" },
+      { titleEN: "Factored Roots", titleZH: "因式分解式（根）", expr: "y = a(x-r₁)(x-r₂)" },
+      { titleEN: "Slope", titleZH: "斜率", expr: "m = (y₂ - y₁)/(x₂ - x₁)" },
+      { titleEN: "Slope-Intercept", titleZH: "斜截式", expr: "y = mx + b" },
+      { titleEN: "Point-Slope", titleZH: "点斜式", expr: "y - y₁ = m(x - x₁)" },
+      { titleEN: "Perpendicular Slope", titleZH: "垂线斜率", expr: "m₂ = -1/m₁" },
+      { titleEN: "Standard Form Slope", titleZH: "标准式斜率", expr: "m = -A/B" },
+      { titleEN: "SOH CAH TOA", titleZH: "SOH CAH TOA", expr: "sin=opp/hyp, cos=adj/hyp, tan=opp/adj" }
+    ];
+
+    const graphState = {
+      mode: "quadratic",
+      quadratic: { a: 1, b: -4, c: 1, h: 2, k: -3, r1: 1, r2: 3 },
+      linear: { m: 2, b: -1, point: [1, 1], A: 2, B: -1, C: -1 }
+    };
+
+    function renderMatrix(targetId, matrixData) {
+      const mount = document.getElementById(targetId);
+      const t = i18n[currentLang];
+      const formLabels = matrixData.key === "quadratic" ? t.qForms : t.lForms;
+      const infoLabels = matrixData.key === "quadratic" ? t.qInfo : t.lInfo;
+      let html = "<table><thead><tr><th>" + t.tableInfo + "</th>";
+      matrixData.forms.forEach((f, idx) => {
+        html += "<th>" + formLabels[idx] + "<br><span style='color:#6b7280;font-weight:400'>" + f.equation + "</span></th>";
+      });
+      html += "</tr></thead><tbody>";
+
+      matrixData.info.forEach((infoKey, idx) => {
+        html += "<tr><td class='label'>" + infoLabels[idx] + "</td>";
+        matrixData.forms.forEach(f => {
+          const level = matrixData.cells[infoKey][f.id];
+          html += "<td class='clickable " + LevelClass[level] + "' " +
+            "data-matrix='" + matrixData.key + "' data-form='" + f.id + "' data-info='" + infoKey + "'>" +
+            readableLevel(level) + "</td>";
+        });
+        html += "</tr>";
+      });
+      html += "</tbody></table>";
+      html += "<div class='legend'>" +
+        "<span><i class='dot' style='background:var(--good)'></i>" + t.legendDirect + "</span>" +
+        "<span><i class='dot' style='background:var(--derive)'></i>" + t.legendDerive + "</span>" +
+        "<span><i class='dot' style='background:var(--weak)'></i>" + t.legendWeak + "</span>" +
+        "</div>";
+      mount.innerHTML = html;
+    }
+
+    function readableLevel(level) {
+      const t = i18n[currentLang];
+      if (level === "direct") return t.levelDirect;
+      if (level === "derivable") return t.levelDerive;
+      return t.levelWeak;
+    }
+
+    function buildInfoPanel(matrixKey, formId, infoKey) {
+      const t = i18n[currentLang];
+      const form = (matrixKey === "quadratic" ? quadraticMatrix : linearMatrix).forms.find(f => f.id === formId);
+      const level = (matrixKey === "quadratic" ? quadraticMatrix : linearMatrix).cells[infoKey][formId];
+      const detail = getDetail(matrixKey, formId, infoKey);
+      const formLabels = matrixKey === "quadratic" ? t.qForms : t.lForms;
+      const infoLabels = matrixKey === "quadratic" ? t.qInfo : t.lInfo;
+      const formIndex = (matrixKey === "quadratic" ? quadraticMatrix : linearMatrix).forms.findIndex(f => f.id === formId);
+      const infoIndex = (matrixKey === "quadratic" ? quadraticMatrix : linearMatrix).info.findIndex(i => i === infoKey);
+      const lines = [
+        t.matrixLabel + ": " + (matrixKey === "quadratic" ? t.graphQuadratic : t.graphLinear),
+        t.formLabel + ": " + formLabels[formIndex],
+        t.infoLabel + ": " + infoLabels[infoIndex],
+        t.readLabel + ": " + readableLevel(level),
+        "",
+        t.whyLabel,
+        detail.why,
+        "",
+        t.stepsLabel,
+        detail.steps.map((s, i) => (i + 1) + ". " + s).join("\n"),
+        "",
+        t.exampleLabel,
+        detail.example,
+        "",
+        t.mistakeLabel,
+        detail.mistake
+      ];
+      return "<pre>" + lines.join("\n") + "</pre>";
+    }
+
+    function getDetail(matrixKey, formId, infoKey) {
+      const key = matrixKey + "|" + formId + "|" + infoKey;
+      const detail = detailLibrary[key];
+      if (detail) return detail[currentLang];
+      return currentLang === "zh"
+        ? { why: "未找到对应细节。", steps: ["请检查 detailLibrary key"], example: "N/A", mistake: "N/A" }
+        : { why: "Detail not found.", steps: ["Check detailLibrary key"], example: "N/A", mistake: "N/A" };
+    }
+
+    function bindMatrixClicks() {
+      document.querySelectorAll("td.clickable").forEach(cell => {
+        cell.addEventListener("click", () => {
+          document.querySelectorAll("td.clickable").forEach(c => c.classList.remove("active-cell"));
+          cell.classList.add("active-cell");
+
+          const matrixKey = cell.dataset.matrix;
+          const formId = cell.dataset.form;
+          const infoKey = cell.dataset.info;
+          lastSelected = { matrixKey, formId, infoKey };
+          document.getElementById("infoPanelText").innerHTML = buildInfoPanel(matrixKey, formId, infoKey);
+
+          graphState.mode = matrixKey;
+          updateGraphLabel(matrixKey, formId);
+          drawMainGraph();
+        });
+      });
+    }
+
+    function renderNetwork() {
+      const mount = document.getElementById("networkMount");
+      const t = i18n[currentLang];
+      const html = `
+        <div class="network">
+          <div class="node">${t.nodeStandard}</div>
+          <button class="edge-btn" data-edge="std_to_fact">${currentLang === "zh" ? "因式分解" : "factoring"} →</button>
+          <div class="node">${t.nodeFactored}</div>
+          <button class="edge-btn" data-edge="fact_to_vertex">${currentLang === "zh" ? "中点法" : "midpoint"} →</button>
+          <div class="node">${t.nodeVertex}</div>
+        </div>
+        <div class="network">
+          <div class="node">${t.nodeStandard}</div>
+          <button class="edge-btn" data-edge="std_to_vertex">${currentLang === "zh" ? "配方" : "complete sq."} →</button>
+          <div class="node">${t.nodeVertex}</div>
+          <button class="edge-btn" data-edge="vertex_to_fact">${currentLang === "zh" ? "解根" : "roots"} →</button>
+          <div class="node">${t.nodeFactored}</div>
+        </div>
+        <div class="network">
+          <div class="node">${t.nodeFactored}</div>
+          <button class="edge-btn" data-edge="fact_to_std">${currentLang === "zh" ? "展开" : "expand"} →</button>
+          <div class="node">${t.nodeStandard}</div>
+          <button class="edge-btn" data-edge="vertex_to_std">${currentLang === "zh" ? "展开" : "expand"} →</button>
+          <div class="node">${t.nodeVertex}</div>
+        </div>
+      `;
+      mount.innerHTML = html;
+      mount.querySelectorAll(".edge-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const rule = transformationRules.find(r => r.id === btn.dataset.edge);
+          lastFlowRuleId = rule.id;
+          document.getElementById("flowText").textContent = getFlowText(rule.id);
+        });
+      });
+    }
+
+    function renderCards() {
+      const mount = document.getElementById("cardsMount");
+      mount.innerHTML = formulaCards.map(card => `
+        <div class="formula-card">
+          <b>${currentLang === "zh" ? card.titleZH : card.titleEN}</b>
+          ${card.expr}
+        </div>
+      `).join("");
+    }
+
+    function renderProblemRouter() {
+      const mount = document.getElementById("problemRouterMount");
+      const isZH = currentLang === "zh";
+      const qItems = isZH
+        ? [
+            "求顶点 → 顶点式",
+            "求 x 截距 → 因式分解式",
+            "求 y 截距 → 标准式",
+            "求最大/最小值 → 顶点式",
+            "描述平移变换 → 顶点式",
+            "判断根的个数 → 标准式 / 判别式"
+          ]
+        : [
+            "Find vertex -> Vertex Form",
+            "Find x-intercepts -> Factored Form",
+            "Find y-intercept -> Standard Form",
+            "Find max/min -> Vertex Form",
+            "Describe transformations -> Vertex Form",
+            "Decide number of roots -> Standard Form / Discriminant"
+          ];
+      const lItems = isZH
+        ? [
+            "求斜率 → 斜截式 或 点斜式",
+            "已知一点+斜率 → 点斜式",
+            "直线作图 → 斜截式",
+            "求截距 → 标准式",
+            "平行/垂直判断 → 任意形式先求斜率"
+          ]
+        : [
+            "Find slope -> Slope-Intercept or Point-Slope",
+            "Given point + slope -> Point-Slope",
+            "Graph line -> Slope-Intercept",
+            "Find intercepts -> Standard Form",
+            "Parallel/perpendicular -> Any form after finding slope"
+          ];
+      mount.innerHTML = `
+        <div class="router-section">
+          <b>${isZH ? "Quadratic（考试路由）" : "Quadratic (Exam Router)"}</b>
+          ${qItems.map(item => `<div class="router-item">${item}</div>`).join("")}
+        </div>
+        <div class="router-section">
+          <b>${isZH ? "Linear（考试路由）" : "Linear (Exam Router)"}</b>
+          ${lItems.map(item => `<div class="router-item">${item}</div>`).join("")}
+        </div>
+      `;
+    }
+
+    function updateGraphLabel(matrixKey, formId) {
+      const q = quadraticMatrix.forms.find(f => f.id === formId);
+      const l = linearMatrix.forms.find(f => f.id === formId);
+      const t = i18n[currentLang];
+      const qForms = t.qForms;
+      const lForms = t.lForms;
+      const label = matrixKey === "quadratic"
+        ? (q ? t.graphQuadratic + " / " + qForms[quadraticMatrix.forms.findIndex(f => f.id === formId)] : t.graphQuadratic)
+        : (l ? t.graphLinear + " / " + lForms[linearMatrix.forms.findIndex(f => f.id === formId)] : t.graphLinear);
+      document.getElementById("graphLabel").textContent = label;
+    }
+
+    function drawAxes(ctx, w, h) {
+      ctx.clearRect(0, 0, w, h);
+      ctx.strokeStyle = "#d1d5db";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, h / 2);
+      ctx.lineTo(w, h / 2);
+      ctx.moveTo(w / 2, 0);
+      ctx.lineTo(w / 2, h);
+      ctx.stroke();
+    }
+
+    function toCanvasX(x, w) { return w / 2 + x * 22; }
+    function toCanvasY(y, h) { return h / 2 - y * 22; }
+
+    function drawMainGraph() {
+      const canvas = document.getElementById("graphCanvas");
+      const ctx = canvas.getContext("2d");
+      const w = canvas.width;
+      const h = canvas.height;
+      drawAxes(ctx, w, h);
+
+      if (graphState.mode === "quadratic") {
+        const { a, b, c } = graphState.quadratic;
+        ctx.strokeStyle = "#111827";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        let first = true;
+        for (let x = -10; x <= 10; x += 0.05) {
+          const y = a * x * x + b * x + c;
+          const px = toCanvasX(x, w);
+          const py = toCanvasY(y, h);
+          if (first) {
+            ctx.moveTo(px, py);
+            first = false;
+          } else {
+            ctx.lineTo(px, py);
+          }
+        }
+        ctx.stroke();
+
+        const vx = -b / (2 * a);
+        const vy = a * vx * vx + b * vx + c;
+        const d = b * b - 4 * a * c;
+        const axisX = toCanvasX(vx, w);
+
+        ctx.setLineDash([5, 5]);
+        ctx.strokeStyle = "#6b7280";
+        ctx.beginPath();
+        ctx.moveTo(axisX, 0);
+        ctx.lineTo(axisX, h);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        markPoint(ctx, toCanvasX(vx, w), toCanvasY(vy, h), "#ef4444", i18n[currentLang].markerVertex);
+
+        if (d >= 0) {
+          const r1 = (-b + Math.sqrt(d)) / (2 * a);
+          const r2 = (-b - Math.sqrt(d)) / (2 * a);
+          markPoint(ctx, toCanvasX(r1, w), toCanvasY(0, h), "#2563eb", i18n[currentLang].markerRoot);
+          markPoint(ctx, toCanvasX(r2, w), toCanvasY(0, h), "#2563eb", i18n[currentLang].markerRoot);
+        }
+      } else {
+        const { m, b } = graphState.linear;
+        ctx.strokeStyle = "#111827";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        const x1 = -12, y1 = m * x1 + b;
+        const x2 = 12, y2 = m * x2 + b;
+        ctx.moveTo(toCanvasX(x1, w), toCanvasY(y1, h));
+        ctx.lineTo(toCanvasX(x2, w), toCanvasY(y2, h));
+        ctx.stroke();
+        markPoint(ctx, toCanvasX(0, w), toCanvasY(b, h), "#2563eb", i18n[currentLang].markerYInt);
+      }
+    }
+
+    function markPoint(ctx, x, y, color, text) {
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(x, y, 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#374151";
+      ctx.font = "11px Segoe UI";
+      ctx.fillText(text, x + 6, y - 6);
+    }
+
+    function drawDiscCanvas(id, mode) {
+      const canvas = document.getElementById(id);
+      const ctx = canvas.getContext("2d");
+      const w = canvas.width, h = canvas.height;
+      drawAxes(ctx, w, h);
+      ctx.strokeStyle = "#111827";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      let first = true;
+      for (let x = -4; x <= 4; x += 0.03) {
+        let y;
+        if (mode === "pos") y = (x - 1) * (x + 1) - 1;
+        if (mode === "zero") y = (x - 0) * (x - 0);
+        if (mode === "neg") y = (x - 0) * (x - 0) + 1;
+        const px = w / 2 + x * 18;
+        const py = h / 2 - y * 18;
+        if (first) { ctx.moveTo(px, py); first = false; } else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+    }
+
+    function localizeStaticText() {
+      const t = i18n[currentLang];
+      document.documentElement.lang = currentLang === "zh" ? "zh-CN" : "en";
+      document.getElementById("pageTitle").textContent = t.pageTitle;
+      document.getElementById("pageSubtitle").textContent = t.pageSubtitle;
+      document.getElementById("qMatrixTitle").textContent = t.qMatrixTitle;
+      document.getElementById("qMatrixNote").textContent = t.qMatrixNote;
+      document.getElementById("lMatrixTitle").textContent = t.lMatrixTitle;
+      document.getElementById("lMatrixNote").textContent = t.lMatrixNote;
+      document.getElementById("transRulesTitle").textContent = t.transRulesTitle;
+      document.getElementById("transRulesNote").textContent = t.transRulesNote;
+      document.getElementById("formulaCardsTitle").textContent = t.formulaCardsTitle;
+      document.getElementById("problemRouterTitle").textContent = t.problemRouterTitle;
+      document.getElementById("infoPanelTitle").textContent = t.infoPanelTitle;
+      document.getElementById("graphPreviewTitle").textContent = t.graphPreviewTitle;
+      document.getElementById("currentObjectLabel").textContent = t.currentObjectLabel;
+      document.getElementById("flowTitle").textContent = t.flowTitle;
+      document.getElementById("sameGeoTitle").textContent = t.sameGeoTitle;
+      document.getElementById("axisStandardLabel").textContent = t.axisStandardLabel;
+      document.getElementById("axisFactoredLabel").textContent = t.axisFactoredLabel;
+      document.getElementById("axisVertexLabel").textContent = t.axisVertexLabel;
+      document.getElementById("axisFootText").textContent = t.axisFootText;
+      document.getElementById("discPanelTitle").textContent = t.discPanelTitle;
+      document.getElementById("discFormulaText").textContent = t.discFormulaText;
+      document.getElementById("discPosText").innerHTML = t.discPosText + '<canvas id="discPos" class="disc-canvas" width="190" height="90"></canvas>';
+      document.getElementById("discZeroText").innerHTML = t.discZeroText + '<canvas id="discZero" class="disc-canvas" width="190" height="90"></canvas>';
+      document.getElementById("discNegText").innerHTML = t.discNegText + '<canvas id="discNeg" class="disc-canvas" width="190" height="90"></canvas>';
+      document.getElementById("btnEN").classList.toggle("active", currentLang === "en");
+      document.getElementById("btnZH").classList.toggle("active", currentLang === "zh");
+    }
+
+    function getFlowText(ruleId) {
+      const map = {
+        std_to_fact: {
+          en: "Standard -> Factored\n\nSteps:\n1) Set y=0\n2) Try factoring ax²+bx+c\n3) If successful, write a(x-r₁)(x-r₂)\n4) Verify by expansion\n\nExample:\ny=x²-5x+6=(x-2)(x-3)\n\nNote: if not factorable nicely, use quadratic formula first.",
+          zh: "标准式 -> 因式分解式\n\n步骤：\n1) 令 y=0\n2) 尝试分解 ax²+bx+c\n3) 成功后写成 a(x-r₁)(x-r₂)\n4) 反向展开核对\n\n示例：\ny=x²-5x+6=(x-2)(x-3)\n\n备注：若难分解，先用求根公式再写因式。"
+        },
+        fact_to_std: {
+          en: "Factored -> Standard\n\nSteps:\n1) Expand two brackets\n2) Multiply by a (if a≠1)\n3) Combine like terms into ax²+bx+c\n\nExample:\ny=2(x-2)(x+1)=2(x²-x-2)=2x²-2x-4",
+          zh: "因式分解式 -> 标准式\n\n步骤：\n1) 先展开两个括号\n2) 再乘前面的 a（若 a≠1）\n3) 合并同类项成 ax²+bx+c\n\n示例：\ny=2(x-2)(x+1)=2(x²-x-2)=2x²-2x-4"
+        },
+        std_to_vertex: {
+          en: "Standard -> Vertex\n\nSteps:\n1) Group x-terms and factor out a\n2) Complete square inside bracket\n3) Add/subtract balancing constant\n4) Rewrite as a(x-h)²+k\n\nExample:\ny=x²-6x+5=(x²-6x+9)-4=(x-3)²-4",
+          zh: "标准式 -> 顶点式\n\n步骤：\n1) 先把 x 项分组并提出 a\n2) 在括号内配方\n3) 同时加减平衡常数\n4) 写成 a(x-h)²+k\n\n示例：\ny=x²-6x+5=(x²-6x+9)-4=(x-3)²-4"
+        },
+        vertex_to_std: {
+          en: "Vertex -> Standard\n\nSteps:\n1) Expand (x-h)²\n2) Multiply every term by a\n3) Add k and combine constants\n\nExample:\ny=-2(x-1)²+5=-2(x²-2x+1)+5=-2x²+4x+3",
+          zh: "顶点式 -> 标准式\n\n步骤：\n1) 展开 (x-h)²\n2) 每一项都乘 a\n3) 加上 k 并合并常数\n\n示例：\ny=-2(x-1)²+5=-2(x²-2x+1)+5=-2x²+4x+3"
+        },
+        fact_to_vertex: {
+          en: "Factored -> Vertex\n\nSteps:\n1) Read roots r₁,r₂ from factors\n2) Compute midpoint h=(r₁+r₂)/2\n3) Substitute x=h to get k\n4) Write y=a(x-h)²+k\n\nExample:\ny=(x-1)(x-5): h=3, k=(3-1)(3-5)=-4\n=> y=(x-3)²-4",
+          zh: "因式分解式 -> 顶点式\n\n步骤：\n1) 从因式读根 r₁,r₂\n2) 算中点 h=(r₁+r₂)/2\n3) 代入 x=h 求 k\n4) 写成 y=a(x-h)²+k\n\n示例：\ny=(x-1)(x-5): h=3, k=(3-1)(3-5)=-4\n=> y=(x-3)²-4"
+        },
+        vertex_to_fact: {
+          en: "Vertex -> Factored\n\nSteps:\n1) Set y=0\n2) Isolate square term: (x-h)²=-k/a\n3) Solve roots x=h±sqrt(-k/a)\n4) Write y=a(x-r₁)(x-r₂)\n\nExample:\ny=(x-2)²-4 -> x=2±2 -> r₁=4,r₂=0\n=> y=(x-4)x",
+          zh: "顶点式 -> 因式分解式\n\n步骤：\n1) 令 y=0\n2) 先孤立平方项：(x-h)²=-k/a\n3) 解根 x=h±sqrt(-k/a)\n4) 写成 y=a(x-r₁)(x-r₂)\n\n示例：\ny=(x-2)²-4 -> x=2±2 -> r₁=4,r₂=0\n=> y=(x-4)x"
+        }
+      };
+      return map[ruleId][currentLang];
+    }
+
+    function switchLang(lang) {
+      currentLang = lang;
+      localizeStaticText();
+      renderMatrix("quadraticMatrixMount", quadraticMatrix);
+      renderMatrix("linearMatrixMount", linearMatrix);
+      bindMatrixClicks();
+      renderNetwork();
+      renderCards();
+      renderProblemRouter();
+      if (lastSelected) {
+        document.getElementById("infoPanelText").innerHTML = buildInfoPanel(lastSelected.matrixKey, lastSelected.formId, lastSelected.infoKey);
+        updateGraphLabel(lastSelected.matrixKey, lastSelected.formId);
+      } else {
+        document.getElementById("infoPanelText").textContent = i18n[currentLang].infoPanelDefault;
+        updateGraphLabel("quadratic", "qVertex");
+      }
+      document.getElementById("flowText").textContent = getFlowText(lastFlowRuleId);
+      drawMainGraph();
+      drawDiscCanvas("discPos", "pos");
+      drawDiscCanvas("discZero", "zero");
+      drawDiscCanvas("discNeg", "neg");
+    }
+
+    function init() {
+      document.getElementById("btnEN").addEventListener("click", () => switchLang("en"));
+      document.getElementById("btnZH").addEventListener("click", () => switchLang("zh"));
+      switchLang("en");
+    }
+
+    init();
+  </script>
+</body>
+</html>
