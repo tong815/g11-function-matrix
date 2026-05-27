@@ -318,6 +318,88 @@
       background: #fff;
       display: block;
     }
+    .graph-annotation-text {
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.45;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px;
+      background: #fafafa;
+    }
+    .graph-params {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 8px;
+      background: #fcfcfc;
+      font-size: 13px;
+    }
+    .graph-params-title {
+      font-weight: 700;
+      margin-bottom: 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .graph-params-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .graph-params-row label {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .graph-params-row input {
+      width: 72px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 4px 6px;
+      font-size: 13px;
+    }
+    .graph-params-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .graph-params-actions button {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .graph-params-actions button:hover {
+      background: #f9fafb;
+    }
+    .graph-param-error {
+      margin-top: 6px;
+      font-size: 12px;
+      color: #dc2626;
+      min-height: 1em;
+    }
+    .current-example-forms {
+      margin-bottom: 8px;
+      font-size: 12px;
+      line-height: 1.5;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px;
+      background: #fafafa;
+      font-family: "Consolas", "Courier New", monospace;
+    }
+    .current-example-forms b {
+      display: block;
+      margin-bottom: 4px;
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: var(--muted);
+      font-size: 11px;
+    }
 
     .transform-flow {
       font-size: 13px;
@@ -456,7 +538,22 @@
         <div class="block block-graph">
           <h2 id="graphPreviewTitle">Graph Preview</h2>
           <div class="small-note"><span id="currentObjectLabel">Current object:</span> <span id="graphLabel"></span></div>
+          <div class="graph-params" id="graphParamsBlock">
+            <div class="graph-params-title" id="graphParamsTitle">Quadratic Example</div>
+            <div class="graph-params-row">
+              <label><span id="labelQuadA">a:</span> <input type="number" step="any" id="quadInputA" value="1" /></label>
+              <label><span id="labelQuadB">b:</span> <input type="number" step="any" id="quadInputB" value="-4" /></label>
+              <label><span id="labelQuadC">c:</span> <input type="number" step="any" id="quadInputC" value="1" /></label>
+            </div>
+            <div class="graph-params-actions">
+              <button type="button" id="btnUpdateGraph">Update Graph</button>
+              <button type="button" id="btnResetGraph">Reset</button>
+            </div>
+            <div id="graphParamError" class="graph-param-error"></div>
+          </div>
+          <div id="currentExampleForms" class="current-example-forms"></div>
           <canvas id="graphCanvas" width="560" height="280"></canvas>
+          <div id="graphAnnotationText" class="graph-annotation-text"></div>
         </div>
 
         <div class="block block-flow">
@@ -561,7 +658,30 @@
         lForms: ["Slope-Intercept", "Point-Slope", "Standard Form"],
         markerVertex: "vertex",
         markerRoot: "root",
-        markerYInt: "y-int"
+        markerYInt: "y-int",
+        markerAxis: "axis",
+        markerMinimum: "min",
+        markerMaximum: "max",
+        markerRun: "run=1",
+        markerRise: "rise",
+        markerNoRealRoots: "no real x-intercepts",
+        markerOpensUp: "opens up",
+        markerOpensDown: "opens down",
+        markerKnownPoint: "known pt",
+        markerXInt: "x-int",
+        markerDoubleRoot: "double root",
+        graphAnnotationDefault: "Click a matrix cell to highlight what that form reads directly on the graph.",
+        graphParamsTitle: "Quadratic Example",
+        btnUpdateGraph: "Update Graph",
+        btnResetGraph: "Reset",
+        currentExampleTitle: "Current Example",
+        formStandardLabel: "Standard",
+        formVertexLabel: "Vertex",
+        formFactoredLabel: "Factored",
+        noRealFactored: "No real factored form over real numbers.",
+        quadErrorAZero: "a cannot be 0 for a quadratic.",
+        quadErrorInvalid: "Please enter valid numbers for a, b, and c.",
+        canvasErrorAZero: "a cannot be 0 — not a quadratic."
       },
       zh: {
         pageTitle: "G11 函数矩阵",
@@ -616,7 +736,30 @@
         lForms: ["斜截式", "点斜式", "标准式"],
         markerVertex: "顶点",
         markerRoot: "根",
-        markerYInt: "y截距"
+        markerYInt: "y截距",
+        markerAxis: "对称轴",
+        markerMinimum: "最小值",
+        markerMaximum: "最大值",
+        markerRun: "run=1",
+        markerRise: "rise",
+        markerNoRealRoots: "无实根",
+        markerOpensUp: "开口向上",
+        markerOpensDown: "开口向下",
+        markerKnownPoint: "已知点",
+        markerXInt: "x截距",
+        markerDoubleRoot: "重根",
+        graphAnnotationDefault: "点击矩阵格子，图像会高亮该形式可直接读取的信息。",
+        graphParamsTitle: "二次函数示例",
+        btnUpdateGraph: "更新图像",
+        btnResetGraph: "恢复默认",
+        currentExampleTitle: "当前例子",
+        formStandardLabel: "标准式",
+        formVertexLabel: "顶点式",
+        formFactoredLabel: "因式分解式",
+        noRealFactored: "实数范围内无法写成因式分解式。",
+        quadErrorAZero: "a 不能为 0，否则不是二次函数。",
+        quadErrorInvalid: "请在 a、b、c 中输入有效数字。",
+        canvasErrorAZero: "a 不能为 0，无法绘制二次函数图像。"
       }
     };
 
@@ -1122,9 +1265,12 @@
       { titleEN: "SOH CAH TOA", titleZH: "SOH CAH TOA", expr: "sin=opp/hyp, cos=adj/hyp, tan=opp/adj" }
     ];
 
+    const EPS = 1e-9;
+    const DEFAULT_QUADRATIC = { a: 1, b: -4, c: 1 };
+
     const graphState = {
       mode: "quadratic",
-      quadratic: { a: 1, b: -4, c: 1, h: 2, k: -3, r1: 1, r2: 3 },
+      quadratic: { a: 1, b: -4, c: 1 },
       linear: { m: 2, b: -1, point: [1, 1], A: 2, B: -1, C: -1 }
     };
 
@@ -1230,7 +1376,10 @@
 
           graphState.mode = matrixKey;
           updateGraphLabel(matrixKey, formId);
+          updateGraphParamsLabels();
+          updateCurrentExampleForms();
           drawMainGraph();
+          updateGraphAnnotationText(lastSelected);
         });
       });
     }
@@ -1355,6 +1504,538 @@
     function toCanvasX(x, w) { return w / 2 + x * 22; }
     function toCanvasY(y, h) { return h / 2 - y * 22; }
 
+    function fmt(n) {
+      if (!Number.isFinite(n)) return "?";
+      const rounded = Math.round(n * 1000) / 1000;
+      if (Math.abs(rounded) < EPS) return "0";
+      if (Number.isInteger(rounded)) return String(rounded);
+      return String(rounded);
+    }
+
+    function signedTerm(coeff, variable) {
+      const abs = fmt(Math.abs(coeff));
+      if (Math.abs(coeff) < EPS) return "";
+      const sign = coeff >= 0 ? " + " : " - ";
+      if (variable === "") return sign + abs;
+      if (Math.abs(Math.abs(coeff) - 1) < EPS && variable) return sign + variable;
+      return sign + abs + variable;
+    }
+
+    function rootBracket(root) {
+      if (Math.abs(root) < EPS) return "(x)";
+      if (root > 0) return "(x - " + fmt(root) + ")";
+      return "(x + " + fmt(-root) + ")";
+    }
+
+    function buildStandardFormText(a, b, c) {
+      let text = "y = ";
+      text += fmt(a) + "x²";
+      text += signedTerm(b, "x");
+      text += signedTerm(c, "");
+      return text.replace("y =  + ", "y = ").replace("y =  - ", "y = -");
+    }
+
+    function buildVertexFormText(a, h, k) {
+      let text = "y = " + fmt(a);
+      if (h >= 0) text += "(x - " + fmt(h) + ")²";
+      else text += "(x + " + fmt(-h) + ")²";
+      text += signedTerm(k, "");
+      return text;
+    }
+
+    function buildFactoredFormText(a, delta, roots) {
+      const t = i18n[currentLang];
+      if (delta < -EPS) return t.noRealFactored;
+      if (Math.abs(delta) <= EPS) {
+        return "y = " + fmt(a) + rootBracket(roots[0]) + "²";
+      }
+      return "y = " + fmt(a) + rootBracket(roots[0]) + rootBracket(roots[1]);
+    }
+
+    function getQuadraticFeatures() {
+      const a = Number(graphState.quadratic.a);
+      const b = Number(graphState.quadratic.b);
+      const c = Number(graphState.quadratic.c);
+      if (!Number.isFinite(a) || !Number.isFinite(b) || !Number.isFinite(c)) {
+        return { valid: false, error: "invalid", a, b, c };
+      }
+      if (Math.abs(a) < EPS) {
+        return { valid: false, error: "aZero", a, b, c };
+      }
+      const h = -b / (2 * a);
+      const k = a * h * h + b * h + c;
+      const delta = b * b - 4 * a * c;
+      let roots = [];
+      if (delta > EPS) {
+        const r1 = (-b - Math.sqrt(delta)) / (2 * a);
+        const r2 = (-b + Math.sqrt(delta)) / (2 * a);
+        roots = r1 < r2 ? [r1, r2] : [r2, r1];
+      } else if (Math.abs(delta) <= EPS) {
+        roots = [-b / (2 * a)];
+      }
+      const yIntercept = c;
+      const openingText = a > 0
+        ? (currentLang === "zh" ? "开口向上" : "opens up")
+        : (currentLang === "zh" ? "开口向下" : "opens down");
+      return {
+        valid: true,
+        a, b, c, delta, h, k, roots, yIntercept, openingText,
+        standardFormText: buildStandardFormText(a, b, c),
+        vertexFormText: buildVertexFormText(a, h, k),
+        factoredFormText: buildFactoredFormText(a, delta, roots),
+        hasTwoRoots: delta > EPS,
+        hasDoubleRoot: Math.abs(delta) <= EPS && roots.length === 1,
+        noRealRoots: delta < -EPS
+      };
+    }
+
+    function labelVertex(g) {
+      return "(h,k)≈(" + fmt(g.h) + "," + fmt(g.k) + ")";
+    }
+
+    function labelYInt(g) {
+      return "(0,c)=(" + fmt(0) + "," + fmt(g.c) + ")";
+    }
+
+    function labelAxis(g) {
+      return "x=h≈" + fmt(g.h);
+    }
+
+    function labelRoot1(g) {
+      return "r₁≈" + fmt(g.roots[0]);
+    }
+
+    function labelRoot2(g) {
+      return "r₂≈" + fmt(g.roots[1]);
+    }
+
+    function labelDoubleRoot(g) {
+      const t = i18n[currentLang];
+      return "r≈" + fmt(g.roots[0]) + " (" + t.markerDoubleRoot + ")";
+    }
+
+    function syncQuadraticInputs() {
+      document.getElementById("quadInputA").value = graphState.quadratic.a;
+      document.getElementById("quadInputB").value = graphState.quadratic.b;
+      document.getElementById("quadInputC").value = graphState.quadratic.c;
+    }
+
+    function updateCurrentExampleForms() {
+      const mount = document.getElementById("currentExampleForms");
+      const t = i18n[currentLang];
+      if (graphState.mode !== "quadratic") {
+        mount.innerHTML = "";
+        return;
+      }
+      const g = getQuadraticFeatures();
+      if (!g.valid) {
+        mount.innerHTML = "<b>" + t.currentExampleTitle + "</b>" + (g.error === "aZero" ? t.quadErrorAZero : t.quadErrorInvalid);
+        return;
+      }
+      mount.innerHTML =
+        "<b>" + t.currentExampleTitle + "</b>" +
+        t.formStandardLabel + ": " + g.standardFormText + "<br>" +
+        t.formVertexLabel + ": " + g.vertexFormText + "<br>" +
+        t.formFactoredLabel + ": " + g.factoredFormText;
+    }
+
+    function updateGraphParamsLabels() {
+      const t = i18n[currentLang];
+      document.getElementById("graphParamsTitle").textContent = t.graphParamsTitle;
+      document.getElementById("btnUpdateGraph").textContent = t.btnUpdateGraph;
+      document.getElementById("btnResetGraph").textContent = t.btnResetGraph;
+      const showParams = graphState.mode === "quadratic";
+      document.getElementById("graphParamsBlock").style.display = showParams ? "block" : "none";
+      document.getElementById("currentExampleForms").style.display = showParams ? "block" : "none";
+    }
+
+    function applyQuadraticParams() {
+      const t = i18n[currentLang];
+      const errEl = document.getElementById("graphParamError");
+      const a = Number(document.getElementById("quadInputA").value);
+      const b = Number(document.getElementById("quadInputB").value);
+      const c = Number(document.getElementById("quadInputC").value);
+      if (!Number.isFinite(a) || !Number.isFinite(b) || !Number.isFinite(c)) {
+        errEl.textContent = t.quadErrorInvalid;
+        return;
+      }
+      if (Math.abs(a) < EPS) {
+        errEl.textContent = t.quadErrorAZero;
+        graphState.quadratic = { a, b, c };
+        updateCurrentExampleForms();
+        drawMainGraph();
+        updateGraphAnnotationText(lastSelected);
+        return;
+      }
+      errEl.textContent = "";
+      graphState.quadratic = { a, b, c };
+      updateCurrentExampleForms();
+      drawMainGraph();
+      updateGraphAnnotationText(lastSelected);
+    }
+
+    function resetQuadraticParams() {
+      graphState.quadratic = { ...DEFAULT_QUADRATIC };
+      document.getElementById("graphParamError").textContent = "";
+      syncQuadraticInputs();
+      updateCurrentExampleForms();
+      drawMainGraph();
+      updateGraphAnnotationText(lastSelected);
+    }
+
+    function bindGraphParamControls() {
+      document.getElementById("btnUpdateGraph").addEventListener("click", applyQuadraticParams);
+      document.getElementById("btnResetGraph").addEventListener("click", resetQuadraticParams);
+      ["quadInputA", "quadInputB", "quadInputC"].forEach(id => {
+        document.getElementById(id).addEventListener("keydown", e => {
+          if (e.key === "Enter") applyQuadraticParams();
+        });
+      });
+    }
+
+    function getCellLevel(matrixKey, formId, infoKey) {
+      const matrix = matrixKey === "quadratic" ? quadraticMatrix : linearMatrix;
+      return matrix.cells[infoKey][formId];
+    }
+
+    function getAnnotationStrength(matrixKey, formId, targetInfo, clickedInfo) {
+      const level = getCellLevel(matrixKey, formId, targetInfo);
+      if (targetInfo === clickedInfo) return "focus";
+      if (level === "weak") return null;
+      if (level === "direct") return "direct";
+      if (level === "derivable") return "derivable";
+      return null;
+    }
+
+    const strengthRank = { focus: 3, direct: 2, derivable: 1 };
+
+    function getAnnStyle(strength) {
+      if (strength === "focus") {
+        return { color: "#dc2626", lineWidth: 2.5, radius: 6, dash: [], font: "bold 11px Segoe UI" };
+      }
+      if (strength === "direct") {
+        return { color: "#2563eb", lineWidth: 2, radius: 5, dash: [], font: "600 11px Segoe UI" };
+      }
+      return { color: "#9ca3af", lineWidth: 1.5, radius: 4, dash: [5, 4], font: "11px Segoe UI" };
+    }
+
+    function pushPoint(annotations, x, y, label, strength, target) {
+      if (!strength) return;
+      const key = "p:" + x.toFixed(3) + "," + y.toFixed(3);
+      const existing = annotations.find(a => a.type === "point" && a.key === key);
+      if (existing) {
+        if (strengthRank[strength] >= strengthRank[existing.strength]) {
+          existing.strength = strength;
+          existing.label = label;
+          existing.target = target;
+        }
+        return;
+      }
+      annotations.push({ type: "point", x, y, label, strength, target, key });
+    }
+
+    function getDirectGraphAnnotations(selection) {
+      if (!selection) return [];
+      const { matrixKey, formId, infoKey } = selection;
+      const t = i18n[currentLang];
+      const annotations = [];
+      const s = (target) => getAnnotationStrength(matrixKey, formId, target, infoKey);
+
+      if (matrixKey === "quadratic") {
+        const g = getQuadraticFeatures();
+        if (!g.valid) return annotations;
+
+        if (s("vertex")) pushPoint(annotations, g.h, g.k, labelVertex(g), s("vertex"), "vertex");
+        if (s("yint")) pushPoint(annotations, 0, g.c, labelYInt(g), s("yint"), "yint");
+
+        const sx = s("xint");
+        if (sx) {
+          if (g.noRealRoots) {
+            annotations.push({ type: "noRoots", strength: sx, target: "xint" });
+          } else if (g.hasDoubleRoot) {
+            pushPoint(annotations, g.roots[0], 0, labelDoubleRoot(g), sx, "xint");
+          } else if (g.hasTwoRoots) {
+            pushPoint(annotations, g.roots[0], 0, labelRoot1(g), sx, "xint");
+            pushPoint(annotations, g.roots[1], 0, labelRoot2(g), sx, "xint");
+          }
+        }
+
+        if (s("axis")) {
+          annotations.push({ type: "verticalLine", x: g.h, label: labelAxis(g), strength: s("axis"), target: "axis" });
+        }
+
+        if (s("extreme")) {
+          const extLabel = (g.a > 0 ? t.markerMinimum : t.markerMaximum) + " k≈" + fmt(g.k);
+          pushPoint(annotations, g.h, g.k, extLabel, s("extreme"), "extreme");
+        }
+
+        if (s("opening")) {
+          annotations.push({
+            type: "text",
+            x: g.h + 1.2,
+            y: g.k + (g.a > 0 ? 2.5 : -2.5),
+            label: g.openingText,
+            strength: s("opening"),
+            target: "opening"
+          });
+        }
+
+        if (s("transform") && formId === "qVertex") {
+          pushPoint(annotations, g.h, g.k, labelVertex(g), s("transform"), "transform");
+          annotations.push({ type: "verticalLine", x: g.h, label: labelAxis(g), strength: s("transform"), target: "transform" });
+        }
+      } else {
+        const { m, b, point, A, B, C } = graphState.linear;
+        const x1 = point[0];
+        const y1 = point[1];
+
+        if (formId === "lSlope") {
+          if (s("yint")) pushPoint(annotations, 0, b, t.markerYInt, s("yint"), "yint");
+          if (s("slope") || s("graphing")) {
+            annotations.push({ type: "slopeTriangle", x0: 0, y0: b, m, strength: s("slope") || s("graphing"), target: "slope" });
+          }
+          if (s("parallel") || s("perpendicular")) {
+            annotations.push({ type: "slopeTriangle", x0: 0, y0: b, m, strength: s("parallel") || s("perpendicular"), target: infoKey });
+          }
+        }
+
+        if (formId === "lPoint") {
+          if (s("knownPoint")) pushPoint(annotations, x1, y1, t.markerKnownPoint, s("knownPoint"), "knownPoint");
+          if (s("slope") || s("graphing")) {
+            annotations.push({ type: "slopeTriangle", x0: x1, y0: y1, m, strength: s("slope") || s("graphing"), target: "slope" });
+          }
+          if (s("yint")) {
+            const yInt = y1 - m * x1;
+            pushPoint(annotations, 0, yInt, t.markerYInt, s("yint"), "yint");
+          }
+        }
+
+        if (formId === "lStandard") {
+          const yInt = B !== 0 ? -C / B : null;
+          const xInt = A !== 0 ? -C / A : null;
+          if (s("yint") && yInt !== null) pushPoint(annotations, 0, yInt, t.markerYInt, s("yint"), "yint");
+          if ((s("graphing") || s("knownPoint")) && xInt !== null) {
+            pushPoint(annotations, xInt, 0, t.markerXInt, s("graphing") || s("knownPoint"), "graphing");
+          }
+          if (s("graphing") && yInt !== null && xInt !== null) {
+            annotations.push({ type: "interceptLine", xInt, yInt, strength: s("graphing"), target: "graphing" });
+          }
+          if (s("slope") && B !== 0) {
+            annotations.push({ type: "slopeTriangle", x0: 0, y0: yInt, m: -A / B, strength: s("slope"), target: "slope" });
+          }
+        }
+      }
+
+      return annotations;
+    }
+
+    function drawPointAnnotation(ctx, w, h, ann) {
+      const style = getAnnStyle(ann.strength);
+      const px = toCanvasX(ann.x, w);
+      const py = toCanvasY(ann.y, h);
+      ctx.fillStyle = style.color;
+      ctx.beginPath();
+      ctx.arc(px, py, style.radius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = style.color;
+      ctx.font = style.font;
+      ctx.fillText(ann.label, px + 7, py - 7);
+    }
+
+    function drawVerticalLineAnnotation(ctx, w, h, ann) {
+      const style = getAnnStyle(ann.strength);
+      const px = toCanvasX(ann.x, w);
+      ctx.strokeStyle = style.color;
+      ctx.lineWidth = style.lineWidth;
+      ctx.setLineDash(style.dash);
+      ctx.beginPath();
+      ctx.moveTo(px, 0);
+      ctx.lineTo(px, h);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = style.color;
+      ctx.font = style.font;
+      ctx.fillText(ann.label, px + 4, 14);
+    }
+
+    function drawTextAnnotation(ctx, w, h, ann) {
+      const style = getAnnStyle(ann.strength);
+      ctx.fillStyle = style.color;
+      ctx.font = style.font;
+      ctx.fillText(ann.label, toCanvasX(ann.x, w), toCanvasY(ann.y, h));
+    }
+
+    function drawSlopeTriangle(ctx, w, h, ann) {
+      const style = getAnnStyle(ann.strength);
+      const t = i18n[currentLang];
+      const x0 = ann.x0;
+      const y0 = ann.y0;
+      const m = ann.m;
+      const x1 = x0 + 1;
+      const y1 = y0 + m;
+      const px0 = toCanvasX(x0, w);
+      const py0 = toCanvasY(y0, h);
+      const px1 = toCanvasX(x1, w);
+      const py1 = toCanvasY(y1, h);
+      const pyBase = toCanvasY(y0, h);
+
+      ctx.strokeStyle = style.color;
+      ctx.lineWidth = style.lineWidth;
+      ctx.setLineDash(style.dash);
+      ctx.beginPath();
+      ctx.moveTo(px0, py0);
+      ctx.lineTo(px1, py1);
+      ctx.moveTo(px0, pyBase);
+      ctx.lineTo(px1, pyBase);
+      ctx.moveTo(px1, pyBase);
+      ctx.lineTo(px1, py1);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = style.color;
+      ctx.font = style.font;
+      ctx.fillText(t.markerRun, (px0 + px1) / 2 - 12, pyBase + 12);
+      ctx.fillText(t.markerRise + "=" + m, px1 + 4, (pyBase + py1) / 2);
+    }
+
+    function drawNoRootsAnnotation(ctx, w, h, ann) {
+      const style = getAnnStyle(ann.strength);
+      const t = i18n[currentLang];
+      const msg = currentLang === "zh" ? "无实数 x 截距（Δ < 0）" : "No real x-intercepts (Δ < 0)";
+      ctx.fillStyle = style.color;
+      ctx.font = style.font;
+      ctx.fillText(msg, w / 2 - 95, toCanvasY(0, h) + 20);
+    }
+
+    function drawInterceptLineAnnotation(ctx, w, h, ann) {
+      const style = getAnnStyle(ann.strength);
+      ctx.strokeStyle = style.color;
+      ctx.lineWidth = style.lineWidth;
+      ctx.setLineDash(style.dash);
+      ctx.beginPath();
+      ctx.moveTo(toCanvasX(ann.xInt, w), toCanvasY(0, h));
+      ctx.lineTo(toCanvasX(0, w), toCanvasY(ann.yInt, h));
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    function renderAnnotations(ctx, w, h, annotations) {
+      annotations.forEach(ann => {
+        if (ann.type === "point") drawPointAnnotation(ctx, w, h, ann);
+        else if (ann.type === "verticalLine") drawVerticalLineAnnotation(ctx, w, h, ann);
+        else if (ann.type === "text") drawTextAnnotation(ctx, w, h, ann);
+        else if (ann.type === "slopeTriangle") drawSlopeTriangle(ctx, w, h, ann);
+        else if (ann.type === "noRoots") drawNoRootsAnnotation(ctx, w, h, ann);
+        else if (ann.type === "interceptLine") drawInterceptLineAnnotation(ctx, w, h, ann);
+      });
+    }
+
+    function getGraphAnnotationNote(selection) {
+      if (!selection) return i18n[currentLang].graphAnnotationDefault;
+      const t = i18n[currentLang];
+      const isZH = currentLang === "zh";
+
+      if (selection.matrixKey === "quadratic") {
+        const g = getQuadraticFeatures();
+        if (!g.valid) {
+          return g.error === "aZero" ? t.quadErrorAZero : t.quadErrorInvalid;
+        }
+        const key = selection.formId + "|" + selection.infoKey;
+
+        if (key === "qFactored|xint" || key === "qStandard|xint") {
+          if (g.noRealRoots) {
+            return isZH
+              ? "当前例子 Δ<0，因此没有实数 x 截距；实数范围内不能写成因式分解式。"
+              : "This example has Δ<0, so there are no real x-intercepts. Factored form over real numbers is not available.";
+          }
+          if (g.hasDoubleRoot) {
+            return isZH
+              ? "因式分解式直接暴露根：r≈" + fmt(g.roots[0]) + " 是重根（图像与 x 轴相切）。"
+              : "Factored form exposes the root directly: r≈" + fmt(g.roots[0]) + " is a double root (tangent to the x-axis).";
+          }
+          return isZH
+            ? "因式分解式直接暴露根：r₁≈" + fmt(g.roots[0]) + " 和 r₂≈" + fmt(g.roots[1]) + " 就是 x 轴交点。"
+            : "Factored form exposes the roots directly: r₁≈" + fmt(g.roots[0]) + " and r₂≈" + fmt(g.roots[1]) + " are the x-intercepts.";
+        }
+
+        if (key === "qVertex|vertex") {
+          return isZH
+            ? "顶点式直接暴露转折点：顶点 (h,k)≈(" + fmt(g.h) + "," + fmt(g.k) + ")。"
+            : "Vertex form exposes the turning point directly: vertex=(h,k)≈(" + fmt(g.h) + "," + fmt(g.k) + ").";
+        }
+
+        if (key === "qVertex|axis" || key === "qStandard|axis") {
+          return isZH
+            ? "对称轴为 x=h≈" + fmt(g.h) + "；顶点式可直接读取，标准式需用 x=-b/(2a) 推导。"
+            : "The axis of symmetry is x=h≈" + fmt(g.h) + "; vertex form reads it directly, standard form derives it.";
+        }
+
+        if (key === "qStandard|yint") {
+          return isZH
+            ? "标准式直接暴露 y 截距：当 x=0 时，y=c=" + fmt(g.c) + "，即 (0,c)。"
+            : "Standard form exposes the y-intercept directly: when x=0, y=c=" + fmt(g.c) + ", so the point is (0,c).";
+        }
+
+        if (key === "qStandard|opening" || key === "qVertex|opening" || key === "qFactored|opening") {
+          return isZH
+            ? "系数 a=" + fmt(g.a) + " 决定开口：" + g.openingText + "。"
+            : "Coefficient a=" + fmt(g.a) + " controls opening: " + g.openingText + ".";
+        }
+
+        if (key === "qVertex|extreme") {
+          const kind = g.a > 0 ? (isZH ? "最小值" : "minimum") : (isZH ? "最大值" : "maximum");
+          return isZH
+            ? "顶点式直接给出极值：k≈" + fmt(g.k) + " 是当前例子的" + kind + "。"
+            : "Vertex form exposes the extremum directly: k≈" + fmt(g.k) + " is the " + kind + " for this example.";
+        }
+
+        if (key === "qVertex|transform") {
+          return isZH
+            ? "顶点式 y=a(x-h)²+k 直接显示平移：h≈" + fmt(g.h) + "，k≈" + fmt(g.k) + "，a=" + fmt(g.a) + "。"
+            : "Vertex form y=a(x-h)²+k shows transformations directly: h≈" + fmt(g.h) + ", k≈" + fmt(g.k) + ", a=" + fmt(g.a) + ".";
+        }
+      }
+
+      if (selection.matrixKey === "linear") {
+        const linKey = selection.formId + "|" + selection.infoKey;
+        if (linKey === "lSlope|slope") {
+          return isZH
+            ? "斜截式可直接读斜率 m=" + fmt(graphState.linear.m) + "；rise/run 表示 x 增加 1 时 y 的变化。"
+            : "Slope-intercept form exposes slope m=" + fmt(graphState.linear.m) + " directly; rise/run shows the change when x increases by 1.";
+        }
+        if (linKey === "lPoint|knownPoint") {
+          const p = graphState.linear.point;
+          return isZH
+            ? "点斜式直接给出已知点 (x₁,y₁)=(" + fmt(p[0]) + "," + fmt(p[1]) + ")。"
+            : "Point-slope form exposes the known point (x₁,y₁)=(" + fmt(p[0]) + "," + fmt(p[1]) + ") directly.";
+        }
+        if (linKey === "lStandard|graphing" || linKey === "lStandard|yint") {
+          return isZH
+            ? "标准式适合截距作图：先标 x、y 截距，再连线。"
+            : "Standard form is best for intercept graphing: plot x-intercept and y-intercept, then connect.";
+        }
+      }
+
+      const level = getCellLevel(selection.matrixKey, selection.formId, selection.infoKey);
+      if (level === "direct") {
+        return isZH
+          ? "绿色 Direct：该信息在当前形式下可直接从图像读取（高亮显示）。"
+          : "Green Direct: this information is read directly from the graph in this form (highlighted).";
+      }
+      if (level === "derivable") {
+        return isZH
+          ? "黄色 Derivable：该信息需推导；图中以虚线弱显示相关辅助信息。"
+          : "Yellow Derivable: requires derivation; related helpers are shown with dashed lines.";
+      }
+      return isZH
+        ? "灰色 Weak：该形式不优先用于此信息；点击后仅作辅助说明。"
+        : "Grey Weak: this form is not preferred for this information.";
+    }
+
+    function updateGraphAnnotationText(selection) {
+      const el = document.getElementById("graphAnnotationText");
+      if (el) el.textContent = getGraphAnnotationNote(selection);
+    }
+
     function drawMainGraph() {
       const canvas = document.getElementById("graphCanvas");
       const ctx = canvas.getContext("2d");
@@ -1363,7 +2044,20 @@
       drawAxes(ctx, w, h);
 
       if (graphState.mode === "quadratic") {
-        const { a, b, c } = graphState.quadratic;
+        const g = getQuadraticFeatures();
+        if (!g.valid) {
+          ctx.fillStyle = "#6b7280";
+          ctx.font = "13px Segoe UI";
+          ctx.textAlign = "center";
+          ctx.fillText(
+            g.error === "aZero" ? i18n[currentLang].canvasErrorAZero : i18n[currentLang].quadErrorInvalid,
+            w / 2,
+            h / 2
+          );
+          ctx.textAlign = "left";
+          return;
+        }
+        const { a, b, c } = g;
         ctx.strokeStyle = "#111827";
         ctx.lineWidth = 2;
         ctx.beginPath();
@@ -1380,28 +2074,6 @@
           }
         }
         ctx.stroke();
-
-        const vx = -b / (2 * a);
-        const vy = a * vx * vx + b * vx + c;
-        const d = b * b - 4 * a * c;
-        const axisX = toCanvasX(vx, w);
-
-        ctx.setLineDash([5, 5]);
-        ctx.strokeStyle = "#6b7280";
-        ctx.beginPath();
-        ctx.moveTo(axisX, 0);
-        ctx.lineTo(axisX, h);
-        ctx.stroke();
-        ctx.setLineDash([]);
-
-        markPoint(ctx, toCanvasX(vx, w), toCanvasY(vy, h), "#ef4444", i18n[currentLang].markerVertex);
-
-        if (d >= 0) {
-          const r1 = (-b + Math.sqrt(d)) / (2 * a);
-          const r2 = (-b - Math.sqrt(d)) / (2 * a);
-          markPoint(ctx, toCanvasX(r1, w), toCanvasY(0, h), "#2563eb", i18n[currentLang].markerRoot);
-          markPoint(ctx, toCanvasX(r2, w), toCanvasY(0, h), "#2563eb", i18n[currentLang].markerRoot);
-        }
       } else {
         const { m, b } = graphState.linear;
         ctx.strokeStyle = "#111827";
@@ -1412,18 +2084,10 @@
         ctx.moveTo(toCanvasX(x1, w), toCanvasY(y1, h));
         ctx.lineTo(toCanvasX(x2, w), toCanvasY(y2, h));
         ctx.stroke();
-        markPoint(ctx, toCanvasX(0, w), toCanvasY(b, h), "#2563eb", i18n[currentLang].markerYInt);
       }
-    }
 
-    function markPoint(ctx, x, y, color, text) {
-      ctx.fillStyle = color;
-      ctx.beginPath();
-      ctx.arc(x, y, 4, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = "#374151";
-      ctx.font = "11px Segoe UI";
-      ctx.fillText(text, x + 6, y - 6);
+      const annotations = getDirectGraphAnnotations(lastSelected);
+      renderAnnotations(ctx, w, h, annotations);
     }
 
     function drawDiscCanvas(id, mode) {
@@ -1476,6 +2140,8 @@
       document.getElementById("discNegText").innerHTML = t.discNegText + '<canvas id="discNeg" class="disc-canvas" width="190" height="90"></canvas>';
       document.getElementById("btnEN").classList.toggle("active", currentLang === "en");
       document.getElementById("btnZH").classList.toggle("active", currentLang === "zh");
+      updateGraphParamsLabels();
+      updateCurrentExampleForms();
     }
 
     const flowContent = {
@@ -1617,6 +2283,7 @@
       }
       document.getElementById("flowText").innerHTML = renderFlowHtml(lastFlowRuleId);
       drawMainGraph();
+      updateGraphAnnotationText(lastSelected);
       drawDiscCanvas("discPos", "pos");
       drawDiscCanvas("discZero", "zero");
       drawDiscCanvas("discNeg", "neg");
@@ -1627,6 +2294,8 @@
       window.addEventListener("resize", () => {
         detectDeviceMode();
       });
+      bindGraphParamControls();
+      syncQuadraticInputs();
       document.getElementById("btnEN").addEventListener("click", () => switchLang("en"));
       document.getElementById("btnZH").addEventListener("click", () => switchLang("zh"));
       switchLang("en");
