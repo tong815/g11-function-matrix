@@ -1,0 +1,40 @@
+html.device-mobile .layout {
+  grid-template-columns: 1fr;
+  gap: 12px;
+  min-height: 0;
+}
+
+html.device-mobile .left,
+html.device-mobile .right {
+  display: contents;
+}
+
+html.device-mobile .block-q-matrix { order: 1; }
+html.device-mobile .block-info { order: 2; }
+html.device-mobile .block-graph { order: 3; }
+html.device-mobile .block-l-matrix { order: 4; }
+html.device-mobile .block-flow { order: 5; }
+html.device-mobile .block-trans { order: 6; }
+html.device-mobile .block-same-geo { order: 7; }
+html.device-mobile .block-disc { order: 8; }
+html.device-mobile .block-cards { order: 9; }
+html.device-mobile .block-router { order: 10; }
+
+html.device-mobile .app { padding: 14px; }
+html.device-mobile h1 { font-size: 22px; }
+html.device-mobile .matrix-scroll table { min-width: 520px; }
+html.device-mobile .axis-grid,
+html.device-mobile .disc-wrap {
+  grid-template-columns: 1fr;
+}
+html.device-mobile .network,
+html.device-mobile .transform-path {
+  flex-direction: column;
+  align-items: stretch;
+}
+html.device-mobile .network .node,
+html.device-mobile .network .edge-btn,
+html.device-mobile .transform-path .node,
+html.device-mobile .transform-path .edge-tag {
+  width: 100%;
+}
