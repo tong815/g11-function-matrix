@@ -102,15 +102,79 @@
 
     html.device-desktop .left,
     html.device-desktop .right {
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 14px;
-      background: #fff;
+      display: contents;
     }
 
-    html.device-desktop .left .block:last-child,
-    html.device-desktop .right .block:last-child {
+    html.device-desktop body {
+      background: #f8fafc;
+    }
+
+    html.device-desktop .layout {
+      grid-template-columns: 52fr 48fr;
+      gap: 16px;
+    }
+
+    html.device-desktop .block {
+      border-radius: 14px;
+      border: 1px solid #dbe3ef;
+      background: #ffffff;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    html.device-desktop .block-graph {
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+    }
+
+    html.device-desktop h1 {
+      font-weight: 800;
+    }
+
+    html.device-desktop header {
+      border-bottom: 1px solid #e2e8f0;
+      margin-bottom: 16px;
+    }
+
+    html.device-desktop .block-q-matrix { grid-column: 1; order: 1; }
+    html.device-desktop .block-l-matrix { grid-column: 1; order: 2; }
+    html.device-desktop .block-router { grid-column: 1; order: 3; }
+    html.device-desktop .block-trans { grid-column: 1; order: 4; }
+    html.device-desktop .block-same-geo { grid-column: 1; order: 5; }
+    html.device-desktop .block-disc { grid-column: 1; order: 6; }
+    html.device-desktop .block-graph { grid-column: 2; order: 1; }
+    html.device-desktop .block-info { grid-column: 2; order: 2; }
+    html.device-desktop .block-cards { grid-column: 2; order: 3; }
+    html.device-desktop .block-flow { grid-column: 2; order: 4; }
+
+    html.device-desktop #graphCanvas {
+      height: 360px;
+    }
+
+    html.device-desktop .graph-params {
+      background: #f8fafc;
+      border-color: #dbe3ef;
+    }
+
+    html.device-desktop .graph-params-inner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    html.device-desktop .graph-params-title {
       margin-bottom: 0;
+      white-space: nowrap;
+    }
+
+    html.device-desktop .graph-params-row {
+      margin-bottom: 0;
+      display: contents;
+    }
+
+    html.device-desktop .graph-params-actions {
+      display: contents;
     }
     .block {
       border: 1px solid var(--line);
@@ -163,6 +227,11 @@
       outline: 2px solid var(--accent);
       outline-offset: -2px;
     }
+    html.device-desktop td.active-cell {
+      outline: 2px solid #2563eb;
+      outline-offset: -2px;
+      box-shadow: inset 0 0 0 999px rgba(37, 99, 235, 0.06);
+    }
     .good { background: var(--good); }
     .derive { background: var(--derive); }
     .weak { background: var(--weak); color: #6b7280; }
@@ -193,24 +262,52 @@
       margin: 6px 0;
       font-size: 13px;
     }
+    .transform-diagram {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .transform-path {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      justify-content: center;
+    }
+    .transform-path-reverse {
+      opacity: 0.85;
+      padding-top: 4px;
+      border-top: 1px dashed var(--line);
+    }
     .node {
       border: 1px solid var(--line);
-      padding: 8px;
-      border-radius: 8px;
+      padding: 8px 12px;
+      border-radius: 10px;
       text-align: center;
       background: var(--card);
       font-weight: 600;
+      font-size: 13px;
+      min-width: 88px;
     }
-    .edge-btn {
+    .node-standard { background: #eff6ff; border-color: #bfdbfe; color: #1e40af; }
+    .node-factored { background: #ecfdf5; border-color: #a7f3d0; color: #047857; }
+    .node-vertex { background: #f5f3ff; border-color: #ddd6fe; color: #6d28d9; }
+    .edge-btn, .edge-tag {
       border: 1px solid var(--line);
       background: #fff;
       border-radius: 999px;
-      padding: 4px 8px;
+      padding: 5px 10px;
       cursor: pointer;
       font-size: 12px;
+      color: var(--text);
+      white-space: nowrap;
     }
-    .edge-btn:hover {
-      background: #f9fafb;
+    .edge-tag {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+    }
+    .edge-btn:hover, .edge-tag:hover {
+      background: #f1f5f9;
     }
 
     .info-panel pre {
@@ -275,8 +372,40 @@
 
     .cards {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 8px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+    }
+    .formula-group-card {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      padding: 10px;
+    }
+    .formula-group-card h3 {
+      margin: 0 0 8px;
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    .formula-group-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .formula-row {
+      font-size: 12px;
+      line-height: 1.4;
+      padding: 6px 8px;
+      border-radius: 8px;
+      background: #fafafa;
+      border: 1px solid #f0f0f0;
+    }
+    .formula-row b {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 2px;
+      font-weight: 600;
     }
     .formula-card {
       border: 1px solid var(--line);
@@ -291,6 +420,43 @@
       font-size: 12px;
       color: var(--muted);
       font-weight: 600;
+    }
+    .router-tables {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 10px;
+    }
+    .router-table-wrap {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fff;
+    }
+    .router-table-title {
+      padding: 8px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      background: #f8fafc;
+      border-bottom: 1px solid var(--line);
+    }
+    .router-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    .router-table th,
+    .router-table td {
+      border: 1px solid var(--line);
+      padding: 7px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    .router-table th {
+      background: #fcfcfc;
+      font-weight: 600;
+      font-size: 11px;
+      color: var(--muted);
     }
     .router-section {
       border: 1px solid var(--line);
@@ -385,20 +551,69 @@
     }
     .current-example-forms {
       margin-bottom: 8px;
-      font-size: 12px;
-      line-height: 1.5;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 8px;
-      background: #fafafa;
-      font-family: "Consolas", "Courier New", monospace;
     }
-    .current-example-forms b {
-      display: block;
-      margin-bottom: 4px;
-      font-family: "Segoe UI", Arial, sans-serif;
-      color: var(--muted);
+    .example-form-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 8px;
+    }
+    .example-form-card {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .example-form-card .efc-title {
+      font-weight: 700;
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    .example-form-card .efc-expr {
+      font-family: "Consolas", "Courier New", monospace;
       font-size: 11px;
+      word-break: break-word;
+    }
+    .example-form-card.card-standard { background: #eff6ff; border-color: #bfdbfe; }
+    .example-form-card.card-standard .efc-title { color: #1d4ed8; }
+    .example-form-card.card-vertex { background: #ecfdf5; border-color: #a7f3d0; }
+    .example-form-card.card-vertex .efc-title { color: #047857; }
+    .example-form-card.card-factored { background: #fdf2f8; border-color: #fbcfe8; }
+    .example-form-card.card-factored .efc-title { color: #be185d; }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      line-height: 1.2;
+    }
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .status-direct .status-dot { background: #16a34a; }
+    .status-derive .status-dot { background: #ca8a04; }
+    .status-weak .status-dot { background: #9ca3af; }
+    .graph-preview-note {
+      color: var(--muted);
+      font-size: 12px;
+      margin: -4px 0 10px;
+      line-height: 1.4;
+    }
+    .btn-primary {
+      background: #2563eb !important;
+      color: #fff !important;
+      border-color: #2563eb !important;
+      font-weight: 600;
+    }
+    .btn-primary:hover {
+      background: #1d4ed8 !important;
+    }
+    .btn-reset {
+      background: #fff !important;
+      border: 1px solid var(--line) !important;
     }
 
     .transform-flow {
@@ -473,12 +688,15 @@
     html.device-mobile .disc-wrap {
       grid-template-columns: 1fr;
     }
-    html.device-mobile .network {
-      grid-template-columns: 1fr;
-      gap: 6px;
+    html.device-mobile .network,
+    html.device-mobile .transform-path {
+      flex-direction: column;
+      align-items: stretch;
     }
     html.device-mobile .network .node,
-    html.device-mobile .network .edge-btn {
+    html.device-mobile .network .edge-btn,
+    html.device-mobile .transform-path .node,
+    html.device-mobile .transform-path .edge-tag {
       width: 100%;
     }
   </style>
@@ -512,6 +730,11 @@
           <div id="linearMatrixMount"></div>
         </div>
 
+        <div class="block block-router">
+          <h2 id="problemRouterTitle">Problem → Best Form</h2>
+          <div id="problemRouterMount"></div>
+        </div>
+
         <div class="block block-trans">
           <h2 id="transRulesTitle">Transformation Rules</h2>
           <div class="small-note" id="transRulesNote">Click edge labels to inspect conversion workflow.</div>
@@ -522,38 +745,36 @@
           <h2 id="formulaCardsTitle">Formula Cards</h2>
           <div id="cardsMount" class="cards"></div>
         </div>
-
-        <div class="block block-router">
-          <h2 id="problemRouterTitle">Problem → Best Form</h2>
-          <div id="problemRouterMount"></div>
-        </div>
       </section>
 
       <section class="right">
-        <div class="block block-info info-panel" id="infoPanelBlock">
-          <h2 id="infoPanelTitle">Information Read Panel</h2>
-          <div id="infoPanelText">Click any matrix cell to inspect how information is extracted.</div>
-        </div>
-
         <div class="block block-graph">
           <h2 id="graphPreviewTitle">Graph Preview</h2>
+          <div class="graph-preview-note" id="graphPreviewNote"></div>
           <div class="small-note"><span id="currentObjectLabel">Current object:</span> <span id="graphLabel"></span></div>
           <div class="graph-params" id="graphParamsBlock">
-            <div class="graph-params-title" id="graphParamsTitle">Quadratic Example</div>
-            <div class="graph-params-row">
-              <label><span id="labelQuadA">a:</span> <input type="number" step="any" id="quadInputA" value="1" /></label>
-              <label><span id="labelQuadB">b:</span> <input type="number" step="any" id="quadInputB" value="-4" /></label>
-              <label><span id="labelQuadC">c:</span> <input type="number" step="any" id="quadInputC" value="1" /></label>
-            </div>
-            <div class="graph-params-actions">
-              <button type="button" id="btnUpdateGraph">Update Graph</button>
-              <button type="button" id="btnResetGraph">Reset</button>
+            <div class="graph-params-inner">
+              <div class="graph-params-title" id="graphParamsTitle">Quadratic Example</div>
+              <div class="graph-params-row">
+                <label><span id="labelQuadA">a:</span> <input type="number" step="any" id="quadInputA" value="1" /></label>
+                <label><span id="labelQuadB">b:</span> <input type="number" step="any" id="quadInputB" value="-4" /></label>
+                <label><span id="labelQuadC">c:</span> <input type="number" step="any" id="quadInputC" value="1" /></label>
+              </div>
+              <div class="graph-params-actions">
+                <button type="button" class="btn-primary" id="btnUpdateGraph">Update Graph</button>
+                <button type="button" class="btn-reset" id="btnResetGraph">Reset</button>
+              </div>
             </div>
             <div id="graphParamError" class="graph-param-error"></div>
           </div>
           <div id="currentExampleForms" class="current-example-forms"></div>
           <canvas id="graphCanvas" width="560" height="280"></canvas>
           <div id="graphAnnotationText" class="graph-annotation-text"></div>
+        </div>
+
+        <div class="block block-info info-panel" id="infoPanelBlock">
+          <h2 id="infoPanelTitle">Information Read Panel</h2>
+          <div id="infoPanelText">Click any matrix cell to inspect how information is extracted.</div>
         </div>
 
         <div class="block block-flow">
@@ -618,7 +839,13 @@
         problemRouterTitle: "Problem \u2192 Best Form",
         infoPanelTitle: "Information Read Panel",
         infoPanelDefault: "Click any matrix cell to inspect how information is extracted.",
-        graphPreviewTitle: "Graph Preview",
+        graphPreviewTitle: "GRAPH PREVIEW · 图像预览",
+        graphPreviewNote: "Highlights directly readable information · 根据选择高亮可直接读取的信息",
+        routerColProblem: "Problem",
+        routerColForm: "Best Form",
+        formulaGroupQuadratic: "Quadratic",
+        formulaGroupLinear: "Linear",
+        formulaGroupTrig: "Trig",
         currentObjectLabel: "Current object:",
         flowTitle: "Transformation Flow",
         flowDefault: "Click an arrow in Transformation Rules.",
@@ -634,7 +861,7 @@
         discNegText: "Δ &lt; 0<br/>No real roots",
         tableInfo: "Information",
         levelDirect: "Direct",
-        levelDerive: "Derive",
+        levelDerive: "Derivable",
         levelWeak: "Weak",
         legendDirect: "Direct Read",
         legendDerive: "Derivable",
@@ -696,7 +923,13 @@
         problemRouterTitle: "题目 \u2192 最优形式",
         infoPanelTitle: "信息读取面板",
         infoPanelDefault: "点击任意矩阵格子，查看该信息如何读取。",
-        graphPreviewTitle: "图像预览",
+        graphPreviewTitle: "GRAPH PREVIEW · 图像预览",
+        graphPreviewNote: "Highlights directly readable information · 根据选择高亮可直接读取的信息",
+        routerColProblem: "题目",
+        routerColForm: "最优形式",
+        formulaGroupQuadratic: "二次函数",
+        formulaGroupLinear: "直线",
+        formulaGroupTrig: "三角函数",
         currentObjectLabel: "当前对象：",
         flowTitle: "转换流程",
         flowDefault: "点击“形式转换规则”中的箭头。",
@@ -713,7 +946,7 @@
         tableInfo: "信息",
         levelDirect: "直读",
         levelDerive: "可推导",
-        levelWeak: "不优先",
+        levelWeak: "不适合",
         legendDirect: "直接读取",
         legendDerive: "可推导得到",
         legendWeak: "不适合优先",
@@ -1251,19 +1484,37 @@
     ];
 
     const formulaCards = [
-      { titleEN: "Quadratic Formula", titleZH: "求根公式", expr: "x = (-b ± √(b² - 4ac)) / 2a" },
-      { titleEN: "Vertex from Standard", titleZH: "标准式求顶点", expr: "h = -b/(2a),  k = f(h)" },
-      { titleEN: "Discriminant", titleZH: "判别式", expr: "Δ = b² - 4ac" },
-      { titleEN: "Axis from Roots", titleZH: "由两根求对称轴", expr: "x = (r₁ + r₂)/2" },
-      { titleEN: "Vertex Form", titleZH: "顶点式", expr: "y = a(x-h)² + k" },
-      { titleEN: "Factored Roots", titleZH: "因式分解式（根）", expr: "y = a(x-r₁)(x-r₂)" },
-      { titleEN: "Slope", titleZH: "斜率", expr: "m = (y₂ - y₁)/(x₂ - x₁)" },
-      { titleEN: "Slope-Intercept", titleZH: "斜截式", expr: "y = mx + b" },
-      { titleEN: "Point-Slope", titleZH: "点斜式", expr: "y - y₁ = m(x - x₁)" },
-      { titleEN: "Perpendicular Slope", titleZH: "垂线斜率", expr: "m₂ = -1/m₁" },
-      { titleEN: "Standard Form Slope", titleZH: "标准式斜率", expr: "m = -A/B" },
-      { titleEN: "SOH CAH TOA", titleZH: "SOH CAH TOA", expr: "sin=opp/hyp, cos=adj/hyp, tan=opp/adj" }
+      { group: "quadratic", titleEN: "Quadratic Formula", titleZH: "求根公式", expr: "x = (-b ± √(b² - 4ac)) / 2a" },
+      { group: "quadratic", titleEN: "Vertex from Standard", titleZH: "标准式求顶点", expr: "h = -b/(2a),  k = f(h)" },
+      { group: "quadratic", titleEN: "Discriminant", titleZH: "判别式", expr: "Δ = b² - 4ac" },
+      { group: "quadratic", titleEN: "Axis from Roots", titleZH: "由两根求对称轴", expr: "x = (r₁ + r₂)/2" },
+      { group: "quadratic", titleEN: "Vertex Form", titleZH: "顶点式", expr: "y = a(x-h)² + k" },
+      { group: "quadratic", titleEN: "Factored Roots", titleZH: "因式分解式（根）", expr: "y = a(x-r₁)(x-r₂)" },
+      { group: "linear", titleEN: "Slope", titleZH: "斜率", expr: "m = (y₂ - y₁)/(x₂ - x₁)" },
+      { group: "linear", titleEN: "Slope-Intercept", titleZH: "斜截式", expr: "y = mx + b" },
+      { group: "linear", titleEN: "Point-Slope", titleZH: "点斜式", expr: "y - y₁ = m(x - x₁)" },
+      { group: "linear", titleEN: "Perpendicular Slope", titleZH: "垂线斜率", expr: "m₂ = -1/m₁" },
+      { group: "linear", titleEN: "Standard Form Slope", titleZH: "标准式斜率", expr: "m = -A/B" },
+      { group: "trig", titleEN: "SOH CAH TOA", titleZH: "SOH CAH TOA", expr: "sin=opp/hyp, cos=adj/hyp, tan=opp/adj" }
     ];
+
+    const problemRouterData = {
+      quadratic: [
+        { problemEN: "Find vertex", problemZH: "求顶点", formEN: "Vertex Form", formZH: "顶点式" },
+        { problemEN: "Find x-intercepts", problemZH: "求 x 截距", formEN: "Factored Form", formZH: "因式分解式" },
+        { problemEN: "Find y-intercept", problemZH: "求 y 截距", formEN: "Standard Form", formZH: "标准式" },
+        { problemEN: "Find max/min", problemZH: "求最大/最小值", formEN: "Vertex Form", formZH: "顶点式" },
+        { problemEN: "Describe transformations", problemZH: "描述平移变换", formEN: "Vertex Form", formZH: "顶点式" },
+        { problemEN: "Decide number of roots", problemZH: "判断根的个数", formEN: "Standard / Discriminant", formZH: "标准式 / 判别式" }
+      ],
+      linear: [
+        { problemEN: "Find slope", problemZH: "求斜率", formEN: "Slope-Intercept / Point-Slope", formZH: "斜截式 / 点斜式" },
+        { problemEN: "Given point + slope", problemZH: "已知一点+斜率", formEN: "Point-Slope", formZH: "点斜式" },
+        { problemEN: "Graph line", problemZH: "直线作图", formEN: "Slope-Intercept", formZH: "斜截式" },
+        { problemEN: "Find intercepts", problemZH: "求截距", formEN: "Standard Form", formZH: "标准式" },
+        { problemEN: "Parallel / perpendicular", problemZH: "平行/垂直判断", formEN: "Any form → find slope", formZH: "任意形式先求斜率" }
+      ]
+    };
 
     const EPS = 1e-9;
     const DEFAULT_QUADRATIC = { a: 1, b: -4, c: 1 };
@@ -1291,7 +1542,7 @@
           const level = matrixData.cells[infoKey][f.id];
           html += "<td class='clickable " + LevelClass[level] + "' " +
             "data-matrix='" + matrixData.key + "' data-form='" + f.id + "' data-info='" + infoKey + "'>" +
-            readableLevel(level) + "</td>";
+            statusPill(level) + "</td>";
         });
         html += "</tr>";
       });
@@ -1304,6 +1555,14 @@
       mount.innerHTML = "<div class='matrix-scroll'>" + html + "</div>";
     }
 
+    function syncCanvasSize() {
+      const canvas = document.getElementById("graphCanvas");
+      if (!canvas) return;
+      const isDesktop = document.documentElement.classList.contains("device-desktop");
+      canvas.height = isDesktop ? 360 : 280;
+      canvas.width = 560;
+    }
+
     function detectDeviceMode() {
       const ua = navigator.userAgent || "";
       const isPhone = /iPhone|iPod|Android.*Mobile|Windows Phone|webOS|BlackBerry|Opera Mini/i.test(ua);
@@ -1313,6 +1572,7 @@
       const isMobile = isPhone || (isNarrow && isTouch && isCoarse) || window.innerWidth <= 768;
       document.documentElement.classList.remove("device-mobile", "device-desktop");
       document.documentElement.classList.add(isMobile ? "device-mobile" : "device-desktop");
+      syncCanvasSize();
       return isMobile ? "mobile" : "desktop";
     }
 
@@ -1321,6 +1581,12 @@
       if (level === "direct") return t.levelDirect;
       if (level === "derivable") return t.levelDerive;
       return t.levelWeak;
+    }
+
+    function statusPill(level) {
+      const label = readableLevel(level);
+      const cls = level === "direct" ? "status-direct" : level === "derivable" ? "status-derive" : "status-weak";
+      return "<span class=\"status-pill " + cls + "\"><span class=\"status-dot\"></span>" + label + "</span>";
     }
 
     function buildInfoPanel(matrixKey, formId, infoKey) {
@@ -1387,31 +1653,34 @@
     function renderNetwork() {
       const mount = document.getElementById("networkMount");
       const t = i18n[currentLang];
+      const isZH = currentLang === "zh";
       const html = `
-        <div class="network">
-          <div class="node">${t.nodeStandard}</div>
-          <button class="edge-btn" data-edge="std_to_fact">${currentLang === "zh" ? "因式分解" : "factoring"} →</button>
-          <div class="node">${t.nodeFactored}</div>
-          <button class="edge-btn" data-edge="fact_to_vertex">${currentLang === "zh" ? "中点法" : "midpoint"} →</button>
-          <div class="node">${t.nodeVertex}</div>
-        </div>
-        <div class="network">
-          <div class="node">${t.nodeStandard}</div>
-          <button class="edge-btn" data-edge="std_to_vertex">${currentLang === "zh" ? "配方" : "complete sq."} →</button>
-          <div class="node">${t.nodeVertex}</div>
-          <button class="edge-btn" data-edge="vertex_to_fact">${currentLang === "zh" ? "解根" : "roots"} →</button>
-          <div class="node">${t.nodeFactored}</div>
-        </div>
-        <div class="network">
-          <div class="node">${t.nodeFactored}</div>
-          <button class="edge-btn" data-edge="fact_to_std">${currentLang === "zh" ? "展开" : "expand"} →</button>
-          <div class="node">${t.nodeStandard}</div>
-          <button class="edge-btn" data-edge="vertex_to_std">${currentLang === "zh" ? "展开" : "expand"} →</button>
-          <div class="node">${t.nodeVertex}</div>
+        <div class="transform-diagram">
+          <div class="transform-path">
+            <div class="node node-standard">${t.nodeStandard}</div>
+            <button type="button" class="edge-tag" data-edge="std_to_fact">${isZH ? "因式分解" : "factoring"} →</button>
+            <div class="node node-factored">${t.nodeFactored}</div>
+            <button type="button" class="edge-tag" data-edge="fact_to_vertex">${isZH ? "中点法" : "midpoint"} →</button>
+            <div class="node node-vertex">${t.nodeVertex}</div>
+          </div>
+          <div class="transform-path">
+            <div class="node node-standard">${t.nodeStandard}</div>
+            <button type="button" class="edge-tag" data-edge="std_to_vertex">${isZH ? "配方" : "complete sq."} →</button>
+            <div class="node node-vertex">${t.nodeVertex}</div>
+          </div>
+          <div class="transform-path transform-path-reverse">
+            <div class="node node-factored">${t.nodeFactored}</div>
+            <button type="button" class="edge-tag" data-edge="fact_to_std">${isZH ? "展开" : "expand"} →</button>
+            <div class="node node-standard">${t.nodeStandard}</div>
+            <button type="button" class="edge-tag" data-edge="vertex_to_std">${isZH ? "展开" : "expand"} →</button>
+            <div class="node node-vertex">${t.nodeVertex}</div>
+            <button type="button" class="edge-tag" data-edge="vertex_to_fact">${isZH ? "解根" : "roots"} →</button>
+            <div class="node node-factored">${t.nodeFactored}</div>
+          </div>
         </div>
       `;
       mount.innerHTML = html;
-      mount.querySelectorAll(".edge-btn").forEach(btn => {
+      mount.querySelectorAll(".edge-tag, .edge-btn").forEach(btn => {
         btn.addEventListener("click", () => {
           const rule = transformationRules.find(r => r.id === btn.dataset.edge);
           lastFlowRuleId = rule.id;
@@ -1422,57 +1691,58 @@
 
     function renderCards() {
       const mount = document.getElementById("cardsMount");
-      mount.innerHTML = formulaCards.map(card => `
-        <div class="formula-card">
-          <b>${currentLang === "zh" ? card.titleZH : card.titleEN}</b>
-          ${card.expr}
+      const t = i18n[currentLang];
+      const groups = [
+        { id: "quadratic", title: t.formulaGroupQuadratic },
+        { id: "linear", title: t.formulaGroupLinear },
+        { id: "trig", title: t.formulaGroupTrig }
+      ];
+      mount.innerHTML = groups.map(group => {
+        const items = formulaCards.filter(card => card.group === group.id);
+        return `
+          <div class="formula-group-card">
+            <h3>${group.title}</h3>
+            <div class="formula-group-list">
+              ${items.map(card => `
+                <div class="formula-row">
+                  <b>${currentLang === "zh" ? card.titleZH : card.titleEN}</b>
+                  ${card.expr}
+                </div>
+              `).join("")}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderRouterTable(title, rows) {
+      const t = i18n[currentLang];
+      const isZH = currentLang === "zh";
+      return `
+        <div class="router-table-wrap">
+          <div class="router-table-title">${title}</div>
+          <table class="router-table">
+            <thead><tr><th>${t.routerColProblem}</th><th>${t.routerColForm}</th></tr></thead>
+            <tbody>
+              ${rows.map(row => `
+                <tr>
+                  <td>${isZH ? row.problemZH : row.problemEN}</td>
+                  <td>${isZH ? row.formZH : row.formEN}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
         </div>
-      `).join("");
+      `;
     }
 
     function renderProblemRouter() {
       const mount = document.getElementById("problemRouterMount");
-      const isZH = currentLang === "zh";
-      const qItems = isZH
-        ? [
-            "求顶点 → 顶点式",
-            "求 x 截距 → 因式分解式",
-            "求 y 截距 → 标准式",
-            "求最大/最小值 → 顶点式",
-            "描述平移变换 → 顶点式",
-            "判断根的个数 → 标准式 / 判别式"
-          ]
-        : [
-            "Find vertex -> Vertex Form",
-            "Find x-intercepts -> Factored Form",
-            "Find y-intercept -> Standard Form",
-            "Find max/min -> Vertex Form",
-            "Describe transformations -> Vertex Form",
-            "Decide number of roots -> Standard Form / Discriminant"
-          ];
-      const lItems = isZH
-        ? [
-            "求斜率 → 斜截式 或 点斜式",
-            "已知一点+斜率 → 点斜式",
-            "直线作图 → 斜截式",
-            "求截距 → 标准式",
-            "平行/垂直判断 → 任意形式先求斜率"
-          ]
-        : [
-            "Find slope -> Slope-Intercept or Point-Slope",
-            "Given point + slope -> Point-Slope",
-            "Graph line -> Slope-Intercept",
-            "Find intercepts -> Standard Form",
-            "Parallel/perpendicular -> Any form after finding slope"
-          ];
+      const t = i18n[currentLang];
       mount.innerHTML = `
-        <div class="router-section">
-          <b>${isZH ? "Quadratic（考试路由）" : "Quadratic (Exam Router)"}</b>
-          ${qItems.map(item => `<div class="router-item">${item}</div>`).join("")}
-        </div>
-        <div class="router-section">
-          <b>${isZH ? "Linear（考试路由）" : "Linear (Exam Router)"}</b>
-          ${lItems.map(item => `<div class="router-item">${item}</div>`).join("")}
+        <div class="router-tables">
+          ${renderRouterTable(t.formulaGroupQuadratic, problemRouterData.quadratic)}
+          ${renderRouterTable(t.formulaGroupLinear, problemRouterData.linear)}
         </div>
       `;
     }
@@ -1629,14 +1899,25 @@
       }
       const g = getQuadraticFeatures();
       if (!g.valid) {
-        mount.innerHTML = "<b>" + t.currentExampleTitle + "</b>" + (g.error === "aZero" ? t.quadErrorAZero : t.quadErrorInvalid);
+        mount.innerHTML = "<div class=\"example-form-cards\"><div class=\"example-form-card card-standard\"><div class=\"efc-title\">" + t.formStandardLabel + "</div><div class=\"efc-expr\">" + (g.error === "aZero" ? t.quadErrorAZero : t.quadErrorInvalid) + "</div></div></div>";
         return;
       }
-      mount.innerHTML =
-        "<b>" + t.currentExampleTitle + "</b>" +
-        t.formStandardLabel + ": " + g.standardFormText + "<br>" +
-        t.formVertexLabel + ": " + g.vertexFormText + "<br>" +
-        t.formFactoredLabel + ": " + g.factoredFormText;
+      mount.innerHTML = `
+        <div class="example-form-cards">
+          <div class="example-form-card card-standard">
+            <div class="efc-title">${t.formStandardLabel}</div>
+            <div class="efc-expr">${g.standardFormText}</div>
+          </div>
+          <div class="example-form-card card-vertex">
+            <div class="efc-title">${t.formVertexLabel}</div>
+            <div class="efc-expr">${g.vertexFormText}</div>
+          </div>
+          <div class="example-form-card card-factored">
+            <div class="efc-title">${t.formFactoredLabel}</div>
+            <div class="efc-expr">${g.factoredFormText}</div>
+          </div>
+        </div>
+      `;
     }
 
     function updateGraphParamsLabels() {
@@ -2115,7 +2396,12 @@
       const t = i18n[currentLang];
       document.documentElement.lang = currentLang === "zh" ? "zh-CN" : "en";
       document.getElementById("pageTitle").textContent = t.pageTitle;
-      document.getElementById("pageSubtitle").textContent = t.pageSubtitle;
+      const subtitleEl = document.getElementById("pageSubtitle");
+      if (document.documentElement.classList.contains("device-desktop")) {
+        subtitleEl.textContent = i18n.en.pageSubtitle + " " + i18n.zh.pageSubtitle;
+      } else {
+        subtitleEl.textContent = t.pageSubtitle;
+      }
       document.getElementById("qMatrixTitle").textContent = t.qMatrixTitle;
       document.getElementById("qMatrixNote").textContent = t.qMatrixNote;
       document.getElementById("lMatrixTitle").textContent = t.lMatrixTitle;
@@ -2126,6 +2412,7 @@
       document.getElementById("problemRouterTitle").textContent = t.problemRouterTitle;
       document.getElementById("infoPanelTitle").textContent = t.infoPanelTitle;
       document.getElementById("graphPreviewTitle").textContent = t.graphPreviewTitle;
+      document.getElementById("graphPreviewNote").textContent = t.graphPreviewNote;
       document.getElementById("currentObjectLabel").textContent = t.currentObjectLabel;
       document.getElementById("flowTitle").textContent = t.flowTitle;
       document.getElementById("sameGeoTitle").textContent = t.sameGeoTitle;
@@ -2293,6 +2580,7 @@
       detectDeviceMode();
       window.addEventListener("resize", () => {
         detectDeviceMode();
+        drawMainGraph();
       });
       bindGraphParamControls();
       syncQuadraticInputs();
