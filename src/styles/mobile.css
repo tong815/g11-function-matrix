@@ -11,11 +11,11 @@ html.device-mobile .right {
 
 html.device-mobile .block-topic-selector { order: 1; }
 html.device-mobile .block-q-matrix { order: 2; }
-html.device-mobile .block-info { order: 3; }
-html.device-mobile .block-graph { order: 4; }
-html.device-mobile .block-l-matrix { order: 5; }
-html.device-mobile .block-flow { order: 6; }
-html.device-mobile .block-trans { order: 7; }
+html.device-mobile .block-l-matrix { order: 3; }
+html.device-mobile .block-info { order: 4; }
+html.device-mobile .block-graph { order: 5; }
+html.device-mobile .block-trans { order: 6; }
+html.device-mobile .block-flow { order: 7; }
 html.device-mobile .block-same-geo { order: 8; }
 html.device-mobile .block-disc { order: 9; }
 html.device-mobile .block-cards { order: 10; }
