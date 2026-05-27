@@ -2,6 +2,8 @@ import { linearMatrix } from "../matrices.js";
 import { detailLibrary } from "../details.js";
 import { formulaCards, problemRouterData } from "../formulas.js";
 import { transformationRules, flowContent } from "../transformationRules.js";
+import { buildRepresentations } from "../representations.js";
+import { linearGraphAdapter } from "../../graph/linearGraphAdapter.js";
 
 const formulas = formulaCards.filter((card) => card.group === "linear");
 const rules = transformationRules.filter((rule) => rule.topic === "linear");
@@ -16,26 +18,25 @@ export const linearTopic = {
   viewType: "representation-matrix",
   titleKey: "topicLinearTitle",
   subtitleKey: "topicLinearSubtitle",
-  formulasTitleKey: "formulaGroupLinear",
-  routerTitleKey: "formulaGroupLinear",
-  matrixTitleKey: "lMatrixTitle",
-  matrixNoteKey: "lMatrixNote",
+  representations: buildRepresentations(linearMatrix),
   matrix: linearMatrix,
   details: {
     namespace: "linear",
     library: detailLibrary
   },
-  formulas,
-  router: problemRouterData.linear,
+  formulaCards: formulas,
+  problemRouter: problemRouterData.linear,
   transformations: {
     rules,
     flowContent: topicFlowContent,
     defaultFlowRuleId: "lin_slope_to_point"
   },
+  graphAdapter: linearGraphAdapter,
+  optionalPanels: [],
   graph: {
-    type: "linear",
+    adapterId: "linear",
     defaultFormId: "lSlope",
-    parameterForms: ["lSlope", "lPoint", "lStandard"],
+    parameterForms: linearGraphAdapter.parameterForms,
     defaultSelection: {
       matrixKey: "linear",
       formId: "lSlope",
@@ -43,8 +44,10 @@ export const linearTopic = {
     }
   },
   matrixKey: "linear",
-  visibility: {
-    showSameGeometry: false,
-    showDiscriminant: false
-  }
+  matrixTitleKey: "lMatrixTitle",
+  matrixNoteKey: "lMatrixNote",
+  formulasTitleKey: "formulaGroupLinear",
+  routerTitleKey: "formulaGroupLinear",
+  formulas,
+  router: problemRouterData.linear
 };

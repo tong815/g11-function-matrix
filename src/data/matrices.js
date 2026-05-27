@@ -7,9 +7,9 @@ export const LevelClass = {
 export const quadraticMatrix = {
   key: "quadratic",
   forms: [
-    { id: "qStandard", equation: "y = ax² + bx + c" },
-    { id: "qFactored", equation: "y = a(x-r₁)(x-r₂)" },
-    { id: "qVertex", equation: "y = a(x-h)² + k" }
+    { id: "qStandard", equation: "y = ax² + bx + c", representationType: "algebraic" },
+    { id: "qFactored", equation: "y = a(x-r₁)(x-r₂)", representationType: "algebraic" },
+    { id: "qVertex", equation: "y = a(x-h)² + k", representationType: "transform" }
   ],
   info: ["vertex", "xint", "yint", "axis", "extreme", "opening", "transform"],
   cells: {
@@ -26,9 +26,9 @@ export const quadraticMatrix = {
 export const linearMatrix = {
   key: "linear",
   forms: [
-    { id: "lSlope", equation: "y = mx + b" },
-    { id: "lPoint", equation: "y - y₁ = m(x - x₁)" },
-    { id: "lStandard", equation: "Ax + By + C = 0" }
+    { id: "lSlope", equation: "y = mx + b", representationType: "algebraic" },
+    { id: "lPoint", equation: "y - y₁ = m(x - x₁)", representationType: "geometric" },
+    { id: "lStandard", equation: "Ax + By + C = 0", representationType: "algebraic" }
   ],
   info: ["slope", "yint", "knownPoint", "parallel", "perpendicular", "graphing"],
   cells: {

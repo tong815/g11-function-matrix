@@ -2,6 +2,8 @@ import { quadraticMatrix } from "../matrices.js";
 import { detailLibrary } from "../details.js";
 import { formulaCards, problemRouterData } from "../formulas.js";
 import { transformationRules, flowContent } from "../transformationRules.js";
+import { buildRepresentations } from "../representations.js";
+import { quadraticGraphAdapter } from "../../graph/quadraticGraphAdapter.js";
 
 const formulas = formulaCards.filter((card) => card.group === "quadratic");
 const rules = transformationRules.filter((rule) => rule.topic === "quadratic");
@@ -16,26 +18,25 @@ export const quadraticTopic = {
   viewType: "representation-matrix",
   titleKey: "topicQuadraticTitle",
   subtitleKey: "topicQuadraticSubtitle",
-  formulasTitleKey: "formulaGroupQuadratic",
-  routerTitleKey: "formulaGroupQuadratic",
-  matrixTitleKey: "qMatrixTitle",
-  matrixNoteKey: "qMatrixNote",
+  representations: buildRepresentations(quadraticMatrix),
   matrix: quadraticMatrix,
   details: {
     namespace: "quadratic",
     library: detailLibrary
   },
-  formulas,
-  router: problemRouterData.quadratic,
+  formulaCards: formulas,
+  problemRouter: problemRouterData.quadratic,
   transformations: {
     rules,
     flowContent: topicFlowContent,
     defaultFlowRuleId: "std_to_fact"
   },
+  graphAdapter: quadraticGraphAdapter,
+  optionalPanels: ["sameGeometry", "discriminant"],
   graph: {
-    type: "quadratic",
+    adapterId: "quadratic",
     defaultFormId: "qVertex",
-    parameterForms: ["qStandard", "qFactored", "qVertex"],
+    parameterForms: quadraticGraphAdapter.parameterForms,
     defaultSelection: {
       matrixKey: "quadratic",
       formId: "qVertex",
@@ -43,8 +44,12 @@ export const quadraticTopic = {
     }
   },
   matrixKey: "quadratic",
-  visibility: {
-    showSameGeometry: true,
-    showDiscriminant: true
-  }
+  matrixTitleKey: "qMatrixTitle",
+  matrixNoteKey: "qMatrixNote",
+  formulasTitleKey: "formulaGroupQuadratic",
+  routerTitleKey: "formulaGroupQuadratic",
+  /** @deprecated use formulaCards */
+  formulas,
+  /** @deprecated use problemRouter */
+  router: problemRouterData.quadratic
 };

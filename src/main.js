@@ -3,6 +3,8 @@
 import { i18n } from "./data/i18n.js";
 import { LevelClass } from "./data/matrices.js";
 import { topicRegistry, topicOrder } from "./data/topicRegistry.js";
+import { applyOptionalPanels, topicHasOptionalPanel } from "./data/optionalPanels.js";
+import { renderDiscriminantPanels } from "./graph/discriminantPanel.js";
 import { detectDeviceMode, createGraphHandlers } from "./render/graphRenderer.js";
 import { createControlsHandlers } from "./render/controlsRenderer.js";
 import { renderMatrix, statusPill, getDetail, readableLevel } from "./render/matrixRenderer.js";
@@ -27,19 +29,15 @@ const graphState = {
 const getLang = () => currentLang;
 const getLastSelected = () => lastSelected;
 const getCurrentTopic = () => topicRegistry[currentTopicId];
-const matrixByKey = Object.fromEntries(topicOrder.map((topicId) => {
-  const matrix = topicRegistry[topicId].matrix;
-  return [matrix.key, matrix];
-}));
-const quadraticMatrix = matrixByKey.quadratic;
-const linearMatrix = matrixByKey.linear;
+const matrixByKey = Object.fromEntries(
+  topicOrder.map((topicId) => [topicRegistry[topicId].matrixKey, topicRegistry[topicId].matrix])
+);
 
 const graphHandlers = createGraphHandlers({
   graphState,
   getLang,
   i18n,
-  quadraticMatrix,
-  linearMatrix,
+  matrixByKey,
   getLastSelected
 });
 
@@ -60,8 +58,6 @@ function pill(level) {
 
 function panel(matrixKey, formId, infoKey) {
   const topic = getCurrentTopic();
-  const detailsNamespace = topic.details.namespace;
-  const detailsLibrary = topic.details.library;
   return buildInfoPanel({
     matrixKey,
     formId,
@@ -69,25 +65,27 @@ function panel(matrixKey, formId, infoKey) {
     i18n,
     currentLang,
     matrix: topic.matrix,
+    topicId: topic.id,
     readableLevel: (level) => readableLevel(level, i18n, currentLang),
-    getDetail: (_mk, fid, ik) => getDetail(detailsNamespace, fid, ik, detailsLibrary, currentLang)
+    getDetail: (_mk, fid, ik) =>
+      getDetail(topic.details.namespace, fid, ik, topic.details.library, currentLang)
   });
 }
 
-function applyFormSelectionToGraphState(topicType, formId) {
-  const formField = {
-    quadratic: "quadraticForm",
-    linear: "linearForm"
-  }[topicType];
-  if (formField) {
-    graphState[formField] = formId;
-  }
+function syncGraphModeFromTopic(topic) {
+  graphState.mode = topic.graph.adapterId;
+}
+
+function applyFormSelectionToGraphState(topic, formId) {
+  const adapterId = topic.graph.adapterId;
+  if (adapterId === "quadratic") graphState.quadraticForm = formId;
+  else if (adapterId === "linear") graphState.linearForm = formId;
 }
 
 function bindMatrixClicks() {
-  document.querySelectorAll("td.clickable").forEach(cell => {
+  document.querySelectorAll("td.clickable").forEach((cell) => {
     cell.addEventListener("click", () => {
-      document.querySelectorAll("td.clickable").forEach(c => c.classList.remove("active-cell"));
+      document.querySelectorAll("td.clickable").forEach((c) => c.classList.remove("active-cell"));
       cell.classList.add("active-cell");
 
       const matrixKey = cell.dataset.matrix;
@@ -97,8 +95,8 @@ function bindMatrixClicks() {
       document.getElementById("infoPanelText").innerHTML = panel(matrixKey, formId, infoKey);
 
       const topic = getCurrentTopic();
-      graphState.mode = topic.graph.type;
-      applyFormSelectionToGraphState(topic.graph.type, formId);
+      syncGraphModeFromTopic(topic);
+      applyFormSelectionToGraphState(topic, formId);
       graphHandlers.updateGraphLabel(matrixKey, formId);
       controlsHandlers.renderParameterInputs();
       controlsHandlers.updateCurrentExampleForms();
@@ -111,49 +109,49 @@ function bindMatrixClicks() {
 function renderTopicSelector() {
   const t = i18n[currentLang];
   const mount = document.getElementById("topicSelectorMount");
-  mount.innerHTML = topicOrder.map(topicId => {
-    const topic = topicRegistry[topicId];
-    const active = topicId === currentTopicId ? " active" : "";
-    return `
+  mount.innerHTML = topicOrder
+    .map((topicId) => {
+      const topic = topicRegistry[topicId];
+      const active = topicId === currentTopicId ? " active" : "";
+      return `
       <button type="button" class="topic-btn${active}" data-topic="${topicId}">
         <div class="topic-btn-title">${t[topic.titleKey]}</div>
         <div class="topic-btn-subtitle">${t[topic.subtitleKey]}</div>
       </button>
     `;
-  }).join("");
-  mount.querySelectorAll(".topic-btn").forEach(btn => {
+    })
+    .join("");
+  mount.querySelectorAll(".topic-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       const nextTopicId = btn.dataset.topic;
       if (nextTopicId === currentTopicId) return;
       currentTopicId = nextTopicId;
       const topic = getCurrentTopic();
-      const defaults = topic.graph.defaultSelection;
-      graphState.mode = topic.graph.type;
-      lastSelected = { ...defaults };
+      lastSelected = { ...topic.graph.defaultSelection };
       lastFlowRuleId = topic.transformations.defaultFlowRuleId;
       switchLang(currentLang);
     });
   });
 }
 
-function applyTopicVisibility() {
-  const topic = getCurrentTopic();
-  const sameGeo = document.querySelector(".block-same-geo");
-  const disc = document.querySelector(".block-disc");
-  if (sameGeo) sameGeo.style.display = topic.visibility.showSameGeometry ? "block" : "none";
-  if (disc) disc.style.display = topic.visibility.showDiscriminant ? "block" : "none";
+function localizeQuadraticOptionalPanels(t) {
+  if (!topicHasOptionalPanel(getCurrentTopic(), "sameGeometry")) return;
+  document.getElementById("axisStandardLabel").textContent = t.axisStandardLabel;
+  document.getElementById("axisFactoredLabel").textContent = t.axisFactoredLabel;
+  document.getElementById("axisVertexLabel").textContent = t.axisVertexLabel;
+  document.getElementById("axisFootText").textContent = t.axisFootText;
 }
 
-function onFlowRuleClick(ruleId) {
-  lastFlowRuleId = ruleId;
-  const topic = getCurrentTopic();
-  const topicFlowContent = topic.transformations.flowContent;
-  const flowEl = document.getElementById("flowText");
-  if (topicFlowContent[ruleId]) {
-    flowEl.innerHTML = renderFlowHtml({ ruleId, flowContent: topicFlowContent, currentLang });
-  } else {
-    flowEl.textContent = i18n[currentLang].flowDefault;
-  }
+function localizeDiscriminantPanel(t) {
+  if (!topicHasOptionalPanel(getCurrentTopic(), "discriminant")) return;
+  document.getElementById("discPanelTitle").textContent = t.discPanelTitle;
+  document.getElementById("discFormulaText").textContent = t.discFormulaText;
+  document.getElementById("discPosText").innerHTML =
+    t.discPosText + '<canvas id="discPos" class="disc-canvas" width="190" height="90"></canvas>';
+  document.getElementById("discZeroText").innerHTML =
+    t.discZeroText + '<canvas id="discZero" class="disc-canvas" width="190" height="90"></canvas>';
+  document.getElementById("discNegText").innerHTML =
+    t.discNegText + '<canvas id="discNeg" class="disc-canvas" width="190" height="90"></canvas>';
 }
 
 function localizeStaticText() {
@@ -177,19 +175,24 @@ function localizeStaticText() {
   document.getElementById("currentObjectLabel").textContent = t.currentObjectLabel;
   document.getElementById("flowTitle").textContent = t.flowTitle;
   document.getElementById("sameGeoTitle").textContent = t.sameGeoTitle;
-  document.getElementById("axisStandardLabel").textContent = t.axisStandardLabel;
-  document.getElementById("axisFactoredLabel").textContent = t.axisFactoredLabel;
-  document.getElementById("axisVertexLabel").textContent = t.axisVertexLabel;
-  document.getElementById("axisFootText").textContent = t.axisFootText;
-  document.getElementById("discPanelTitle").textContent = t.discPanelTitle;
-  document.getElementById("discFormulaText").textContent = t.discFormulaText;
-  document.getElementById("discPosText").innerHTML = t.discPosText + '<canvas id="discPos" class="disc-canvas" width="190" height="90"></canvas>';
-  document.getElementById("discZeroText").innerHTML = t.discZeroText + '<canvas id="discZero" class="disc-canvas" width="190" height="90"></canvas>';
-  document.getElementById("discNegText").innerHTML = t.discNegText + '<canvas id="discNeg" class="disc-canvas" width="190" height="90"></canvas>';
+  localizeQuadraticOptionalPanels(t);
+  localizeDiscriminantPanel(t);
   document.getElementById("btnEN").classList.toggle("active", currentLang === "en");
   document.getElementById("btnZH").classList.toggle("active", currentLang === "zh");
   controlsHandlers.renderParameterInputs();
   controlsHandlers.updateCurrentExampleForms();
+}
+
+function onFlowRuleClick(ruleId) {
+  lastFlowRuleId = ruleId;
+  const topic = getCurrentTopic();
+  const topicFlowContent = topic.transformations.flowContent;
+  const flowEl = document.getElementById("flowText");
+  if (topicFlowContent[ruleId]) {
+    flowEl.innerHTML = renderFlowHtml({ ruleId, flowContent: topicFlowContent, currentLang });
+  } else {
+    flowEl.textContent = i18n[currentLang].flowDefault;
+  }
 }
 
 function switchLang(lang) {
@@ -199,43 +202,69 @@ function switchLang(lang) {
   const topicFlowContent = topic.transformations.flowContent;
   localizeStaticText();
   renderTopicSelector();
-  applyTopicVisibility();
+  applyOptionalPanels(topic);
   document.getElementById("matrixTitle").textContent = t[topic.matrixTitleKey];
   document.getElementById("matrixNote").textContent = t[topic.matrixNoteKey];
-  renderMatrix({ targetId: "matrixMount", matrixData: topic.matrix, i18n, currentLang, LevelClass, statusPill: pill });
+  renderMatrix({
+    targetId: "matrixMount",
+    matrixData: topic.matrix,
+    i18n,
+    currentLang,
+    LevelClass,
+    statusPill: pill
+  });
   bindMatrixClicks();
-  renderNetwork({ mountId: "networkMount", i18n, currentLang, onRuleClick: onFlowRuleClick, transformations: topic.transformations });
+  renderNetwork({
+    mountId: "networkMount",
+    i18n,
+    currentLang,
+    onRuleClick: onFlowRuleClick,
+    transformations: topic.transformations
+  });
   renderCards({
     mountId: "cardsMount",
     i18n,
     currentLang,
-    formulas: topic.formulas,
+    formulas: topic.formulaCards,
     title: t[topic.formulasTitleKey]
   });
   renderProblemRouter({
     mountId: "problemRouterMount",
     i18n,
     currentLang,
-    router: topic.router,
+    router: topic.problemRouter,
     title: t[topic.routerTitleKey]
   });
   if (lastSelected) {
-    document.getElementById("infoPanelText").innerHTML = panel(lastSelected.matrixKey, lastSelected.formId, lastSelected.infoKey);
+    document.getElementById("infoPanelText").innerHTML = panel(
+      lastSelected.matrixKey,
+      lastSelected.formId,
+      lastSelected.infoKey
+    );
     graphHandlers.updateGraphLabel(lastSelected.matrixKey, lastSelected.formId);
   } else {
     document.getElementById("infoPanelText").textContent = i18n[currentLang].infoPanelDefault;
-    graphHandlers.updateGraphLabel(topic.graph.defaultSelection.matrixKey, topic.graph.defaultSelection.formId);
+    graphHandlers.updateGraphLabel(
+      topic.graph.defaultSelection.matrixKey,
+      topic.graph.defaultSelection.formId
+    );
   }
   if (topicFlowContent[lastFlowRuleId]) {
-    document.getElementById("flowText").innerHTML = renderFlowHtml({ ruleId: lastFlowRuleId, flowContent: topicFlowContent, currentLang });
+    document.getElementById("flowText").innerHTML = renderFlowHtml({
+      ruleId: lastFlowRuleId,
+      flowContent: topicFlowContent,
+      currentLang
+    });
   } else {
-    document.getElementById("flowText").textContent = currentTopicId === "linear" ? i18n[currentLang].linearFlowDefault : i18n[currentLang].flowDefault;
+    document.getElementById("flowText").textContent =
+      currentTopicId === "linear" ? i18n[currentLang].linearFlowDefault : i18n[currentLang].flowDefault;
   }
+  syncGraphModeFromTopic(topic);
   graphHandlers.drawMainGraph();
   graphHandlers.updateGraphAnnotationText(lastSelected);
-  graphHandlers.drawDiscCanvas("discPos", "pos");
-  graphHandlers.drawDiscCanvas("discZero", "zero");
-  graphHandlers.drawDiscCanvas("discNeg", "neg");
+  if (topicHasOptionalPanel(topic, "discriminant")) {
+    renderDiscriminantPanels();
+  }
 }
 
 function init() {
@@ -248,7 +277,7 @@ function init() {
   document.getElementById("btnEN").addEventListener("click", () => switchLang("en"));
   document.getElementById("btnZH").addEventListener("click", () => switchLang("zh"));
   const topic = getCurrentTopic();
-  graphState.mode = topic.graph.type;
+  syncGraphModeFromTopic(topic);
   lastSelected = { ...topic.graph.defaultSelection };
   lastFlowRuleId = topic.transformations.defaultFlowRuleId;
   switchLang("en");
