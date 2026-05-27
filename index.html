@@ -85,10 +85,7 @@
     }
 
     .left, .right {
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 14px;
-      background: #fff;
+      display: contents;
     }
     .block {
       border: 1px solid var(--line);
@@ -307,8 +304,76 @@
       background: #fafafa;
     }
 
+    .block-q-matrix { grid-column: 1; }
+    .block-l-matrix { grid-column: 1; }
+    .block-trans { grid-column: 1; }
+    .block-cards { grid-column: 1; }
+    .block-router { grid-column: 1; }
+    .block-info {
+      grid-column: 2;
+      grid-row: 1;
+      align-self: start;
+      position: sticky;
+      top: 12px;
+      z-index: 10;
+    }
+    .block-graph { grid-column: 2; }
+    .block-flow { grid-column: 2; }
+    .block-same-geo { grid-column: 2; }
+    .block-disc { grid-column: 2; }
+
+    .matrix-scroll {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: 0 -4px;
+      padding: 0 4px 4px;
+    }
+    .matrix-scroll table {
+      min-width: 520px;
+    }
+
     @media (max-width: 1100px) {
-      .layout { grid-template-columns: 1fr; }
+      .app { padding: 14px; }
+      h1 { font-size: 22px; }
+
+      .layout {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .block-q-matrix { order: 1; grid-column: 1; }
+      .block-info {
+        order: 2;
+        grid-column: 1;
+        top: 0;
+        margin-bottom: 0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      }
+      .block-info.is-active {
+        border-color: #9ca3af;
+      }
+      .block-graph { order: 3; grid-column: 1; }
+      .block-l-matrix { order: 4; grid-column: 1; }
+      .block-flow { order: 5; grid-column: 1; }
+      .block-trans { order: 6; grid-column: 1; }
+      .block-same-geo { order: 7; grid-column: 1; }
+      .block-disc { order: 8; grid-column: 1; }
+      .block-cards { order: 9; grid-column: 1; }
+      .block-router { order: 10; grid-column: 1; }
+
+      .axis-grid,
+      .disc-wrap {
+        grid-template-columns: 1fr;
+      }
+
+      .network {
+        grid-template-columns: 1fr;
+        gap: 6px;
+      }
+      .network .node,
+      .network .edge-btn {
+        width: 100%;
+      }
     }
   </style>
 </head>
@@ -329,53 +394,53 @@
 
     <div class="layout">
       <section class="left">
-        <div class="block">
+        <div class="block block-q-matrix">
           <h2 id="qMatrixTitle">Quadratic Matrix</h2>
           <div class="small-note" id="qMatrixNote">Readability map: which form exposes which information.</div>
           <div id="quadraticMatrixMount"></div>
         </div>
 
-        <div class="block">
+        <div class="block block-l-matrix">
           <h2 id="lMatrixTitle">Linear Matrix</h2>
           <div class="small-note" id="lMatrixNote">Same idea, now for line representations.</div>
           <div id="linearMatrixMount"></div>
         </div>
 
-        <div class="block">
+        <div class="block block-trans">
           <h2 id="transRulesTitle">Transformation Rules</h2>
           <div class="small-note" id="transRulesNote">Click edge labels to inspect conversion workflow.</div>
           <div id="networkMount"></div>
         </div>
 
-        <div class="block">
+        <div class="block block-cards">
           <h2 id="formulaCardsTitle">Formula Cards</h2>
           <div id="cardsMount" class="cards"></div>
         </div>
 
-        <div class="block">
+        <div class="block block-router">
           <h2 id="problemRouterTitle">Problem → Best Form</h2>
           <div id="problemRouterMount"></div>
         </div>
       </section>
 
       <section class="right">
-        <div class="block info-panel">
+        <div class="block block-info info-panel" id="infoPanelBlock">
           <h2 id="infoPanelTitle">Information Read Panel</h2>
           <div id="infoPanelText">Click any matrix cell to inspect how information is extracted.</div>
         </div>
 
-        <div class="block">
+        <div class="block block-graph">
           <h2 id="graphPreviewTitle">Graph Preview</h2>
           <div class="small-note"><span id="currentObjectLabel">Current object:</span> <span id="graphLabel"></span></div>
           <canvas id="graphCanvas" width="560" height="280"></canvas>
         </div>
 
-        <div class="block">
+        <div class="block block-flow">
           <h2 id="flowTitle">Transformation Flow</h2>
           <div id="flowText" class="transform-flow">Click an arrow in Transformation Rules.</div>
         </div>
 
-        <div class="block">
+        <div class="block block-same-geo">
           <h2 id="sameGeoTitle">Same Geometry, Different Representation</h2>
           <div class="axis-grid">
             <div class="axis-item"><b id="axisStandardLabel">Standard</b>x = -b / 2a</div>
@@ -385,7 +450,7 @@
           <div class="axis-foot" id="axisFootText">All describe the same symmetry axis.</div>
         </div>
 
-        <div class="block">
+        <div class="block block-disc">
           <h2 id="discPanelTitle">Discriminant Panel</h2>
           <div class="small-note" id="discFormulaText">Δ = b² - 4ac</div>
           <div class="disc-wrap">
@@ -1066,7 +1131,18 @@
         "<span><i class='dot' style='background:var(--derive)'></i>" + t.legendDerive + "</span>" +
         "<span><i class='dot' style='background:var(--weak)'></i>" + t.legendWeak + "</span>" +
         "</div>";
-      mount.innerHTML = html;
+      mount.innerHTML = "<div class='matrix-scroll'>" + html + "</div>";
+    }
+
+    function isMobileLayout() {
+      return window.matchMedia("(max-width: 1100px)").matches;
+    }
+
+    function scrollToInfoPanel() {
+      const panel = document.getElementById("infoPanelBlock");
+      if (!panel || !isMobileLayout()) return;
+      panel.classList.add("is-active");
+      panel.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
     function readableLevel(level) {
@@ -1130,6 +1206,7 @@
           graphState.mode = matrixKey;
           updateGraphLabel(matrixKey, formId);
           drawMainGraph();
+          scrollToInfoPanel();
         });
       });
     }
