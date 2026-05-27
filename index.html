@@ -328,11 +328,37 @@
     .transform-flow {
       font-size: 13px;
       color: var(--text);
-      line-height: 1.4;
+      line-height: 1.5;
       border: 1px solid var(--line);
       border-radius: 8px;
       padding: 10px;
       background: #fafafa;
+    }
+    .flow-route {
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+    .flow-section {
+      margin-top: 10px;
+    }
+    .flow-section:first-of-type {
+      margin-top: 6px;
+    }
+    .flow-heading {
+      display: block;
+      font-weight: 700;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .flow-line {
+      display: block;
+      margin: 3px 0 3px 10px;
+    }
+    .flow-line.mono {
+      font-family: "Consolas", "Courier New", monospace;
+      font-size: 12px;
     }
 
     .matrix-scroll {
@@ -1267,7 +1293,7 @@
         btn.addEventListener("click", () => {
           const rule = transformationRules.find(r => r.id === btn.dataset.edge);
           lastFlowRuleId = rule.id;
-          document.getElementById("flowText").textContent = getFlowText(rule.id);
+          document.getElementById("flowText").innerHTML = renderFlowHtml(rule.id);
         });
       });
     }
@@ -1479,34 +1505,125 @@
       document.getElementById("btnZH").classList.toggle("active", currentLang === "zh");
     }
 
-    function getFlowText(ruleId) {
-      const map = {
-        std_to_fact: {
-          en: "Standard -> Factored\n\nSteps:\n1) Set y=0\n2) Try factoring ax²+bx+c\n3) If successful, write a(x-r₁)(x-r₂)\n4) Verify by expansion\n\nExample:\ny=x²-5x+6=(x-2)(x-3)\n\nNote: if not factorable nicely, use quadratic formula first.",
-          zh: "标准式 -> 因式分解式\n\n步骤：\n1) 令 y=0\n2) 尝试分解 ax²+bx+c\n3) 成功后写成 a(x-r₁)(x-r₂)\n4) 反向展开核对\n\n示例：\ny=x²-5x+6=(x-2)(x-3)\n\n备注：若难分解，先用求根公式再写因式。"
+    const flowContent = {
+      std_to_fact: {
+        en: {
+          route: "Standard -> Factored",
+          sections: [
+            { heading: "Steps", numbered: true, lines: ["Set y=0", "Try factoring ax²+bx+c", "If successful, write a(x-r₁)(x-r₂)", "Verify by expansion"] },
+            { heading: "Example", numbered: false, lines: ["y=x²-5x+6=(x-2)(x-3)"], mono: true },
+            { heading: "Note", numbered: false, lines: ["If not factorable nicely, use quadratic formula first."] }
+          ]
         },
-        fact_to_std: {
-          en: "Factored -> Standard\n\nSteps:\n1) Expand two brackets\n2) Multiply by a (if a≠1)\n3) Combine like terms into ax²+bx+c\n\nExample:\ny=2(x-2)(x+1)=2(x²-x-2)=2x²-2x-4",
-          zh: "因式分解式 -> 标准式\n\n步骤：\n1) 先展开两个括号\n2) 再乘前面的 a（若 a≠1）\n3) 合并同类项成 ax²+bx+c\n\n示例：\ny=2(x-2)(x+1)=2(x²-x-2)=2x²-2x-4"
-        },
-        std_to_vertex: {
-          en: "Standard -> Vertex\n\nSteps:\n1) Group x-terms and factor out a\n2) Complete square inside bracket\n3) Add/subtract balancing constant\n4) Rewrite as a(x-h)²+k\n\nExample:\ny=x²-6x+5=(x²-6x+9)-4=(x-3)²-4",
-          zh: "标准式 -> 顶点式\n\n步骤：\n1) 先把 x 项分组并提出 a\n2) 在括号内配方\n3) 同时加减平衡常数\n4) 写成 a(x-h)²+k\n\n示例：\ny=x²-6x+5=(x²-6x+9)-4=(x-3)²-4"
-        },
-        vertex_to_std: {
-          en: "Vertex -> Standard\n\nSteps:\n1) Expand (x-h)²\n2) Multiply every term by a\n3) Add k and combine constants\n\nExample:\ny=-2(x-1)²+5=-2(x²-2x+1)+5=-2x²+4x+3",
-          zh: "顶点式 -> 标准式\n\n步骤：\n1) 展开 (x-h)²\n2) 每一项都乘 a\n3) 加上 k 并合并常数\n\n示例：\ny=-2(x-1)²+5=-2(x²-2x+1)+5=-2x²+4x+3"
-        },
-        fact_to_vertex: {
-          en: "Factored -> Vertex\n\nSteps:\n1) Read roots r₁,r₂ from factors\n2) Compute midpoint h=(r₁+r₂)/2\n3) Substitute x=h to get k\n4) Write y=a(x-h)²+k\n\nExample:\ny=(x-1)(x-5): h=3, k=(3-1)(3-5)=-4\n=> y=(x-3)²-4",
-          zh: "因式分解式 -> 顶点式\n\n步骤：\n1) 从因式读根 r₁,r₂\n2) 算中点 h=(r₁+r₂)/2\n3) 代入 x=h 求 k\n4) 写成 y=a(x-h)²+k\n\n示例：\ny=(x-1)(x-5): h=3, k=(3-1)(3-5)=-4\n=> y=(x-3)²-4"
-        },
-        vertex_to_fact: {
-          en: "Vertex -> Factored\n\nSteps:\n1) Set y=0\n2) Isolate square term: (x-h)²=-k/a\n3) Solve roots x=h±sqrt(-k/a)\n4) Write y=a(x-r₁)(x-r₂)\n\nExample:\ny=(x-2)²-4 -> x=2±2 -> r₁=4,r₂=0\n=> y=(x-4)x",
-          zh: "顶点式 -> 因式分解式\n\n步骤：\n1) 令 y=0\n2) 先孤立平方项：(x-h)²=-k/a\n3) 解根 x=h±sqrt(-k/a)\n4) 写成 y=a(x-r₁)(x-r₂)\n\n示例：\ny=(x-2)²-4 -> x=2±2 -> r₁=4,r₂=0\n=> y=(x-4)x"
+        zh: {
+          route: "标准式 -> 因式分解式",
+          sections: [
+            { heading: "步骤", numbered: true, lines: ["令 y=0", "尝试分解 ax²+bx+c", "成功后写成 a(x-r₁)(x-r₂)", "反向展开核对"] },
+            { heading: "示例", numbered: false, lines: ["y=x²-5x+6=(x-2)(x-3)"], mono: true },
+            { heading: "备注", numbered: false, lines: ["若难分解，先用求根公式再写因式。"] }
+          ]
         }
-      };
-      return map[ruleId][currentLang];
+      },
+      fact_to_std: {
+        en: {
+          route: "Factored -> Standard",
+          sections: [
+            { heading: "Steps", numbered: true, lines: ["Expand two brackets", "Multiply by a (if a≠1)", "Combine like terms into ax²+bx+c"] },
+            { heading: "Example", numbered: false, lines: ["y=2(x-2)(x+1)=2(x²-x-2)=2x²-2x-4"], mono: true }
+          ]
+        },
+        zh: {
+          route: "因式分解式 -> 标准式",
+          sections: [
+            { heading: "步骤", numbered: true, lines: ["先展开两个括号", "再乘前面的 a（若 a≠1）", "合并同类项成 ax²+bx+c"] },
+            { heading: "示例", numbered: false, lines: ["y=2(x-2)(x+1)=2(x²-x-2)=2x²-2x-4"], mono: true }
+          ]
+        }
+      },
+      std_to_vertex: {
+        en: {
+          route: "Standard -> Vertex",
+          sections: [
+            { heading: "Steps", numbered: true, lines: ["Group x-terms and factor out a", "Complete square inside bracket", "Add/subtract balancing constant", "Rewrite as a(x-h)²+k"] },
+            { heading: "Example", numbered: false, lines: ["y=x²-6x+5=(x²-6x+9)-4=(x-3)²-4"], mono: true }
+          ]
+        },
+        zh: {
+          route: "标准式 -> 顶点式",
+          sections: [
+            { heading: "步骤", numbered: true, lines: ["先把 x 项分组并提出 a", "在括号内配方", "同时加减平衡常数", "写成 a(x-h)²+k"] },
+            { heading: "示例", numbered: false, lines: ["y=x²-6x+5=(x²-6x+9)-4=(x-3)²-4"], mono: true }
+          ]
+        }
+      },
+      vertex_to_std: {
+        en: {
+          route: "Vertex -> Standard",
+          sections: [
+            { heading: "Steps", numbered: true, lines: ["Expand (x-h)²", "Multiply every term by a", "Add k and combine constants"] },
+            { heading: "Example", numbered: false, lines: ["y=-2(x-1)²+5=-2(x²-2x+1)+5=-2x²+4x+3"], mono: true }
+          ]
+        },
+        zh: {
+          route: "顶点式 -> 标准式",
+          sections: [
+            { heading: "步骤", numbered: true, lines: ["展开 (x-h)²", "每一项都乘 a", "加上 k 并合并常数"] },
+            { heading: "示例", numbered: false, lines: ["y=-2(x-1)²+5=-2(x²-2x+1)+5=-2x²+4x+3"], mono: true }
+          ]
+        }
+      },
+      fact_to_vertex: {
+        en: {
+          route: "Factored -> Vertex",
+          sections: [
+            { heading: "Steps", numbered: true, lines: ["Read roots r₁,r₂ from factors", "Compute midpoint h=(r₁+r₂)/2", "Substitute x=h to get k", "Write y=a(x-h)²+k"] },
+            { heading: "Example", numbered: false, lines: ["y=(x-1)(x-5): h=3, k=(3-1)(3-5)=-4", "=> y=(x-3)²-4"], mono: true }
+          ]
+        },
+        zh: {
+          route: "因式分解式 -> 顶点式",
+          sections: [
+            { heading: "步骤", numbered: true, lines: ["从因式读根 r₁,r₂", "算中点 h=(r₁+r₂)/2", "代入 x=h 求 k", "写成 y=a(x-h)²+k"] },
+            { heading: "示例", numbered: false, lines: ["y=(x-1)(x-5): h=3, k=(3-1)(3-5)=-4", "=> y=(x-3)²-4"], mono: true }
+          ]
+        }
+      },
+      vertex_to_fact: {
+        en: {
+          route: "Vertex -> Factored",
+          sections: [
+            { heading: "Steps", numbered: true, lines: ["Set y=0", "Isolate square term: (x-h)²=-k/a", "Solve roots x=h±sqrt(-k/a)", "Write y=a(x-r₁)(x-r₂)"] },
+            { heading: "Example", numbered: false, lines: ["y=(x-2)²-4 -> x=2±2 -> r₁=4,r₂=0", "=> y=(x-4)x"], mono: true }
+          ]
+        },
+        zh: {
+          route: "顶点式 -> 因式分解式",
+          sections: [
+            { heading: "步骤", numbered: true, lines: ["令 y=0", "先孤立平方项：(x-h)²=-k/a", "解根 x=h±sqrt(-k/a)", "写成 y=a(x-r₁)(x-r₂)"] },
+            { heading: "示例", numbered: false, lines: ["y=(x-2)²-4 -> x=2±2 -> r₁=4,r₂=0", "=> y=(x-4)x"], mono: true }
+          ]
+        }
+      }
+    };
+
+    function renderFlowHtml(ruleId) {
+      const data = flowContent[ruleId][currentLang];
+      const suffix = currentLang === "zh" ? "：" : ":";
+      let html = `<div class="flow-route">${data.route}</div>`;
+      data.sections.forEach(section => {
+        html += `<div class="flow-section"><span class="flow-heading">${section.heading}${suffix}</span>`;
+        section.lines.forEach((line, index) => {
+          const prefix = section.numbered ? `${index + 1}) ` : "";
+          const monoClass = section.mono ? " mono" : "";
+          html += `<span class="flow-line${monoClass}">${prefix}${line}</span>`;
+        });
+        html += `</div>`;
+      });
+      return html;
+    }
+
+    function setFlowDefaultText() {
+      document.getElementById("flowText").textContent = i18n[currentLang].flowDefault;
     }
 
     function switchLang(lang) {
@@ -1525,7 +1642,7 @@
         document.getElementById("infoPanelText").textContent = i18n[currentLang].infoPanelDefault;
         updateGraphLabel("quadratic", "qVertex");
       }
-      document.getElementById("flowText").textContent = getFlowText(lastFlowRuleId);
+      document.getElementById("flowText").innerHTML = renderFlowHtml(lastFlowRuleId);
       drawMainGraph();
       drawDiscCanvas("discPos", "pos");
       drawDiscCanvas("discZero", "zero");
