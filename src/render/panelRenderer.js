@@ -1,14 +1,14 @@
-export function buildInfoPanel({ matrixKey, formId, infoKey, i18n, currentLang, quadraticMatrix, linearMatrix, readableLevel, getDetail }) {
+export function buildInfoPanel({ matrixKey, formId, infoKey, i18n, currentLang, matrix, readableLevel, getDetail }) {
   const t = i18n[currentLang];
-  const matrix = matrixKey === "quadratic" ? quadraticMatrix : linearMatrix;
+  const key = matrix?.key || matrixKey;
   const level = matrix.cells[infoKey][formId];
-  const detail = getDetail(matrixKey, formId, infoKey);
-  const formLabels = matrixKey === "quadratic" ? t.qForms : t.lForms;
-  const infoLabels = matrixKey === "quadratic" ? t.qInfo : t.lInfo;
+  const detail = getDetail(key, formId, infoKey);
+  const formLabels = key === "quadratic" ? t.qForms : t.lForms;
+  const infoLabels = key === "quadratic" ? t.qInfo : t.lInfo;
   const formIndex = matrix.forms.findIndex(f => f.id === formId);
   const infoIndex = matrix.info.findIndex(i => i === infoKey);
   const lines = [
-    t.matrixLabel + ": " + (matrixKey === "quadratic" ? t.graphQuadratic : t.graphLinear),
+    t.matrixLabel + ": " + (key === "quadratic" ? t.graphQuadratic : t.graphLinear),
     t.formLabel + ": " + formLabels[formIndex],
     t.infoLabel + ": " + infoLabels[infoIndex],
     t.readLabel + ": " + readableLevel(level),

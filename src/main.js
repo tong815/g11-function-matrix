@@ -1,7 +1,7 @@
 ﻿// Run locally with a static server, e.g.:
 // py -m http.server 8000  then open http://localhost:8000
 import { i18n } from "./data/i18n.js";
-import { LevelClass, quadraticMatrix, linearMatrix } from "./data/matrices.js";
+import { LevelClass } from "./data/matrices.js";
 import { topicRegistry, topicOrder } from "./data/topicRegistry.js";
 import { detectDeviceMode, createGraphHandlers } from "./render/graphRenderer.js";
 import { createControlsHandlers } from "./render/controlsRenderer.js";
@@ -27,6 +27,12 @@ const graphState = {
 const getLang = () => currentLang;
 const getLastSelected = () => lastSelected;
 const getCurrentTopic = () => topicRegistry[currentTopicId];
+const matrixByKey = Object.fromEntries(topicOrder.map((topicId) => {
+  const matrix = topicRegistry[topicId].matrix;
+  return [matrix.key, matrix];
+}));
+const quadraticMatrix = matrixByKey.quadratic;
+const linearMatrix = matrixByKey.linear;
 
 const graphHandlers = createGraphHandlers({
   graphState,
@@ -54,19 +60,28 @@ function pill(level) {
 
 function panel(matrixKey, formId, infoKey) {
   const topic = getCurrentTopic();
-  const detailsNamespace = topic.details?.namespace || matrixKey;
-  const detailsLibrary = topic.details?.library || {};
+  const detailsNamespace = topic.details.namespace;
+  const detailsLibrary = topic.details.library;
   return buildInfoPanel({
     matrixKey,
     formId,
     infoKey,
     i18n,
     currentLang,
-    quadraticMatrix,
-    linearMatrix,
+    matrix: topic.matrix,
     readableLevel: (level) => readableLevel(level, i18n, currentLang),
     getDetail: (_mk, fid, ik) => getDetail(detailsNamespace, fid, ik, detailsLibrary, currentLang)
   });
+}
+
+function applyFormSelectionToGraphState(topicType, formId) {
+  const formField = {
+    quadratic: "quadraticForm",
+    linear: "linearForm"
+  }[topicType];
+  if (formField) {
+    graphState[formField] = formId;
+  }
 }
 
 function bindMatrixClicks() {
@@ -81,12 +96,9 @@ function bindMatrixClicks() {
       lastSelected = { matrixKey, formId, infoKey };
       document.getElementById("infoPanelText").innerHTML = panel(matrixKey, formId, infoKey);
 
-      graphState.mode = matrixKey;
-      if (matrixKey === "quadratic") {
-        graphState.quadraticForm = formId;
-      } else {
-        graphState.linearForm = formId;
-      }
+      const topic = getCurrentTopic();
+      graphState.mode = topic.graph.type;
+      applyFormSelectionToGraphState(topic.graph.type, formId);
       graphHandlers.updateGraphLabel(matrixKey, formId);
       controlsHandlers.renderParameterInputs();
       controlsHandlers.updateCurrentExampleForms();
