@@ -129,16 +129,11 @@ function renderTopicSelector() {
 }
 
 function applyTopicVisibility() {
-  const isQuadratic = currentTopicId === "quadratic";
-  const qBlock = document.querySelector(".block-q-matrix");
-  const lBlock = document.querySelector(".block-l-matrix");
-  if (qBlock) qBlock.style.display = isQuadratic ? "block" : "none";
-  if (lBlock) lBlock.style.display = isQuadratic ? "none" : "block";
-
+  const topic = getCurrentTopic();
   const sameGeo = document.querySelector(".block-same-geo");
   const disc = document.querySelector(".block-disc");
-  if (sameGeo) sameGeo.style.display = isQuadratic ? "block" : "none";
-  if (disc) disc.style.display = isQuadratic ? "block" : "none";
+  if (sameGeo) sameGeo.style.display = topic.showSameGeometry ? "block" : "none";
+  if (disc) disc.style.display = topic.showDiscriminant ? "block" : "none";
 }
 
 function onFlowRuleClick(ruleId) {
@@ -162,10 +157,6 @@ function localizeStaticText() {
   } else {
     subtitleEl.textContent = t.pageSubtitle;
   }
-  document.getElementById("qMatrixTitle").textContent = t.qMatrixTitle;
-  document.getElementById("qMatrixNote").textContent = t.qMatrixNote;
-  document.getElementById("lMatrixTitle").textContent = t.lMatrixTitle;
-  document.getElementById("lMatrixNote").textContent = t.lMatrixNote;
   document.getElementById("transRulesTitle").textContent = t.transRulesTitle;
   document.getElementById("transRulesNote").textContent = t.transRulesNote;
   document.getElementById("formulaCardsTitle").textContent = t.formulaCardsTitle;
@@ -194,11 +185,13 @@ function localizeStaticText() {
 function switchLang(lang) {
   currentLang = lang;
   const topic = getCurrentTopic();
+  const t = i18n[currentLang];
   localizeStaticText();
   renderTopicSelector();
   applyTopicVisibility();
-  renderMatrix({ targetId: "quadraticMatrixMount", matrixData: quadraticMatrix, i18n, currentLang, LevelClass, statusPill: pill });
-  renderMatrix({ targetId: "linearMatrixMount", matrixData: linearMatrix, i18n, currentLang, LevelClass, statusPill: pill });
+  document.getElementById("matrixTitle").textContent = t[topic.matrixTitleKey];
+  document.getElementById("matrixNote").textContent = t[topic.matrixNoteKey];
+  renderMatrix({ targetId: "matrixMount", matrixData: topic.matrix, i18n, currentLang, LevelClass, statusPill: pill });
   bindMatrixClicks();
   renderNetwork({ mountId: "networkMount", i18n, currentLang, onRuleClick: onFlowRuleClick, topic });
   renderCards({ mountId: "cardsMount", i18n, currentLang, formulaCards, topic });
