@@ -9,24 +9,20 @@ import { detectDeviceMode, createGraphHandlers } from "./render/graphRenderer.js
 import { createControlsHandlers } from "./render/controlsRenderer.js";
 import { renderMatrix, statusPill, getDetail, readableLevel } from "./render/matrixRenderer.js";
 import { buildInfoPanel } from "./render/panelRenderer.js";
+import { getDefaultParamsForForm } from "./conversion/conversionParamSchemas.js";
 import {
-  ensureValidTransformationState,
-  getDefaultTransformationPair,
-  resolveTransformationRuleId
-} from "./data/transformationLookup.js";
-import {
-  renderTransformationSelectors,
-  renderFlowHtml,
-  renderFlowUnavailable
-} from "./render/networkRenderer.js";
+  renderConversionWorkspace,
+  getDefaultConversionState
+} from "./conversion/conversionWorkspaceRenderer.js";
 import { renderCards } from "./render/formulaRenderer.js";
 import { renderProblemRouter } from "./render/routerRenderer.js";
 import { renderIntuition } from "./render/intuitionRenderer.js";
+import { ensureValidTransformationState } from "./data/transformationLookup.js";
 
 let currentLang = "en";
 let lastSelected = null;
 let currentTopicId = "quadratic";
-let transformationState = { fromFormId: "qStandard", toFormId: "qFactored" };
+let conversionState = { fromFormId: "qStandard", toFormId: "qFactored", params: { a: 3, b: 4, c: 5 } };
 
 const graphState = {
   mode: "quadratic",
@@ -40,7 +36,6 @@ const graphState = {
     linear: "lSlope",
     exponential: "eTransformed"
   },
-  // Backward compatibility for existing topic-specific modules.
   quadratic: { a: 1, b: 0, c: -4 },
   quadraticForm: "qVertex",
   linear: { mode: "normal", m: 2, b: -1, point: [1, 1], A: 2, B: -1, C: -1, xConst: null },
@@ -120,8 +115,6 @@ function bindMatrixClicks() {
       syncGraphModeFromTopic(topic);
       applyFormSelectionToGraphState(topic, formId);
       graphHandlers.updateGraphLabel(matrixKey, formId);
-      controlsHandlers.renderParameterInputs();
-      controlsHandlers.updateCurrentExampleForms();
       graphHandlers.drawMainGraph();
       graphHandlers.updateGraphAnnotationText(lastSelected);
     });
@@ -129,8 +122,8 @@ function bindMatrixClicks() {
 }
 
 function renderTopicSelector() {
-  const t = i18n[currentLang];
   const mount = document.getElementById("topicSelectorMount");
+  const t = i18n[currentLang];
   mount.innerHTML = topicOrder
     .map((topicId) => {
       const topic = topicRegistry[topicId];
@@ -150,7 +143,7 @@ function renderTopicSelector() {
       currentTopicId = nextTopicId;
       const topic = getCurrentTopic();
       lastSelected = { ...topic.graph.defaultSelection };
-      transformationState = getDefaultTransformationPair(topic.matrix, topic.transformations.rules);
+      conversionState = getDefaultConversionState(topic);
       switchLang(currentLang);
     });
   });
@@ -188,16 +181,14 @@ function localizeStaticText() {
   } else {
     subtitleEl.textContent = t.pageSubtitle;
   }
-  document.getElementById("transRulesTitle").textContent = t.transRulesTitle;
-  document.getElementById("transRulesNote").textContent = t.transRulesNote;
-  document.getElementById("transShowStepsBtn").textContent = t.transShowStepsBtn;
+  document.getElementById("conversionWorkspaceTitle").textContent = t.conversionWorkspaceTitle;
+  document.getElementById("conversionWorkspaceNote").textContent = t.conversionWorkspaceNote;
   document.getElementById("formulaCardsTitle").textContent = t.formulaCardsTitle;
   document.getElementById("problemRouterTitle").textContent = t.problemRouterTitle;
   document.getElementById("infoPanelTitle").textContent = t.infoPanelTitle;
   document.getElementById("graphPreviewTitle").textContent = t.graphPreviewTitle;
   document.getElementById("graphPreviewNote").textContent = t.graphPreviewNote;
   document.getElementById("currentObjectLabel").textContent = t.currentObjectLabel;
-  document.getElementById("flowTitle").textContent = t.flowTitle;
   document.getElementById("sameGeoTitle").textContent = t.sameGeoTitle;
   localizeQuadraticOptionalPanels(t);
   localizeDiscriminantPanel(t);
@@ -207,51 +198,37 @@ function localizeStaticText() {
   controlsHandlers.updateCurrentExampleForms();
 }
 
-function resetTransformationStateForTopic(topic) {
-  transformationState = getDefaultTransformationPair(topic.matrix, topic.transformations.rules);
-}
-
-function renderTransformationUI() {
+function renderConversionUI() {
   const topic = getCurrentTopic();
-  renderTransformationSelectors({
-    mountId: "transSelectorMount",
-    matrix: topic.matrix,
-    transformationState,
+  renderConversionWorkspace({
+    mountId: "conversionWorkspaceMount",
+    topic,
+    conversionState,
     i18n,
     currentLang,
-    onChange: handleTransformationSelectionChange
+    onStateChange: handleConversionStateChange
   });
 }
 
-function handleTransformationSelectionChange({ fromFormId, toFormId }) {
+function handleConversionStateChange(partial) {
   const topic = getCurrentTopic();
-  transformationState = ensureValidTransformationState(
-    { fromFormId, toFormId },
-    topic.matrix,
-    topic.transformations.rules
-  );
-  renderTransformationUI();
-  updateTransformationFlowPanel();
-}
+  const fromFormId = partial.fromFormId ?? conversionState.fromFormId;
+  let toFormId = partial.toFormId ?? conversionState.toFormId;
+  const pair = ensureValidTransformationState({ fromFormId, toFormId }, topic.matrix, topic.transformations.rules);
 
-function updateTransformationFlowPanel() {
-  const topic = getCurrentTopic();
-  const flowEl = document.getElementById("flowText");
-  const ruleId = resolveTransformationRuleId(
-    topic.transformations.rules,
-    transformationState.fromFormId,
-    transformationState.toFormId
-  );
-  if (ruleId && topic.transformations.flowContent[ruleId]) {
-    flowEl.innerHTML = renderFlowHtml({
-      ruleId,
-      flowContent: topic.transformations.flowContent,
-      currentLang,
-      i18n
-    });
-  } else {
-    flowEl.innerHTML = renderFlowUnavailable({ i18n, currentLang });
+  let params = partial.params;
+  if (fromFormId !== conversionState.fromFormId) {
+    params = getDefaultParamsForForm(pair.fromFormId);
+  } else if (!params) {
+    params = conversionState.params;
   }
+
+  conversionState = {
+    fromFormId: pair.fromFormId,
+    toFormId: pair.toFormId,
+    params: { ...params }
+  };
+  renderConversionUI();
 }
 
 function switchLang(lang) {
@@ -273,7 +250,7 @@ function switchLang(lang) {
     statusPill: pill
   });
   bindMatrixClicks();
-  renderTransformationUI();
+  renderConversionUI();
   renderCards({
     mountId: "cardsMount",
     i18n,
@@ -302,7 +279,6 @@ function switchLang(lang) {
       topic.graph.defaultSelection.formId
     );
   }
-  updateTransformationFlowPanel();
   syncGraphModeFromTopic(topic);
   graphHandlers.drawMainGraph();
   graphHandlers.updateGraphAnnotationText(lastSelected);
@@ -323,11 +299,7 @@ function init() {
   const topic = getCurrentTopic();
   syncGraphModeFromTopic(topic);
   lastSelected = { ...topic.graph.defaultSelection };
-  resetTransformationStateForTopic(topic);
-  document.getElementById("transShowStepsBtn").addEventListener("click", () => {
-    updateTransformationFlowPanel();
-    document.getElementById("flowText").scrollIntoView({ behavior: "smooth", block: "nearest" });
-  });
+  conversionState = getDefaultConversionState(topic);
   switchLang("en");
 }
 
