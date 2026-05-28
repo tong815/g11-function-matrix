@@ -27,6 +27,16 @@ html.device-mobile .axis-grid,
 html.device-mobile .disc-wrap {
   grid-template-columns: 1fr;
 }
+
+/* Conversion Workspace: same DOM; stack cards on narrow viewports */
+@media (max-width: 768px) {
+  .cw-representation-cards {
+    flex-direction: column;
+  }
+  .cw-representation-arrow {
+    align-self: center;
+  }
+}
 html.device-mobile .network,
 html.device-mobile .transform-path {
   flex-direction: column;

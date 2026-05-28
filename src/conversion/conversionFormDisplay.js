@@ -86,24 +86,24 @@ export function buildParamMappings(formId, params) {
   }));
 }
 
-/** Merged dropdown + abstract template for current → target conversion. */
-export function renderFormConversionHeader({ matrix, fromFormId, toFormId, i18n, lang, labels }) {
+/** Single representation header: dropdown + abstract equation (same DOM on all viewports). */
+export function renderRepresentationCards({ matrix, fromFormId, toFormId, i18n, lang, labels }) {
   const current = getFormDisplay(matrix, fromFormId, i18n, lang);
   const target = getFormDisplay(matrix, toFormId, i18n, lang);
   const forms = matrix?.forms ?? [];
 
   return `
-    <div class="cw-form-context">
-      <div class="cw-form-card cw-form-current">
-        <span class="cw-form-card-role">${escapeHtml(labels.currentRepresentation)}</span>
-        <select id="cwFromSelect" class="cw-select cw-select-merged" aria-label="${escapeHtml(labels.currentRepresentation)}">${buildSelectOptions(forms, fromFormId, i18n, lang)}</select>
-        <div class="cw-form-card-template">${escapeHtml(current.template)}</div>
+    <div class="cw-representation-cards">
+      <div class="cw-representation-card cw-representation-from">
+        <span class="cw-representation-role">${escapeHtml(labels.currentRepresentation)}</span>
+        <select id="cwFromSelect" class="cw-representation-select" aria-label="${escapeHtml(labels.currentRepresentation)}">${buildSelectOptions(forms, fromFormId, i18n, lang)}</select>
+        <div class="cw-representation-equation">${escapeHtml(current.template)}</div>
       </div>
-      <span class="cw-form-context-arrow" aria-hidden="true">→</span>
-      <div class="cw-form-card cw-form-target">
-        <span class="cw-form-card-role">${escapeHtml(labels.targetRepresentation)}</span>
-        <select id="cwToSelect" class="cw-select cw-select-merged" aria-label="${escapeHtml(labels.targetRepresentation)}">${buildSelectOptions(forms, toFormId, i18n, lang, { excludeId: fromFormId })}</select>
-        <div class="cw-form-card-template">${escapeHtml(target.template)}</div>
+      <span class="cw-representation-arrow" aria-hidden="true">→</span>
+      <div class="cw-representation-card cw-representation-to">
+        <span class="cw-representation-role">${escapeHtml(labels.targetRepresentation)}</span>
+        <select id="cwToSelect" class="cw-representation-select" aria-label="${escapeHtml(labels.targetRepresentation)}">${buildSelectOptions(forms, toFormId, i18n, lang, { excludeId: fromFormId })}</select>
+        <div class="cw-representation-equation">${escapeHtml(target.template)}</div>
       </div>
     </div>
   `;

@@ -9,7 +9,7 @@ import {
   ensureValidTransformationState,
   getDefaultTransformationPair
 } from "../data/transformationLookup.js";
-import { renderFormConversionHeader, renderParamIdentification } from "./conversionFormDisplay.js";
+import { renderRepresentationCards, renderParamIdentification } from "./conversionFormDisplay.js";
 
 function escapeHtml(text) {
   return String(text)
@@ -35,9 +35,6 @@ function renderLiveSteps(output, labels, paramIdentificationHtml = "") {
     return html;
   }
 
-  if (output.route) {
-    html += `<div class="cw-route">${escapeHtml(output.route)}</div>`;
-  }
   if (output.known?.length || output.target?.length) {
     html += '<div class="cw-meta">';
     if (output.known?.length) {
@@ -172,7 +169,7 @@ export function renderConversionWorkspace({
     ...displayLabels
   };
 
-  const formHeaderHtml = renderFormConversionHeader({
+  const representationCardsHtml = renderRepresentationCards({
     matrix,
     fromFormId,
     toFormId,
@@ -191,7 +188,7 @@ export function renderConversionWorkspace({
 
   mount.innerHTML = `
     <div class="conversion-workspace">
-      ${formHeaderHtml}
+      ${representationCardsHtml}
       <section class="cw-panel cw-panel-params">
         <h3 class="cw-panel-title">${escapeHtml(t.cwParamInputTitle)}</h3>
         <div class="cw-param-grid" id="cwParamGrid">${renderParamInputs(fromFormId, params, labels)}</div>

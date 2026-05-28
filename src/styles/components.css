@@ -536,30 +536,31 @@ html.device-desktop td.active-cell {
   padding: 12px;
   box-shadow: inset 0 1px 0 #fff;
 }
-.cw-form-context {
+.cw-representation-cards {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: row;
+  flex-wrap: nowrap;
   align-items: stretch;
-  gap: 8px 10px;
+  gap: 10px;
   margin-bottom: 12px;
 }
-.cw-form-card {
-  flex: 1 1 140px;
+.cw-representation-card {
+  flex: 1 1 0;
   min-width: 0;
   padding: 10px 12px;
   border-radius: 8px;
   border: 1px solid var(--line);
   background: #fff;
 }
-.cw-form-current {
+.cw-representation-from {
   border-color: #93c5fd;
   box-shadow: 0 0 0 1px #dbeafe;
 }
-.cw-form-target {
+.cw-representation-to {
   border-color: #86efac;
   box-shadow: 0 0 0 1px #dcfce7;
 }
-.cw-form-card-role {
+.cw-representation-role {
   display: block;
   font-size: 10px;
   font-weight: 700;
@@ -568,7 +569,7 @@ html.device-desktop td.active-cell {
   color: var(--muted);
   margin-bottom: 4px;
 }
-.cw-select-merged {
+.cw-representation-select {
   width: 100%;
   margin: 4px 0 8px;
   padding: 8px 10px;
@@ -579,7 +580,7 @@ html.device-desktop td.active-cell {
   background: #fff;
   color: var(--text);
 }
-.cw-form-card-template {
+.cw-representation-equation {
   font-family: "Consolas", "Courier New", monospace;
   font-size: 13px;
   color: #1e40af;
@@ -589,17 +590,18 @@ html.device-desktop td.active-cell {
   background: #f8fafc;
   border: 1px dashed #bfdbfe;
 }
-.cw-form-target .cw-form-card-template {
+.cw-representation-to .cw-representation-equation {
   color: #166534;
   border-color: #86efac;
   background: #f0fdf4;
 }
-.cw-form-context-arrow {
+.cw-representation-arrow {
   flex: 0 0 auto;
   align-self: center;
   font-weight: 700;
   font-size: 20px;
-  color: var(--muted);
+  color: #2563eb;
+  line-height: 1;
 }
 .cw-param-ident {
   margin-bottom: 12px;
@@ -651,39 +653,6 @@ html.device-desktop td.active-cell {
 }
 .cw-param-map-val {
   font-weight: 600;
-}
-.cw-selectors {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 10px 12px;
-}
-.cw-select-field {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  flex: 1 1 130px;
-  min-width: 0;
-}
-.cw-select-label {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--muted);
-  text-transform: uppercase;
-}
-.cw-select {
-  width: 100%;
-  padding: 8px 10px;
-  font-size: 13px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: #fff;
-}
-.cw-arrow {
-  font-weight: 700;
-  font-size: 20px;
-  padding-bottom: 8px;
-  color: #2563eb;
 }
 .cw-panel {
   margin-top: 12px;
@@ -767,11 +736,6 @@ html.device-desktop td.active-cell {
   padding: 12px;
   font-size: 13px;
   line-height: 1.5;
-}
-.cw-route {
-  font-weight: 700;
-  font-size: 14px;
-  margin-bottom: 8px;
 }
 .cw-meta {
   display: grid;
@@ -915,66 +879,6 @@ html.device-desktop td.active-cell {
   font-size: 13px;
 }
 
-.trans-selector-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 10px 12px;
-  margin-top: 8px;
-}
-.trans-selector-field {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
-  flex: 1 1 120px;
-}
-.trans-selector-label {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-}
-.trans-select {
-  width: 100%;
-  max-width: 100%;
-  padding: 7px 10px;
-  font-size: 13px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: #fff;
-  color: var(--text);
-}
-.trans-select:disabled,
-.trans-select.trans-select-disabled {
-  opacity: 0.55;
-  background: #f0f0f0;
-  cursor: not-allowed;
-}
-.trans-arrow {
-  flex: 0 0 auto;
-  font-weight: 700;
-  font-size: 18px;
-  line-height: 1;
-  padding-bottom: 8px;
-  color: var(--muted);
-}
-.btn-trans-steps {
-  margin-top: 10px;
-  width: 100%;
-  padding: 8px 12px;
-  font-size: 13px;
-  font-weight: 600;
-  border-radius: 8px;
-  border: 1px solid #1d4ed8;
-  background: #2563eb;
-  color: #fff;
-  cursor: pointer;
-}
-.btn-trans-steps:hover {
-  background: #1d4ed8;
-}
 .flow-no-rule {
   padding: 12px;
   font-size: 13px;
