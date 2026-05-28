@@ -9,27 +9,13 @@ import {
   ensureValidTransformationState,
   getDefaultTransformationPair
 } from "../data/transformationLookup.js";
-import { renderFormContextCards, renderParamIdentification } from "./conversionFormDisplay.js";
+import { renderFormConversionHeader, renderParamIdentification } from "./conversionFormDisplay.js";
 
 function escapeHtml(text) {
   return String(text)
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
-}
-
-function formLabel(form, i18n, lang) {
-  return i18n[lang][form.labelKey] || form.id;
-}
-
-function buildSelectOptions(forms, selectedId, i18n, lang, { excludeId } = {}) {
-  return forms
-    .filter((f) => f.id !== excludeId)
-    .map((f) => {
-      const sel = f.id === selectedId ? " selected" : "";
-      return `<option value="${escapeHtml(f.id)}"${sel}>${escapeHtml(formLabel(f, i18n, lang))}</option>`;
-    })
-    .join("");
 }
 
 function renderTagList(items) {
@@ -135,7 +121,8 @@ function renderParamInputs(formId, params, labels) {
 }
 
 /**
- * Unified Conversion Workspace: selectors + params + live steps.
+ * Unified Conversion Workspace: form header + params + live steps.
+ * Parameter steps update only on Update Conversion (or Enter), not on each keystroke.
  */
 export function renderConversionWorkspace({
   mountId,
@@ -165,8 +152,8 @@ export function renderConversionWorkspace({
       };
 
   const displayLabels = {
-    currentForm: t.cwCurrentForm,
-    targetForm: t.cwTargetForm,
+    currentRepresentation: t.cwCurrentRepresentation,
+    targetRepresentation: t.cwTargetRepresentation,
     paramIdentification: t.cwParamIdentification,
     inputEquation: t.cwInputEquation
   };
@@ -181,10 +168,11 @@ export function renderConversionWorkspace({
     intuition: t.flowIntuition,
     staticFallback: t.cwStaticFallback,
     selectPair: t.flowNoDirectRule,
+    noParams: t.cwNoParams,
     ...displayLabels
   };
 
-  const formContextHtml = renderFormContextCards({
+  const formHeaderHtml = renderFormConversionHeader({
     matrix,
     fromFormId,
     toFormId,
@@ -199,24 +187,15 @@ export function renderConversionWorkspace({
     labels: displayLabels
   });
 
+  const hasParamSchema = (conversionParamSchemas[fromFormId] || []).length > 0;
+
   mount.innerHTML = `
     <div class="conversion-workspace">
-      ${formContextHtml}
-      <div class="cw-selectors">
-        <label class="cw-select-field">
-          <span class="cw-select-label">${escapeHtml(t.transFromLabel)}</span>
-          <select id="cwFromSelect" class="cw-select">${buildSelectOptions(matrix.forms, fromFormId, i18n, currentLang)}</select>
-        </label>
-        <span class="cw-arrow">→</span>
-        <label class="cw-select-field">
-          <span class="cw-select-label">${escapeHtml(t.transToLabel)}</span>
-          <select id="cwToSelect" class="cw-select">${buildSelectOptions(matrix.forms, toFormId, i18n, currentLang, { excludeId: fromFormId })}</select>
-        </label>
-      </div>
+      ${formHeaderHtml}
       <section class="cw-panel cw-panel-params">
         <h3 class="cw-panel-title">${escapeHtml(t.cwParamInputTitle)}</h3>
-        <div class="cw-param-grid" id="cwParamGrid">${renderParamInputs(fromFormId, params, { noParams: t.cwNoParams })}</div>
-        <button type="button" id="cwUpdateBtn" class="btn-cw-update"${!ruleId || !(conversionParamSchemas[fromFormId] || []).length ? " disabled" : ""}>${escapeHtml(t.cwUpdateConversionBtn)}</button>
+        <div class="cw-param-grid" id="cwParamGrid">${renderParamInputs(fromFormId, params, labels)}</div>
+        <button type="button" id="cwUpdateBtn" class="btn-cw-update"${!ruleId || !hasParamSchema ? " disabled" : ""}>${escapeHtml(t.cwUpdateConversionBtn)}</button>
       </section>
       <section class="cw-panel cw-panel-steps">
         <h3 class="cw-panel-title">${escapeHtml(t.cwLiveStepsTitle)}</h3>
@@ -230,21 +209,26 @@ export function renderConversionWorkspace({
 
   fromSelect.addEventListener("change", () => {
     const nextFrom = fromSelect.value;
-    const nextParams = getDefaultParamsForForm(nextFrom);
     let nextTo = toSelect.value;
     if (nextTo === nextFrom) {
-      const valid = ensureValidTransformationState(
+      nextTo = ensureValidTransformationState(
         { fromFormId: nextFrom, toFormId: nextTo },
         matrix,
         rules
-      );
-      nextTo = valid.toFormId;
+      ).toFormId;
     }
-    onStateChange({ fromFormId: nextFrom, toFormId: nextTo, params: nextParams });
+    onStateChange({
+      fromFormId: nextFrom,
+      toFormId: nextTo,
+      params: getDefaultParamsForForm(nextFrom)
+    });
   });
 
   toSelect.addEventListener("change", () => {
-    onStateChange({ fromFormId: fromSelect.value, toFormId: toSelect.value, params: readParamsFromDom(fromSelect.value) });
+    onStateChange({
+      fromFormId: fromSelect.value,
+      toFormId: toSelect.value
+    });
   });
 
   const updateBtn = mount.querySelector("#cwUpdateBtn");

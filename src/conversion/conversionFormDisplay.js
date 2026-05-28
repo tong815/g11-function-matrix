@@ -8,6 +8,27 @@ import {
 } from "./conversionMath.js";
 import { conversionParamSchemas, paramsValid } from "./conversionParamSchemas.js";
 
+function escapeHtml(text) {
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function formLabel(form, i18n, lang) {
+  return i18n[lang][form.labelKey] || form.id;
+}
+
+function buildSelectOptions(forms, selectedId, i18n, lang, { excludeId } = {}) {
+  return forms
+    .filter((f) => f.id !== excludeId)
+    .map((f) => {
+      const sel = f.id === selectedId ? " selected" : "";
+      return `<option value="${escapeHtml(f.id)}"${sel}>${escapeHtml(formLabel(f, i18n, lang))}</option>`;
+    })
+    .join("");
+}
+
 export function getFormRecord(matrix, formId) {
   return matrix?.forms?.find((f) => f.id === formId) ?? null;
 }
@@ -65,31 +86,27 @@ export function buildParamMappings(formId, params) {
   }));
 }
 
-export function renderFormContextCards({ matrix, fromFormId, toFormId, i18n, lang, labels }) {
+/** Merged dropdown + abstract template for current → target conversion. */
+export function renderFormConversionHeader({ matrix, fromFormId, toFormId, i18n, lang, labels }) {
   const current = getFormDisplay(matrix, fromFormId, i18n, lang);
   const target = getFormDisplay(matrix, toFormId, i18n, lang);
+  const forms = matrix?.forms ?? [];
+
   return `
     <div class="cw-form-context">
       <div class="cw-form-card cw-form-current">
-        <span class="cw-form-card-role">${escapeHtml(labels.currentForm)}</span>
-        <div class="cw-form-card-name">${escapeHtml(current.name)}</div>
+        <span class="cw-form-card-role">${escapeHtml(labels.currentRepresentation)}</span>
+        <select id="cwFromSelect" class="cw-select cw-select-merged" aria-label="${escapeHtml(labels.currentRepresentation)}">${buildSelectOptions(forms, fromFormId, i18n, lang)}</select>
         <div class="cw-form-card-template">${escapeHtml(current.template)}</div>
       </div>
       <span class="cw-form-context-arrow" aria-hidden="true">→</span>
       <div class="cw-form-card cw-form-target">
-        <span class="cw-form-card-role">${escapeHtml(labels.targetForm)}</span>
-        <div class="cw-form-card-name">${escapeHtml(target.name)}</div>
+        <span class="cw-form-card-role">${escapeHtml(labels.targetRepresentation)}</span>
+        <select id="cwToSelect" class="cw-select cw-select-merged" aria-label="${escapeHtml(labels.targetRepresentation)}">${buildSelectOptions(forms, toFormId, i18n, lang, { excludeId: fromFormId })}</select>
         <div class="cw-form-card-template">${escapeHtml(target.template)}</div>
       </div>
     </div>
   `;
-}
-
-function escapeHtml(text) {
-  return String(text)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
 }
 
 export function renderParamIdentification({ formId, params, labels }) {
