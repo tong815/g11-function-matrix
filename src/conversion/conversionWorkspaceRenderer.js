@@ -9,6 +9,7 @@ import {
   ensureValidTransformationState,
   getDefaultTransformationPair
 } from "../data/transformationLookup.js";
+import { renderFormContextCards, renderParamIdentification } from "./conversionFormDisplay.js";
 
 function escapeHtml(text) {
   return String(text)
@@ -36,15 +37,18 @@ function renderTagList(items) {
   return `<div class="cw-tags">${items.map((x) => `<span class="cw-tag">${escapeHtml(x)}</span>`).join("")}</div>`;
 }
 
-function renderLiveSteps(output, labels) {
+function renderLiveSteps(output, labels, paramIdentificationHtml = "") {
+  let html = paramIdentificationHtml;
+
   if (output.blocked && output.blockMessage) {
-    return `<div class="cw-blocked">${escapeHtml(output.blockMessage)}</div>`;
+    html += `<div class="cw-blocked">${escapeHtml(output.blockMessage)}</div>`;
+    return html;
   }
   if (!output.steps?.length && !output.result) {
-    return `<div class="cw-placeholder">${escapeHtml(labels.selectPair)}</div>`;
+    html += `<div class="cw-placeholder">${escapeHtml(labels.selectPair)}</div>`;
+    return html;
   }
 
-  let html = "";
   if (output.route) {
     html += `<div class="cw-route">${escapeHtml(output.route)}</div>`;
   }
@@ -160,6 +164,13 @@ export function renderConversionWorkspace({
         intuition: { title: "", lines: [] }
       };
 
+  const displayLabels = {
+    currentForm: t.cwCurrentForm,
+    targetForm: t.cwTargetForm,
+    paramIdentification: t.cwParamIdentification,
+    inputEquation: t.cwInputEquation
+  };
+
   const labels = {
     known: t.flowKnown,
     target: t.flowTarget,
@@ -169,11 +180,28 @@ export function renderConversionWorkspace({
     mistakes: t.flowMistakes,
     intuition: t.flowIntuition,
     staticFallback: t.cwStaticFallback,
-    selectPair: t.flowNoDirectRule
+    selectPair: t.flowNoDirectRule,
+    ...displayLabels
   };
+
+  const formContextHtml = renderFormContextCards({
+    matrix,
+    fromFormId,
+    toFormId,
+    i18n,
+    lang: currentLang,
+    labels: displayLabels
+  });
+
+  const paramIdentificationHtml = renderParamIdentification({
+    formId: fromFormId,
+    params,
+    labels: displayLabels
+  });
 
   mount.innerHTML = `
     <div class="conversion-workspace">
+      ${formContextHtml}
       <div class="cw-selectors">
         <label class="cw-select-field">
           <span class="cw-select-label">${escapeHtml(t.transFromLabel)}</span>
@@ -188,10 +216,11 @@ export function renderConversionWorkspace({
       <section class="cw-panel cw-panel-params">
         <h3 class="cw-panel-title">${escapeHtml(t.cwParamInputTitle)}</h3>
         <div class="cw-param-grid" id="cwParamGrid">${renderParamInputs(fromFormId, params, { noParams: t.cwNoParams })}</div>
+        <button type="button" id="cwUpdateBtn" class="btn-cw-update"${!ruleId || !(conversionParamSchemas[fromFormId] || []).length ? " disabled" : ""}>${escapeHtml(t.cwUpdateConversionBtn)}</button>
       </section>
       <section class="cw-panel cw-panel-steps">
         <h3 class="cw-panel-title">${escapeHtml(t.cwLiveStepsTitle)}</h3>
-        <div class="cw-steps-body" id="cwStepsBody">${renderLiveSteps(output, labels)}</div>
+        <div class="cw-steps-body" id="cwStepsBody">${renderLiveSteps(output, labels, paramIdentificationHtml)}</div>
       </section>
     </div>
   `;
@@ -215,16 +244,27 @@ export function renderConversionWorkspace({
   });
 
   toSelect.addEventListener("change", () => {
-    onStateChange({ fromFormId: fromSelect.value, toFormId: toSelect.value, params: readParamsFromDom(fromFormId) });
+    onStateChange({ fromFormId: fromSelect.value, toFormId: toSelect.value, params: readParamsFromDom(fromSelect.value) });
   });
 
+  const updateBtn = mount.querySelector("#cwUpdateBtn");
+  const commitParams = () => {
+    if (updateBtn?.disabled) return;
+    onStateChange({
+      fromFormId: fromSelect.value,
+      toFormId: toSelect.value,
+      params: readParamsFromDom(fromSelect.value)
+    });
+  };
+
+  updateBtn?.addEventListener("click", commitParams);
+
   mount.querySelectorAll(".cw-param-input").forEach((input) => {
-    input.addEventListener("input", () => {
-      onStateChange({
-        fromFormId: fromSelect.value,
-        toFormId: toSelect.value,
-        params: readParamsFromDom(fromFormId)
-      });
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        commitParams();
+      }
     });
   });
 }
