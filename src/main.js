@@ -9,19 +9,36 @@ import { onViewportResize, createGraphHandlers } from "./render/graphRenderer.js
 import { createControlsHandlers } from "./render/controlsRenderer.js";
 import { renderMatrix, statusPill, getDetail, readableLevel } from "./render/matrixRenderer.js";
 import { buildInfoPanel } from "./render/panelRenderer.js";
-import { getDefaultParamsForForm } from "./conversion/conversionParamSchemas.js";
 import {
   renderConversionWorkspace,
   getDefaultConversionState
 } from "./conversion/conversionWorkspaceRenderer.js";
+import { initialRootForForm, validateRoot, getDefinitionForTopic } from "./functionRegistry/index.js";
+import {
+  applyRootToGraphState,
+  buildConversionParamsFromRoot,
+  commitGraphAdapterToRoot,
+  mergeConversionWithRoot
+} from "./state/rootSync.js";
+import {
+  ensureValidTransformationState,
+  getDefaultTransformationPair
+} from "./data/transformationLookup.js";
 import { renderCards } from "./render/formulaRenderer.js";
 import { renderIntuition } from "./render/intuitionRenderer.js";
-import { ensureValidTransformationState } from "./data/transformationLookup.js";
 
 let currentLang = "en";
 let lastSelected = null;
 let currentTopicId = "quadratic";
-let conversionState = { fromFormId: "qStandard", toFormId: "qFactored", params: { a: 3, b: 4, c: 5 } };
+
+/** Single source of truth for the active function (all topics). */
+let rootFunction = initialRootForForm("quadratic", "qStandard");
+
+let conversionState = {
+  fromFormId: "qStandard",
+  toFormId: "qFactored",
+  params: buildConversionParamsFromRoot(rootFunction, "qStandard")
+};
 
 const graphState = {
   mode: "quadratic",
@@ -34,16 +51,13 @@ const graphState = {
     quadratic: "qStandard",
     linear: "lSlope",
     exponential: "eTransformed"
-  },
-  quadratic: { a: 1, b: 0, c: 0 },
-  quadraticForm: "qStandard",
-  linear: { mode: "normal", m: 1, b: 0, point: [0, 0], A: 1, B: -1, C: 0, xConst: null },
-  linearForm: "lSlope"
+  }
 };
 
 const getLang = () => currentLang;
 const getLastSelected = () => lastSelected;
 const getCurrentTopic = () => topicRegistry[currentTopicId];
+const getRootFunction = () => rootFunction;
 const matrixByKey = Object.fromEntries(
   topicOrder.map((topicId) => [topicRegistry[topicId].matrixKey, topicRegistry[topicId].matrix])
 );
@@ -56,15 +70,52 @@ const graphHandlers = createGraphHandlers({
   getLastSelected
 });
 
+function syncRootToGraph() {
+  applyRootToGraphState(graphState, rootFunction);
+}
+
+function resetRootForTopic(topic, formId) {
+  rootFunction = initialRootForForm(topic.id, formId);
+  rootFunction.activeForm = formId;
+  syncRootToGraph();
+}
+
+function onGraphRootCommit(adapterId) {
+  const topic = getCurrentTopic();
+  if (topic.graph.adapterId !== adapterId) return;
+  const next = commitGraphAdapterToRoot(topic, graphState);
+  if (!next) return;
+  rootFunction = next;
+  syncRootToGraph();
+  conversionState = {
+    ...conversionState,
+    params: buildConversionParamsFromRoot(rootFunction, conversionState.fromFormId)
+  };
+  renderConversionUI();
+}
+
+function onGraphRootReset(adapterId) {
+  const topic = getCurrentTopic();
+  if (topic.graph.adapterId !== adapterId) return;
+  const formId = graphState.activeFormByAdapter[adapterId];
+  resetRootForTopic(topic, formId);
+  conversionState = {
+    ...conversionState,
+    params: buildConversionParamsFromRoot(rootFunction, conversionState.fromFormId)
+  };
+  renderConversionUI();
+}
+
 const controlsHandlers = createControlsHandlers({
   graphState,
   getLang,
   i18n,
   getLastSelected,
-  getActiveQuadraticFormId: () => graphHandlers.getActiveQuadraticFormId(),
-  getActiveLinearFormId: () => graphHandlers.getActiveLinearFormId(),
+  getRootFunction,
   drawMainGraph: () => graphHandlers.drawMainGraph(),
-  updateGraphAnnotationText: (sel) => graphHandlers.updateGraphAnnotationText(sel)
+  updateGraphAnnotationText: (sel) => graphHandlers.updateGraphAnnotationText(sel),
+  onGraphRootCommit,
+  onGraphRootReset
 });
 
 function pill(level) {
@@ -94,8 +145,7 @@ function syncGraphModeFromTopic(topic) {
 function applyFormSelectionToGraphState(topic, formId) {
   const adapterId = topic.graph.adapterId;
   graphState.activeFormByAdapter[adapterId] = formId;
-  if (adapterId === "quadratic") graphState.quadraticForm = formId;
-  if (adapterId === "linear") graphState.linearForm = formId;
+  rootFunction.activeForm = formId;
 }
 
 function bindMatrixClicks() {
@@ -145,7 +195,11 @@ function renderTopicSelector() {
       const topic = getCurrentTopic();
       lastSelected = { ...topic.graph.defaultSelection };
       applyFormSelectionToGraphState(topic, lastSelected.formId);
-      conversionState = getDefaultConversionState(topic);
+      const pair = getDefaultTransformationPair(topic.matrix, topic.transformations.rules);
+      resetRootForTopic(topic, pair.fromFormId);
+      conversionState = getDefaultConversionState(topic, (fromFormId) =>
+        buildConversionParamsFromRoot(rootFunction, fromFormId)
+      );
       switchLang(currentLang);
     });
   });
@@ -202,28 +256,43 @@ function renderConversionUI() {
     conversionState,
     i18n,
     currentLang,
-    onStateChange: handleConversionStateChange
+    onStateChange: handleConversionStateChange,
+    rootFunction
   });
 }
 
 function handleConversionStateChange(partial) {
   const topic = getCurrentTopic();
   const fromFormId = partial.fromFormId ?? conversionState.fromFormId;
-  let toFormId = partial.toFormId ?? conversionState.toFormId;
-  const pair = ensureValidTransformationState({ fromFormId, toFormId }, topic.matrix, topic.transformations.rules);
+  const pair = ensureValidTransformationState(
+    { fromFormId, toFormId: partial.toFormId ?? conversionState.toFormId },
+    topic.matrix,
+    topic.transformations.rules
+  );
 
-  let params = partial.params;
-  if (fromFormId !== conversionState.fromFormId) {
-    params = getDefaultParamsForForm(pair.fromFormId);
-  } else if (!params) {
-    params = conversionState.params;
+  const merged = mergeConversionWithRoot(topic, conversionState, partial, rootFunction);
+  const def = getDefinitionForTopic(topic);
+
+  if (def?.supportsConversion) {
+    if (validateRoot(merged.root)) {
+      rootFunction = merged.root;
+      syncRootToGraph();
+      conversionState = {
+        fromFormId: pair.fromFormId,
+        toFormId: pair.toFormId,
+        params: merged.params
+      };
+      controlsHandlers.renderParameterInputs();
+      controlsHandlers.updateCurrentExampleForms();
+      graphHandlers.drawMainGraph();
+    }
+  } else {
+    conversionState = {
+      fromFormId: pair.fromFormId,
+      toFormId: pair.toFormId,
+      params: merged.params
+    };
   }
-
-  conversionState = {
-    fromFormId: pair.fromFormId,
-    toFormId: pair.toFormId,
-    params: { ...params }
-  };
   renderConversionUI();
 }
 
@@ -293,7 +362,12 @@ function init() {
   const topic = getCurrentTopic();
   syncGraphModeFromTopic(topic);
   lastSelected = { ...topic.graph.defaultSelection };
-  conversionState = getDefaultConversionState(topic);
+  applyFormSelectionToGraphState(topic, lastSelected.formId);
+  const pair = getDefaultTransformationPair(topic.matrix, topic.transformations.rules);
+  resetRootForTopic(topic, pair.fromFormId);
+  conversionState = getDefaultConversionState(topic, (fromFormId) =>
+    buildConversionParamsFromRoot(rootFunction, fromFormId)
+  );
   switchLang("en");
 }
 

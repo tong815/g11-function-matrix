@@ -1,4 +1,5 @@
 import { getGraphAdapter } from "../graph/graphAdapterRegistry.js";
+import { deriveForms } from "../functionRegistry/index.js";
 function bindParamEnterKeysLocal(mount, applyGraphParams) {
   mount.querySelectorAll("input:not([disabled])").forEach(input => {
     input.addEventListener("keydown", e => {
@@ -13,8 +14,11 @@ export function createControlsHandlers(deps) {
     getLang,
     i18n,
     getLastSelected,
+    getRootFunction,
     drawMainGraph,
-    updateGraphAnnotationText
+    updateGraphAnnotationText,
+    onGraphRootCommit,
+    onGraphRootReset
   } = deps;
   const currentLang = () => getLang();
 
@@ -61,12 +65,16 @@ function updateCurrentExampleForms() {
   const mount = document.getElementById("currentExampleForms");
   const t = i18n[currentLang()];
   const adapter = getActiveAdapter();
+  const root = getRootFunction?.();
   const params = adapter ? getAdapterParams(adapter) : null;
   if (!adapter || !params) {
     mount.innerHTML = "";
     return;
   }
-  const features = adapter.getFeatures(params, currentLang(), i18n);
+  const features =
+    root?.functionType === adapter.id
+      ? deriveForms(root, currentLang(), i18n).features
+      : adapter.getFeatures(params, currentLang(), i18n);
   if (!adapter.isValidParams(features)) {
     const errText = adapter.getCanvasError(features, t);
     mount.innerHTML = `<div class="example-form-cards"><div class="example-form-card card-standard"><div class="efc-title">${t.formStandardLabel}</div><div class="efc-expr">${errText}</div></div></div>`;
@@ -101,7 +109,10 @@ function applyGraphParams() {
     t,
     setError: (text) => { errEl.textContent = text || ""; }
   });
-  if (!result?.changed) return;
+    if (!result?.changed) return;
+  if (onGraphRootCommit) {
+    onGraphRootCommit(adapter.id);
+  }
   updateCurrentExampleForms();
   renderParameterInputs();
   drawMainGraph();
@@ -113,7 +124,11 @@ function resetGraphParams() {
   document.getElementById("graphParamsFactoredNote").textContent = "";
   const adapter = getActiveAdapter();
   if (!adapter) return;
-  adapter.setCurrentParams(graphState, adapter.getDefaultParams());
+  if (onGraphRootReset) {
+    onGraphRootReset(adapter.id);
+  } else {
+    adapter.setCurrentParams(graphState, adapter.getDefaultParams());
+  }
   updateCurrentExampleForms();
   renderParameterInputs();
   drawMainGraph();

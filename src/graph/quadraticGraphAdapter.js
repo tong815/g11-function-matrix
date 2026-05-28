@@ -70,7 +70,7 @@ export const quadraticGraphAdapter = {
   abcFromVertex,
 
   getActiveFormId(graphState) {
-    return graphState.activeFormByAdapter?.quadratic ?? graphState.quadraticForm ?? this.defaultFormId;
+    return graphState.activeFormByAdapter?.quadratic ?? this.defaultFormId;
   },
 
   getCurrentParams(graphState) {
@@ -80,13 +80,11 @@ export const quadraticGraphAdapter = {
   setCurrentParams(graphState, next) {
     if (!graphState.paramsByAdapter) graphState.paramsByAdapter = {};
     graphState.paramsByAdapter.quadratic = next;
-    graphState.quadratic = next;
   },
 
   setActiveFormId(graphState, formId) {
     if (!graphState.activeFormByAdapter) graphState.activeFormByAdapter = {};
     graphState.activeFormByAdapter.quadratic = formId;
-    graphState.quadraticForm = formId;
   },
 
   renderParameterFields({ graphState, formId, mount, t, currentLang, i18n, setNote, bindEnter }) {

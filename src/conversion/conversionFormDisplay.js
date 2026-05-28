@@ -7,6 +7,7 @@ import {
   buildPointSlope
 } from "./conversionMath.js";
 import { conversionParamSchemas, paramsValid } from "./conversionParamSchemas.js";
+import { equationForForm } from "../functionRegistry/index.js";
 
 function escapeHtml(text) {
   return String(text)
@@ -107,11 +108,14 @@ export function renderRepresentationCards({ matrix, fromFormId, toFormId, i18n, 
   `;
 }
 
-export function renderParamIdentification({ formId, params, labels }) {
+export function renderParamIdentification({ formId, params, labels, rootFunction, currentLang, i18n }) {
   const schema = conversionParamSchemas[formId] || [];
   if (!schema.length) return "";
 
-  const concrete = buildConcreteEquation(formId, params);
+  const concrete =
+    rootFunction && i18n && currentLang
+      ? equationForForm(rootFunction, formId, currentLang, i18n)
+      : buildConcreteEquation(formId, params);
   const mappings = buildParamMappings(formId, params);
 
   let html = `<div class="cw-param-ident"><span class="cw-section-label">${escapeHtml(labels.paramIdentification)}</span>`;

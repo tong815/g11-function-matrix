@@ -96,7 +96,7 @@ export const linearGraphAdapter = {
   linearFromStandard,
 
   getActiveFormId(graphState) {
-    return graphState.activeFormByAdapter?.linear ?? graphState.linearForm ?? this.defaultFormId;
+    return graphState.activeFormByAdapter?.linear ?? this.defaultFormId;
   },
 
   getCurrentParams(graphState) {
@@ -106,13 +106,11 @@ export const linearGraphAdapter = {
   setCurrentParams(graphState, next) {
     if (!graphState.paramsByAdapter) graphState.paramsByAdapter = {};
     graphState.paramsByAdapter.linear = next;
-    graphState.linear = next;
   },
 
   setActiveFormId(graphState, formId) {
     if (!graphState.activeFormByAdapter) graphState.activeFormByAdapter = {};
     graphState.activeFormByAdapter.linear = formId;
-    graphState.linearForm = formId;
   },
 
   renderParameterFields({ graphState, formId, mount, t, setNote, bindEnter }) {

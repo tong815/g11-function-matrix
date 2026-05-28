@@ -128,7 +128,8 @@ export function renderConversionWorkspace({
   conversionState,
   i18n,
   currentLang,
-  onStateChange
+  onStateChange,
+  rootFunction = null
 }) {
   const mount = document.getElementById(mountId);
   const t = i18n[currentLang];
@@ -189,7 +190,10 @@ export function renderConversionWorkspace({
   const paramIdentificationHtml = renderParamIdentification({
     formId: fromFormId,
     params,
-    labels: displayLabels
+    labels: displayLabels,
+    rootFunction: rootFunction?.functionType === topic.id ? rootFunction : null,
+    currentLang,
+    i18n
   });
 
   const hasParamSchema = (conversionParamSchemas[fromFormId] || []).length > 0;
@@ -258,10 +262,13 @@ export function renderConversionWorkspace({
   });
 }
 
-export function getDefaultConversionState(topic) {
+export function getDefaultConversionState(topic, getParamsForForm) {
   const pair = getDefaultTransformationPair(topic.matrix, topic.transformations.rules);
+  const custom = getParamsForForm?.(pair.fromFormId);
+  const params =
+    custom !== undefined ? custom : getDefaultParamsForForm(pair.fromFormId);
   return {
     ...pair,
-    params: getDefaultParamsForForm(pair.fromFormId)
+    params
   };
 }

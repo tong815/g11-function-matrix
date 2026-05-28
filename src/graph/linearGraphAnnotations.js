@@ -12,7 +12,7 @@ export function buildLinearAnnotations({
 }) {
   const { formId, infoKey } = selection;
   const t = i18n[currentLang];
-  const currentParams = graphState.paramsByAdapter?.linear || graphState.linear;
+  const currentParams = graphState.paramsByAdapter?.linear;
   const lf = getLinearFeatures(currentParams);
   const annotations = [];
   if (!lf.valid) return annotations;
@@ -86,7 +86,7 @@ export function buildLinearAnnotations({
 export function getLinearAnnotationNote({ graphState, selection, currentLang, i18n, getLinearFeatures, getCellLevel }) {
   const t = i18n[currentLang];
   const isZH = currentLang === "zh";
-  const currentParams = graphState.paramsByAdapter?.linear || graphState.linear;
+  const currentParams = graphState.paramsByAdapter?.linear;
   const lf = getLinearFeatures(currentParams);
   const linKey = selection.formId + "|" + selection.infoKey;
 
