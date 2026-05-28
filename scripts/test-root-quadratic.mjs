@@ -13,22 +13,21 @@ function approx(a, b, eps = 1e-9) {
 }
 
 const s0 = initialRootForForm("quadratic", "qStandard");
-approx(s0.canonicalParams.a, 3);
-approx(s0.canonicalParams.b, 4);
-approx(s0.canonicalParams.c, 5);
+approx(s0.canonicalParams.a, 1);
+approx(s0.canonicalParams.b, 0);
+approx(s0.canonicalParams.c, 0);
 const d0 = quadraticDefinition.deriveForms(s0, "en", { en: { noRealFactored: "no" }, zh: {} });
-assert.equal(d0.derived.hasRealRoots, false);
+assert.equal(d0.derived.hasRealRoots, true);
 
 const v0 = initialRootForForm("quadratic", "qVertex");
 const dv0 = quadraticDefinition.deriveForms(v0, "en", { en: {}, zh: {} });
-approx(dv0.derived.h, 2);
-approx(dv0.derived.k, -4);
-assert.equal(dv0.derived.hasRealRoots, true);
+approx(dv0.derived.h, 0);
+approx(dv0.derived.k, 0);
 
 const f0 = initialRootForForm("quadratic", "qFactored");
 const df0 = quadraticDefinition.deriveForms(f0, "en", { en: {}, zh: {} });
-approx(df0.derived.r1, 1);
-approx(df0.derived.r2, 5);
+approx(df0.derived.r1, 0);
+approx(df0.derived.r2, 0);
 
 let root = updateRootFromFormInput(
   initialRootForForm("quadratic", "qStandard"),

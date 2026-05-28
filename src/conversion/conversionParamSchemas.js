@@ -38,12 +38,12 @@ export const conversionParamSchemas = {
 };
 
 export const conversionDefaultParams = {
-  qStandard: { a: 3, b: 4, c: 5 },
-  qVertex: { a: 1, h: 2, k: -4 },
-  qFactored: { a: 1, r1: 1, r2: 5 },
-  lSlope: { m: 2, b: -1 },
-  lPoint: { m: 2, x1: 0, y1: -1 },
-  lStandard: { A: 2, B: -1, C: -1 },
+  qStandard: { a: 1, b: 0, c: 0 },
+  qVertex: { a: 1, h: 0, k: 0 },
+  qFactored: { a: 1, r1: 0, r2: 0 },
+  lSlope: { m: 1, b: 0 },
+  lPoint: { m: 1, x1: 0, y1: 0 },
+  lStandard: { A: 1, B: -1, C: 0 },
   eTransformed: { a: 1, b: 2, h: 0, k: 0 }
 };
 
