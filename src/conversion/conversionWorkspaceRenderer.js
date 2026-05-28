@@ -7,7 +7,8 @@ import { runConversionGenerator } from "./generators/index.js";
 import { resolveTransformationRuleId } from "../data/transformationLookup.js";
 import {
   ensureValidTransformationState,
-  getDefaultTransformationPair
+  getDefaultTransformationPair,
+  topicSupportsFormConversion
 } from "../data/transformationLookup.js";
 import { renderRepresentationCards, renderParamIdentification } from "./conversionFormDisplay.js";
 
@@ -132,6 +133,13 @@ export function renderConversionWorkspace({
   const mount = document.getElementById(mountId);
   const t = i18n[currentLang];
   const matrix = topic.matrix;
+  const canConvert = topicSupportsFormConversion(matrix);
+
+  if (!canConvert) {
+    mount.innerHTML = `<div class="conversion-workspace cw-workspace-inactive"><p class="cw-empty-topic">${escapeHtml(t.cwNoFormConversion)}</p></div>`;
+    return;
+  }
+
   const rules = topic.transformations.rules;
   const flowContent = topic.transformations.flowContent;
   const { fromFormId, toFormId, params } = conversionState;

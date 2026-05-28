@@ -35,9 +35,9 @@ export const problemRouterData = {
     { problemEN: "Parallel / perpendicular", problemZH: "平行/垂直判断", formEN: "Any form → find slope", formZH: "任意形式先求斜率" }
   ],
   exponential: [
-    { problemEN: "Identify base", problemZH: "识别底数", formEN: "Basic Form", formZH: "基础式" },
+    { problemEN: "Identify base", problemZH: "识别底数", formEN: "Transformed Form", formZH: "变换式" },
     { problemEN: "Read asymptote", problemZH: "读渐近线", formEN: "Transformed Form", formZH: "变换式" },
-    { problemEN: "Growth or decay?", problemZH: "增长还是衰减？", formEN: "Basic Form", formZH: "基础式" },
+    { problemEN: "Growth or decay?", problemZH: "增长还是衰减？", formEN: "Transformed Form", formZH: "变换式" },
     { problemEN: "Initial value", problemZH: "初始值", formEN: "Transformed Form", formZH: "变换式" },
     { problemEN: "Describe shifts", problemZH: "描述平移", formEN: "Transformed Form", formZH: "变换式" },
     { problemEN: "Domain and range", problemZH: "定义域与值域", formEN: "Transformed Form", formZH: "变换式" }

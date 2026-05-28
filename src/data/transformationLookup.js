@@ -42,6 +42,10 @@ export function resolveTransformationRuleId(rules, fromFormId, toFormId) {
 }
 
 /** Pairs with no direct rule (for docs / debugging). */
+export function topicSupportsFormConversion(matrix) {
+  return (matrix?.forms?.length ?? 0) >= 2;
+}
+
 export function listMissingDirectConversions(matrix, rules) {
   const forms = matrix?.forms ?? [];
   const missing = [];

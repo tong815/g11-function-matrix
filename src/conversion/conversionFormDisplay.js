@@ -1,5 +1,5 @@
 import { fmt } from "../math/format.js";
-import { buildBasicFormText, buildTransformedFormText } from "../math/exponential.js";
+import { buildTransformedFormText } from "../math/exponential.js";
 import {
   buildVertexFormText,
   buildFactoredText,
@@ -67,8 +67,6 @@ export function buildConcreteEquation(formId, params) {
       if (Math.abs(C) >= 1e-9) parts.push(`${C >= 0 ? "+ " : "− "}${fmt(Math.abs(C))}`);
       return (parts.join(" ") || "0") + " = 0";
     }
-    case "eBasic":
-      return buildBasicFormText(params.b);
     case "eTransformed":
       return buildTransformedFormText(params.a, params.b, params.h, params.k);
     default:

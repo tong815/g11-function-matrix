@@ -8,7 +8,7 @@ import {
 
 export const exponentialGraphAdapter = {
   id: "exponential",
-  parameterForms: ["eBasic", "eTransformed"],
+  parameterForms: ["eTransformed"],
   defaultFormId: "eTransformed",
 
   getDefaultParams() {
@@ -33,8 +33,11 @@ export const exponentialGraphAdapter = {
     if (!features.valid) return null;
     return {
       cards: [
-        { className: "card-standard", title: t.formExponentialBasicLabel, expr: features.basicFormText },
-        { className: "card-vertex", title: t.formExponentialTransformedLabel, expr: features.transformedFormText }
+        {
+          className: "card-vertex",
+          title: t.formExponentialTransformedLabel,
+          expr: features.transformedFormText
+        }
       ]
     };
   },
@@ -60,52 +63,36 @@ export const exponentialGraphAdapter = {
 
   renderParameterFields({ graphState, formId, mount, t, bindEnter }) {
     this.setActiveFormId(graphState, formId);
-    document.getElementById("graphParamsSubtitle").textContent = t["paramSubtitle_" + formId] || "";
+    document.getElementById("graphParamsSubtitle").textContent = t.paramSubtitle_eTransformed || "";
     const params = this.getCurrentParams(graphState) || this.getDefaultParams();
     const num = (label, id, val) =>
       `<label><span>${label}:</span> <input type="number" step="any" id="${id}" value="${val}" /></label>`;
 
-    if (formId === "eBasic") {
-      mount.innerHTML = num("b", "expInputB", fmt(params.b));
-    } else {
-      mount.innerHTML =
-        num("a", "expInputA", fmt(params.a)) +
-        num("b", "expInputB", fmt(params.b)) +
-        num("h", "expInputH", fmt(params.h)) +
-        num("k", "expInputK", fmt(params.k));
-    }
+    mount.innerHTML =
+      num("a", "expInputA", fmt(params.a)) +
+      num("b", "expInputB", fmt(params.b)) +
+      num("h", "expInputH", fmt(params.h)) +
+      num("k", "expInputK", fmt(params.k));
     bindEnter(mount);
   },
 
   applyParameterInputs({ graphState, formId, t, setError }) {
-    let next = null;
-    if (formId === "eBasic") {
-      const b = Number(document.getElementById("expInputB").value);
-      const check = validateExponentialParams({ a: 1, b, h: 0, k: 0 });
-      if (!check.valid) {
-        setError(check.error === "bInvalid" ? t.expErrorBInvalid : t.expErrorInvalid);
-        return { changed: false };
-      }
-      next = { a: 1, b, h: 0, k: 0 };
-    } else {
-      const a = Number(document.getElementById("expInputA").value);
-      const b = Number(document.getElementById("expInputB").value);
-      const h = Number(document.getElementById("expInputH").value);
-      const k = Number(document.getElementById("expInputK").value);
-      const check = validateExponentialParams({ a, b, h, k });
-      if (!check.valid) {
-        setError(
-          check.error === "aZero"
-            ? t.expErrorAZero
-            : check.error === "bInvalid"
-              ? t.expErrorBInvalid
-              : t.expErrorInvalid
-        );
-        return { changed: false };
-      }
-      next = { a, b, h, k };
+    const a = Number(document.getElementById("expInputA").value);
+    const b = Number(document.getElementById("expInputB").value);
+    const h = Number(document.getElementById("expInputH").value);
+    const k = Number(document.getElementById("expInputK").value);
+    const check = validateExponentialParams({ a, b, h, k });
+    if (!check.valid) {
+      setError(
+        check.error === "aZero"
+          ? t.expErrorAZero
+          : check.error === "bInvalid"
+            ? t.expErrorBInvalid
+            : t.expErrorInvalid
+      );
+      return { changed: false };
     }
-    this.setCurrentParams(graphState, next);
+    this.setCurrentParams(graphState, { a, b, h, k });
     setError("");
     return { changed: true };
   },
@@ -129,22 +116,22 @@ export const exponentialGraphAdapter = {
       return g.error === "aZero" ? t.expErrorAZero : g.error === "bInvalid" ? t.expErrorBInvalid : t.expErrorInvalid;
     }
     const key = selection.formId + "|" + selection.infoKey;
-    if (key === "eBasic|base") {
+    if (key === "eTransformed|base") {
       return isZH
         ? "底数 b≈" + fmt(g.b) + " 决定曲线形状。"
         : "Base b≈" + fmt(g.b) + " controls the curve shape.";
     }
-    if (key === "eTransformed|asymptote" || key === "eBasic|asymptote") {
+    if (key === "eTransformed|asymptote") {
       return isZH
         ? "水平渐近线 y=" + fmt(g.asymptoteY) + "（参数 k）。"
         : "Horizontal asymptote y=" + fmt(g.asymptoteY) + " (parameter k).";
     }
-    if (key === "eTransformed|initialValue" || key === "eBasic|initialValue") {
+    if (key === "eTransformed|initialValue") {
       return isZH
         ? "x=0 时 y≈" + fmt(g.yIntercept) + "（代入变换式可得）。"
         : "At x=0, y≈" + fmt(g.yIntercept) + " (substitute into transformed form).";
     }
-    if (key === "eBasic|growthDecay" || key === "eTransformed|growthDecay") {
+    if (key === "eTransformed|growthDecay") {
       return isZH
         ? "当前为" + g.growthOrDecay + "：比较 b 与 1，b≈" + fmt(g.b) + "。"
         : "This example shows " + g.growthOrDecay + ": compare b to 1, b≈" + fmt(g.b) + ".";

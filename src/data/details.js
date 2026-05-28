@@ -396,66 +396,6 @@ export const detailLibrary = {
     "2x-3y+6=0 -> x 截距 (-3,0), y 截距 (0,2)",
     "解截距方程时计算错误。"
   ),
-  "exponential|eBasic|base": D(
-    "Direct read: base b is written in y=b^x.",
-    ["Read b directly", "Confirm b>0 and b≠1"],
-    "y=2^x -> b=2",
-    "Confusing b with exponent position.",
-    "可直接读：y=b^x 中底数 b 写在式子里。",
-    ["直接读出 b", "确认 b>0 且 b≠1"],
-    "y=2^x -> b=2",
-    "把底数和指数位置搞混。"
-  ),
-  "exponential|eBasic|initialValue": D(
-    "Derivable: substitute x=0 in y=b^x to get y=1 (when a=1, k=0).",
-    ["Set x=0", "Compute b^0=1", "For full model use transformed form if a≠1 or k≠0"],
-    "y=2^x -> y(0)=1",
-    "Using b as initial value.",
-    "需推导：在 y=b^x 中令 x=0 得 y=1。",
-    ["令 x=0", "算 b^0=1", "若有伸缩/平移请转变换式"],
-    "y=2^x -> y(0)=1",
-    "误把 b 当初始值。"
-  ),
-  "exponential|eBasic|growthDecay": D(
-    "Direct read: compare b to 1.",
-    ["Read b", "b>1 growth, 0<b<1 decay"],
-    "y=0.5^x -> decay",
-    "Using a or A instead of b.",
-    "可直接读：比较 b 与 1。",
-    ["读 b", "b>1 增长，0<b<1 衰减"],
-    "y=0.5^x -> 衰减",
-    "误用 a 或 A 判断。"
-  ),
-  "exponential|eBasic|asymptote": D(
-    "Derivable: basic form implies k=0, so asymptote y=0.",
-    ["Recognize y=b^x has no +k term", "Horizontal asymptote y=0", "Or convert to transformed form"],
-    "y=2^x -> asymptote y=0",
-    "Looking for vertical asymptote.",
-    "需推导：基础式等价 k=0，渐近线 y=0。",
-    ["y=b^x 无 +k", "水平渐近线 y=0", "或转变换式读 k"],
-    "y=2^x -> 渐近线 y=0",
-    "误找竖直渐近线。"
-  ),
-  "exponential|eBasic|domainRange": D(
-    "Derivable: domain ℝ; with a>0 and k=0, range is y>0.",
-    ["State domain ℝ", "Use a sign: a>0 => y>k, here k=0 => y>0"],
-    "y=2^x: domain ℝ, range y>0",
-    "Thinking range depends on k sign instead of a.",
-    "需推导：定义域 ℝ；a>0 且 k=0 时值域 y>0。",
-    ["定义域 ℝ", "由 a 决定：a>0 => y>k，此处 k=0 即 y>0"],
-    "y=2^x：定义域 ℝ，值域 y>0",
-    "误用 k 的正负决定值域方向。"
-  ),
-  "exponential|eBasic|transformations": D(
-    "Weak for shifts: use transformed form y=a·b^(x-h)+k.",
-    ["Basic form hides a,h,k", "Switch to transformed form", "Read a,h,k there"],
-    "Prefer y=2·3^(x-1)+4 over y=3^x for shifts",
-    "Forcing shifts into y=b^x only.",
-    "不适合读平移/伸缩：请用变换式 y=a·b^(x-h)+k。",
-    ["基础式不含 a,h,k", "改看变换式", "在那里读参数"],
-    "描述平移宜用 y=2·3^(x-1)+4",
-    "硬在 y=b^x 里找平移。"
-  ),
   "exponential|eTransformed|base": D(
     "Direct read: b appears in y=a·b^(x-h)+k.",
     ["Identify b in the power", "Check b>0, b≠1"],
@@ -477,12 +417,12 @@ export const detailLibrary = {
     "只写 k 当初始值。"
   ),
   "exponential|eTransformed|growthDecay": D(
-    "Derivable: compare b to 1 (same factor as r in growth form).",
-    ["Read b", "b>1 growth, 0<b<1 decay", "Or rewrite as y=A·r^x with r=b"],
+    "Direct read: compare b to 1 in y=a·b^(x-h)+k.",
+    ["Read b", "b>1 growth, 0<b<1 decay"],
     "b=1.2 -> growth",
     "Using sign of a only.",
-    "需推导：比较 b 与 1（与 r 相同角色）。",
-    ["读 b", "b>1 增长，0<b<1 衰减", "或写成 r=b"],
+    "可直接读：在变换式中比较 b 与 1。",
+    ["读 b", "b>1 增长，0<b<1 衰减"],
     "b=1.2 -> 增长",
     "只看 a 的正负。"
   ),

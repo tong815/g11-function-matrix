@@ -1,17 +1,10 @@
 import { exponentialMatrix } from "../matrices.js";
 import { detailLibrary } from "../details.js";
 import { formulaCards, problemRouterData } from "../formulas.js";
-import { transformationRules, flowContent } from "../transformationRules.js";
 import { buildRepresentations } from "../representations.js";
 import { exponentialGraphAdapter } from "../../graph/exponentialGraphAdapter.js";
 
 const formulas = formulaCards.filter((card) => card.group === "exponential");
-const rules = transformationRules.filter((rule) => rule.topic === "exponential");
-const topicFlowContent = Object.fromEntries(
-  rules
-    .filter((rule) => flowContent[rule.id])
-    .map((rule) => [rule.id, flowContent[rule.id]])
-);
 
 export const exponentialTopic = {
   id: "exponential",
@@ -27,9 +20,8 @@ export const exponentialTopic = {
   formulaCards: formulas,
   problemRouter: problemRouterData.exponential,
   transformations: {
-    rules,
-    flowContent: topicFlowContent,
-    defaultFlowRuleId: "exp_basic_to_transformed"
+    rules: [],
+    flowContent: {}
   },
   graphAdapter: exponentialGraphAdapter,
   optionalPanels: [],
@@ -46,7 +38,7 @@ export const exponentialTopic = {
     defaultSelection: {
       matrixKey: "exponential",
       formId: "eTransformed",
-      infoKey: "base"
+      infoKey: "growthDecay"
     }
   },
   matrixKey: "exponential",

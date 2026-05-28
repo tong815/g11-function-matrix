@@ -28,7 +28,6 @@ export const exponentialMatrix = {
   key: "exponential",
   objectLabelKey: "graphExponential",
   forms: [
-    { id: "eBasic", equation: "y = b^x", representationType: "algebraic", labelKey: "formExponentialBasicLabel" },
     {
       id: "eTransformed",
       equation: "y = a·b^(x-h) + k",
@@ -38,12 +37,12 @@ export const exponentialMatrix = {
   ],
   info: ["base", "initialValue", "growthDecay", "asymptote", "domainRange", "transformations"],
   cells: {
-    base: { eBasic: "direct", eTransformed: "direct" },
-    initialValue: { eBasic: "derivable", eTransformed: "derivable" },
-    growthDecay: { eBasic: "direct", eTransformed: "derivable" },
-    asymptote: { eBasic: "derivable", eTransformed: "direct" },
-    domainRange: { eBasic: "derivable", eTransformed: "derivable" },
-    transformations: { eBasic: "weak", eTransformed: "direct" }
+    base: { eTransformed: "direct" },
+    initialValue: { eTransformed: "derivable" },
+    growthDecay: { eTransformed: "direct" },
+    asymptote: { eTransformed: "direct" },
+    domainRange: { eTransformed: "derivable" },
+    transformations: { eTransformed: "direct" }
   }
 };
 

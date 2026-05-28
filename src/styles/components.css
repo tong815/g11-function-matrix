@@ -878,6 +878,20 @@ html.device-desktop td.active-cell {
   color: var(--muted);
   font-size: 13px;
 }
+.cw-workspace-inactive {
+  padding: 4px 0;
+}
+.cw-empty-topic {
+  margin: 0;
+  padding: 16px 14px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--muted);
+  text-align: center;
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
 
 .flow-no-rule {
   padding: 12px;

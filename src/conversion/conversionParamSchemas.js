@@ -29,7 +29,6 @@ export const conversionParamSchemas = {
     { key: "B", label: "B" },
     { key: "C", label: "C" }
   ],
-  eBasic: [{ key: "b", label: "b" }],
   eTransformed: [
     { key: "a", label: "a" },
     { key: "b", label: "b" },
@@ -45,7 +44,6 @@ export const conversionDefaultParams = {
   lSlope: { m: 2, b: -1 },
   lPoint: { m: 2, x1: 0, y1: -1 },
   lStandard: { A: 2, B: -1, C: -1 },
-  eBasic: { b: 2 },
   eTransformed: { a: 1, b: 2, h: 0, k: 0 }
 };
 

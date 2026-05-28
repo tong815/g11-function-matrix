@@ -88,26 +88,6 @@ export const transformationRules = [
     toFormId: "lSlope",
     labelEN: "solve for y",
     labelZH: "化成斜截式"
-  },
-  {
-    topic: "exponential",
-    id: "exp_basic_to_transformed",
-    from: "Basic",
-    to: "Transformed",
-    fromFormId: "eBasic",
-    toFormId: "eTransformed",
-    labelEN: "add shifts",
-    labelZH: "加平移"
-  },
-  {
-    topic: "exponential",
-    id: "exp_transformed_to_basic",
-    from: "Transformed",
-    to: "Basic",
-    fromFormId: "eTransformed",
-    toFormId: "eBasic",
-    labelEN: "normalize",
-    labelZH: "归一化"
   }
 ];
 

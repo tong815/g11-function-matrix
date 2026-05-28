@@ -46,12 +46,4 @@ export const flowMistakesByRule = {
     ],
     zh: ["B = 0 时仍强行化成斜截式（竖直线）", "斜率误写成 A/B，应为 −A/B"]
   },
-  exp_basic_to_transformed: {
-    en: ["Changing the base b when only a, h, k should change", "Wrong sign on h in b^(x − h)"],
-    zh: ["误改底数 b（应只改 a, h, k）", "指数里 (x − h) 的 h 符号写反"]
-  },
-  exp_transformed_to_basic: {
-    en: ["Resetting b instead of only a, h, k", "Leaving a shift factor in the exponent"],
-    zh: ["归一化时误改 b", "指数里仍残留平移未清掉"]
-  }
 };

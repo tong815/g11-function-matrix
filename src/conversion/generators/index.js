@@ -1,6 +1,5 @@
 import * as quadratic from "./quadratic.js";
 import * as linear from "./linear.js";
-import * as exponential from "./exponential.js";
 import { flowMistakesByRule } from "../../data/flowMistakes.js";
 import { L } from "../conversionMath.js";
 
@@ -13,9 +12,7 @@ const generators = {
   vertex_to_fact: quadratic.vertexToFact,
   lin_slope_to_point: linear.slopeToPoint,
   lin_point_to_standard: linear.pointToStandard,
-  lin_standard_to_slope: linear.standardToSlope,
-  exp_basic_to_transformed: exponential.basicToTransformed,
-  exp_transformed_to_basic: exponential.transformedToBasic
+  lin_standard_to_slope: linear.standardToSlope
 };
 
 export function hasLiveGenerator(ruleId) {
