@@ -115,6 +115,8 @@ function bindMatrixClicks() {
       syncGraphModeFromTopic(topic);
       applyFormSelectionToGraphState(topic, formId);
       graphHandlers.updateGraphLabel(matrixKey, formId);
+      controlsHandlers.renderParameterInputs();
+      controlsHandlers.updateCurrentExampleForms();
       graphHandlers.drawMainGraph();
       graphHandlers.updateGraphAnnotationText(lastSelected);
     });
