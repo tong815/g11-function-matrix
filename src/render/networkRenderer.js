@@ -26,8 +26,7 @@ function localizeNodeName(name, i18n, currentLang) {
     "Slope-Intercept": "斜截式",
     "Point-Slope": "点斜式",
     Basic: "基础式",
-    Transformed: "变换式",
-    "Growth/Decay": "增长/衰减式"
+    Transformed: "变换式"
   };
   return map[name] || name;
 }

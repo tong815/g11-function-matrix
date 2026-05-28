@@ -1,15 +1,14 @@
-import { EPS, fmt } from "../math/format.js";
+import { fmt } from "../math/format.js";
 import {
   DEFAULT_EXPONENTIAL,
   evaluateExponential,
   getExponentialFeatures,
-  validateExponentialParams,
-  validateGrowthDecayParams
+  validateExponentialParams
 } from "../math/exponential.js";
 
 export const exponentialGraphAdapter = {
   id: "exponential",
-  parameterForms: ["eBasic", "eTransformed", "eGrowthDecay"],
+  parameterForms: ["eBasic", "eTransformed"],
   defaultFormId: "eTransformed",
 
   getDefaultParams() {
@@ -35,8 +34,7 @@ export const exponentialGraphAdapter = {
     return {
       cards: [
         { className: "card-standard", title: t.formExponentialBasicLabel, expr: features.basicFormText },
-        { className: "card-vertex", title: t.formExponentialTransformedLabel, expr: features.transformedFormText },
-        { className: "card-factored", title: t.formExponentialGrowthDecayLabel, expr: features.growthDecayFormText }
+        { className: "card-vertex", title: t.formExponentialTransformedLabel, expr: features.transformedFormText }
       ]
     };
   },
@@ -60,7 +58,7 @@ export const exponentialGraphAdapter = {
     graphState.activeFormByAdapter.exponential = formId;
   },
 
-  renderParameterFields({ graphState, formId, mount, t, setNote, bindEnter }) {
+  renderParameterFields({ graphState, formId, mount, t, bindEnter }) {
     this.setActiveFormId(graphState, formId);
     document.getElementById("graphParamsSubtitle").textContent = t["paramSubtitle_" + formId] || "";
     const params = this.getCurrentParams(graphState) || this.getDefaultParams();
@@ -69,11 +67,6 @@ export const exponentialGraphAdapter = {
 
     if (formId === "eBasic") {
       mount.innerHTML = num("b", "expInputB", fmt(params.b));
-    } else if (formId === "eGrowthDecay") {
-      mount.innerHTML =
-        num(t.paramLabelA, "expInputBigA", fmt(params.a)) +
-        num("r", "expInputR", fmt(params.b));
-      setNote(t.paramGrowthDecayNote);
     } else {
       mount.innerHTML =
         num("a", "expInputA", fmt(params.a)) +
@@ -94,15 +87,6 @@ export const exponentialGraphAdapter = {
         return { changed: false };
       }
       next = { a: 1, b, h: 0, k: 0 };
-    } else if (formId === "eGrowthDecay") {
-      const A = Number(document.getElementById("expInputBigA").value);
-      const r = Number(document.getElementById("expInputR").value);
-      const check = validateGrowthDecayParams({ A, r });
-      if (!check.valid) {
-        setError(check.error === "aZero" ? t.expErrorAZero : check.error === "bInvalid" ? t.expErrorBInvalid : t.expErrorInvalid);
-        return { changed: false };
-      }
-      next = { a: A, b: r, h: 0, k: 0 };
     } else {
       const a = Number(document.getElementById("expInputA").value);
       const b = Number(document.getElementById("expInputB").value);
@@ -145,25 +129,25 @@ export const exponentialGraphAdapter = {
       return g.error === "aZero" ? t.expErrorAZero : g.error === "bInvalid" ? t.expErrorBInvalid : t.expErrorInvalid;
     }
     const key = selection.formId + "|" + selection.infoKey;
-    if (key === "eBasic|base" || key === "eGrowthDecay|base") {
+    if (key === "eBasic|base") {
       return isZH
-        ? "底数 b≈" + fmt(g.b) + "（或增长率 r≈" + fmt(g.b) + "）决定曲线形状。"
-        : "Base b≈" + fmt(g.b) + " (or growth factor r≈" + fmt(g.b) + ") controls the curve shape.";
+        ? "底数 b≈" + fmt(g.b) + " 决定曲线形状。"
+        : "Base b≈" + fmt(g.b) + " controls the curve shape.";
     }
     if (key === "eTransformed|asymptote" || key === "eBasic|asymptote") {
       return isZH
         ? "水平渐近线 y=" + fmt(g.asymptoteY) + "（参数 k）。"
         : "Horizontal asymptote y=" + fmt(g.asymptoteY) + " (parameter k).";
     }
-    if (key === "eGrowthDecay|initialValue") {
+    if (key === "eTransformed|initialValue" || key === "eBasic|initialValue") {
       return isZH
-        ? "x=0 时 y≈" + fmt(g.yIntercept) + "，即初始值 A≈" + fmt(g.a) + "。"
-        : "At x=0, y≈" + fmt(g.yIntercept) + ", so initial value A≈" + fmt(g.a) + ".";
+        ? "x=0 时 y≈" + fmt(g.yIntercept) + "（代入变换式可得）。"
+        : "At x=0, y≈" + fmt(g.yIntercept) + " (substitute into transformed form).";
     }
-    if (key === "eBasic|growthDecay" || key === "eGrowthDecay|growthDecay") {
+    if (key === "eBasic|growthDecay" || key === "eTransformed|growthDecay") {
       return isZH
-        ? "当前为" + g.growthOrDecay + "：b≈" + fmt(g.b) + "。"
-        : "This example shows " + g.growthOrDecay + " with b≈" + fmt(g.b) + ".";
+        ? "当前为" + g.growthOrDecay + "：比较 b 与 1，b≈" + fmt(g.b) + "。"
+        : "This example shows " + g.growthOrDecay + ": compare b to 1, b≈" + fmt(g.b) + ".";
     }
     return isZH
       ? g.domainText + "；" + g.rangeText + "。"

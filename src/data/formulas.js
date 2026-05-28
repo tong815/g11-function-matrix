@@ -13,7 +13,7 @@ export const formulaCards = [
   { group: "exponential", titleEN: "Exponential Law", titleZH: "指数法则", expr: "b^(x+y) = b^x · b^y" },
   { group: "exponential", titleEN: "Transformed Exponential", titleZH: "变换指数式", expr: "y = a·b^(x-h) + k" },
   { group: "exponential", titleEN: "Asymptote", titleZH: "水平渐近线", expr: "y = k" },
-  { group: "exponential", titleEN: "Growth / Decay", titleZH: "增长/衰减", expr: "r > 1 growth, 0 < r < 1 decay" },
+  { group: "exponential", titleEN: "Growth / Decay", titleZH: "增长/衰减", expr: "b > 1 growth, 0 < b < 1 decay" },
   { group: "exponential", titleEN: "y-intercept", titleZH: "y 截距", expr: "y(0) = a·b^(-h) + k" },
   { group: "trig", titleEN: "SOH CAH TOA", titleZH: "SOH CAH TOA", expr: "sin=opp/hyp, cos=adj/hyp, tan=opp/adj" }
 ];
@@ -35,11 +35,11 @@ export const problemRouterData = {
     { problemEN: "Parallel / perpendicular", problemZH: "平行/垂直判断", formEN: "Any form → find slope", formZH: "任意形式先求斜率" }
   ],
   exponential: [
-    { problemEN: "Identify base", problemZH: "识别底数", formEN: "Basic / Growth-Decay", formZH: "基础式 / 增长衰减式" },
+    { problemEN: "Identify base", problemZH: "识别底数", formEN: "Basic Form", formZH: "基础式" },
     { problemEN: "Read asymptote", problemZH: "读渐近线", formEN: "Transformed Form", formZH: "变换式" },
-    { problemEN: "Growth or decay?", problemZH: "增长还是衰减？", formEN: "Basic / Growth-Decay", formZH: "基础式 / 增长衰减式" },
-    { problemEN: "Initial value", problemZH: "初始值", formEN: "Growth-Decay Form", formZH: "增长衰减式" },
+    { problemEN: "Growth or decay?", problemZH: "增长还是衰减？", formEN: "Basic Form", formZH: "基础式" },
+    { problemEN: "Initial value", problemZH: "初始值", formEN: "Transformed Form", formZH: "变换式" },
     { problemEN: "Describe shifts", problemZH: "描述平移", formEN: "Transformed Form", formZH: "变换式" },
-    { problemEN: "Domain and range", problemZH: "定义域与值域", formEN: "Any form → transformed", formZH: "任意形式 → 变换式" }
+    { problemEN: "Domain and range", problemZH: "定义域与值域", formEN: "Transformed Form", formZH: "变换式" }
   ]
 };

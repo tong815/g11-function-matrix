@@ -97,15 +97,6 @@ export const transformationRules = [
     labelEN: "normalize",
     labelZH: "归一化",
     text: "Transformed -> Basic\n\n1) Set a=1, h=0, k=0\n2) Keep base b\n3) Obtain y=b^x"
-  },
-  {
-    topic: "exponential",
-    id: "exp_growth_to_transformed",
-    from: "Growth/Decay",
-    to: "Transformed",
-    labelEN: "match parameters",
-    labelZH: "对应参数",
-    text: "Growth/Decay -> Transformed\n\n1) Identify A and r in y=A·r^x\n2) Set a=A, b=r, h=0, k=0\n3) Add shifts if needed for y=a·b^(x-h)+k"
   }
 ];
 
@@ -153,9 +144,5 @@ export const flowContent = {
   exp_transformed_to_basic: {
     en: { route: "Transformed -> Basic", sections: [{ heading: "Steps", numbered: true, lines: ["Set a=1, h=0, k=0", "Keep b unchanged", "Result: y=b^x"] }] },
     zh: { route: "变换式 -> 基础式", sections: [{ heading: "步骤", numbered: true, lines: ["令 a=1, h=0, k=0", "底数 b 不变", "得到 y=b^x"] }] }
-  },
-  exp_growth_to_transformed: {
-    en: { route: "Growth/Decay -> Transformed", sections: [{ heading: "Steps", numbered: true, lines: ["Read A and r from y=A·r^x", "Set a=A, b=r, h=0, k=0", "Add h,k if shifts are needed"] }] },
-    zh: { route: "增长衰减式 -> 变换式", sections: [{ heading: "步骤", numbered: true, lines: ["从 y=A·r^x 读取 A,r", "对应 a=A, b=r, h=0, k=0", "若有平移再补 h,k"] }] }
   }
 };

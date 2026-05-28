@@ -16,15 +16,6 @@ export function validateExponentialParams({ a, b, h, k }) {
   return { valid: true, a, b, h, k };
 }
 
-export function validateGrowthDecayParams({ A, r }) {
-  if (!Number.isFinite(A) || !Number.isFinite(r)) {
-    return { valid: false, error: "invalid" };
-  }
-  if (Math.abs(A) < EPS) return { valid: false, error: "aZero" };
-  if (r <= 0 || Math.abs(r - 1) < EPS) return { valid: false, error: "bInvalid" };
-  return { valid: true, A, r };
-}
-
 function growthOrDecayLabel(b, lang) {
   if (b > 1 + EPS) return lang === "zh" ? "增长 (growth)" : "growth";
   if (b < 1 - EPS) return lang === "zh" ? "衰减 (decay)" : "decay";
@@ -46,10 +37,6 @@ export function buildTransformedFormText(a, b, h, k) {
   return text;
 }
 
-export function buildGrowthDecayFormText(A, r) {
-  return "y = " + fmt(A) + "·" + fmt(r) + "^x";
-}
-
 export function getExponentialFeatures(params, currentLang) {
   const check = validateExponentialParams(params);
   if (!check.valid) {
@@ -62,7 +49,6 @@ export function getExponentialFeatures(params, currentLang) {
       growthOrDecay: null,
       basicFormText: "",
       transformedFormText: "",
-      growthDecayFormText: "",
       domainText: "",
       rangeText: ""
     };
@@ -108,7 +94,6 @@ export function getExponentialFeatures(params, currentLang) {
     growthOrDecay: growth,
     basicFormText: buildBasicFormText(b),
     transformedFormText: buildTransformedFormText(a, b, h, k),
-    growthDecayFormText: buildGrowthDecayFormText(a, b),
     domainText,
     rangeText
   };
