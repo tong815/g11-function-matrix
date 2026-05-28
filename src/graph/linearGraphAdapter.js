@@ -8,6 +8,7 @@ import {
   linearFromStandard
 } from "../math/linear.js";
 import { fmt } from "../math/format.js";
+import { buildViewportFromFocus } from "./viewport.js";
 import { buildLinearAnnotations, getLinearAnnotationNote } from "./linearGraphAnnotations.js";
 
 export const linearGraphAdapter = {
@@ -29,12 +30,42 @@ export const linearGraphAdapter = {
     return lf.m * x + lf.b;
   },
 
-  getViewport(params) {
-    const lf = getLinearFeatures(params);
-    if (lf.valid && lf.isVertical) {
-      return { kind: "vertical", xConst: lf.xConst, pixelScale: 22 };
+  getFocusPoints(params, features) {
+    const lf = features?.valid === true ? features : getLinearFeatures(params);
+    if (!lf.valid) return [];
+    if (lf.isVertical) {
+      const x = lf.xConst;
+      return [
+        { x, y: 0 },
+        { x, y: -6 },
+        { x, y: 6 }
+      ];
     }
-    return { kind: "segment", xMin: -12, xMax: 12, pixelScale: 22 };
+    const pts = [];
+    if (Number.isFinite(lf.b)) pts.push({ x: 0, y: lf.b });
+    if (lf.xInt !== null && Number.isFinite(lf.xInt)) pts.push({ x: lf.xInt, y: 0 });
+    if (lf.point) pts.push({ x: lf.point[0], y: lf.point[1] });
+    const xA = -5;
+    const xB = 5;
+    pts.push({ x: xA, y: lf.m * xA + lf.b });
+    pts.push({ x: xB, y: lf.m * xB + lf.b });
+    return pts;
+  },
+
+  getViewport(params, features, options = {}) {
+    const lf = features?.valid === true ? features : getLinearFeatures(params);
+    if (options.auto === false) {
+      if (lf.valid && lf.isVertical) {
+        return { kind: "vertical", xConst: lf.xConst, pixelScale: 22 };
+      }
+      return { kind: "segment", xMin: -12, xMax: 12, pixelScale: 22 };
+    }
+    const focusPoints = this.getFocusPoints(params, features);
+    const bounds = buildViewportFromFocus(focusPoints, { minXSpan: 10, minYSpan: 10, paddingRatio: 0.15 });
+    if (lf.valid && lf.isVertical) {
+      return { ...bounds, kind: "vertical", xConst: lf.xConst };
+    }
+    return { ...bounds, kind: "segment" };
   },
 
   getExampleForms(features, t) {

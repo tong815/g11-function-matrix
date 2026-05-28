@@ -1,6 +1,6 @@
-import { fmt } from "../math/format.js";
 import { getGraphAdapter } from "../graph/graphAdapterRegistry.js";
 import { getMatrixCellLevel } from "../data/matrixCells.js";
+import { createCoordMapper } from "../graph/viewport.js";
 
 export function syncCanvasSize() {
   const canvas = document.getElementById("graphCanvas");
@@ -23,29 +23,58 @@ export function detectDeviceMode() {
   return isMobile ? "mobile" : "desktop";
 }
 
+function drawArrowLine(ctx, x1, y1, x2, y2) {
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.stroke();
+  const angle = Math.atan2(y2 - y1, x2 - x1);
+  const head = 7;
+  ctx.beginPath();
+  ctx.moveTo(x2, y2);
+  ctx.lineTo(x2 - head * Math.cos(angle - 0.4), y2 - head * Math.sin(angle - 0.4));
+  ctx.lineTo(x2 - head * Math.cos(angle + 0.4), y2 - head * Math.sin(angle + 0.4));
+  ctx.closePath();
+  ctx.fill();
+}
+
+function drawWorldAxes(ctx, w, h, mapper) {
+  ctx.clearRect(0, 0, w, h);
+  ctx.strokeStyle = "#d1d5db";
+  ctx.fillStyle = "#6b7280";
+  ctx.lineWidth = 1;
+  ctx.font = "11px Segoe UI, sans-serif";
+
+  if (mapper.showsXAxis) {
+    const y0 = mapper.toCanvasY(0);
+    if (y0 >= 0 && y0 <= h) {
+      ctx.strokeStyle = "#d1d5db";
+      ctx.fillStyle = "#6b7280";
+      drawArrowLine(ctx, 8, y0, w - 8, y0);
+      ctx.fillText("x", w - 16, y0 - 6);
+    }
+  }
+
+  if (mapper.showsYAxis) {
+    const x0 = mapper.toCanvasX(0);
+    if (x0 >= 0 && x0 <= w) {
+      ctx.strokeStyle = "#d1d5db";
+      ctx.fillStyle = "#6b7280";
+      drawArrowLine(ctx, x0, h - 8, x0, 8);
+      ctx.fillText("y", x0 + 6, 14);
+    }
+  }
+
+  if (mapper.showsOrigin) {
+    const { ox, oy } = mapper.originCanvas;
+    ctx.fillStyle = "#6b7280";
+    ctx.fillText("O", ox + 5, oy - 5);
+  }
+}
+
 export function createGraphHandlers(deps) {
   const { graphState, getLang, i18n, matrixByKey, getLastSelected } = deps;
   const currentLang = () => getLang();
-
-  function drawAxes(ctx, w, h) {
-    ctx.clearRect(0, 0, w, h);
-    ctx.strokeStyle = "#d1d5db";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(0, h / 2);
-    ctx.lineTo(w, h / 2);
-    ctx.moveTo(w / 2, 0);
-    ctx.lineTo(w / 2, h);
-    ctx.stroke();
-  }
-
-  function toCanvasX(x, w, scale = 22) {
-    return w / 2 + x * scale;
-  }
-
-  function toCanvasY(y, h, scale = 22) {
-    return h / 2 - y * scale;
-  }
 
   function getActiveAdapter() {
     return getGraphAdapter(graphState.mode);
@@ -139,10 +168,10 @@ export function createGraphHandlers(deps) {
     return { color: "#9ca3af", lineWidth: 1.5, radius: 4, dash: [5, 4], font: "11px Segoe UI" };
   }
 
-  function drawPointAnnotation(ctx, w, h, ann, scale) {
+  function drawPointAnnotation(ctx, mapper, ann) {
     const style = getAnnStyle(ann.strength);
-    const px = toCanvasX(ann.x, w, scale);
-    const py = toCanvasY(ann.y, h, scale);
+    const px = mapper.toCanvasX(ann.x);
+    const py = mapper.toCanvasY(ann.y);
     ctx.fillStyle = style.color;
     ctx.beginPath();
     ctx.arc(px, py, style.radius, 0, Math.PI * 2);
@@ -151,9 +180,9 @@ export function createGraphHandlers(deps) {
     ctx.fillText(ann.label, px + 7, py - 7);
   }
 
-  function drawVerticalLineAnnotation(ctx, w, h, ann, scale) {
+  function drawVerticalLineAnnotation(ctx, w, h, mapper, ann) {
     const style = getAnnStyle(ann.strength);
-    const px = toCanvasX(ann.x, w, scale);
+    const px = mapper.toCanvasX(ann.x);
     ctx.strokeStyle = style.color;
     ctx.lineWidth = style.lineWidth;
     ctx.setLineDash(style.dash);
@@ -167,24 +196,24 @@ export function createGraphHandlers(deps) {
     ctx.fillText(ann.label, px + 4, 14);
   }
 
-  function drawTextAnnotation(ctx, w, h, ann, scale) {
+  function drawTextAnnotation(ctx, mapper, ann) {
     const style = getAnnStyle(ann.strength);
     ctx.fillStyle = style.color;
     ctx.font = style.font;
-    ctx.fillText(ann.label, toCanvasX(ann.x, w, scale), toCanvasY(ann.y, h, scale));
+    ctx.fillText(ann.label, mapper.toCanvasX(ann.x), mapper.toCanvasY(ann.y));
   }
 
-  function drawSlopeTriangle(ctx, w, h, ann, scale) {
+  function drawSlopeTriangle(ctx, mapper, ann) {
     const style = getAnnStyle(ann.strength);
     const t = i18n[currentLang()];
     const { x0, y0, m } = ann;
     const x1 = x0 + 1;
     const y1 = y0 + m;
-    const px0 = toCanvasX(x0, w, scale);
-    const py0 = toCanvasY(y0, h, scale);
-    const px1 = toCanvasX(x1, w, scale);
-    const py1 = toCanvasY(y1, h, scale);
-    const pyBase = toCanvasY(y0, h, scale);
+    const px0 = mapper.toCanvasX(x0);
+    const py0 = mapper.toCanvasY(y0);
+    const px1 = mapper.toCanvasX(x1);
+    const py1 = mapper.toCanvasY(y1);
+    const pyBase = mapper.toCanvasY(y0);
 
     ctx.strokeStyle = style.color;
     ctx.lineWidth = style.lineWidth;
@@ -204,34 +233,40 @@ export function createGraphHandlers(deps) {
     ctx.fillText(t.markerRise + "=" + m, px1 + 4, (pyBase + py1) / 2);
   }
 
-  function drawNoRootsAnnotation(ctx, w, h, ann) {
+  function drawNoRootsAnnotation(ctx, w, h, ann, mapper) {
     const style = getAnnStyle(ann.strength);
     const msg = currentLang() === "zh" ? "无实数 x 截距（Δ < 0）" : "No real x-intercepts (Δ < 0)";
+    const y =
+      mapper.showsXAxis && mapper.mode === "bounds"
+        ? mapper.toCanvasY(0) + 20
+        : mapper.mode === "legacy"
+          ? h / 2 + 20
+          : h - 28;
     ctx.fillStyle = style.color;
     ctx.font = style.font;
-    ctx.fillText(msg, w / 2 - 95, toCanvasY(0, h) + 20);
+    ctx.fillText(msg, w / 2 - 95, y);
   }
 
-  function drawInterceptLineAnnotation(ctx, w, h, ann, scale) {
+  function drawInterceptLineAnnotation(ctx, mapper, ann) {
     const style = getAnnStyle(ann.strength);
     ctx.strokeStyle = style.color;
     ctx.lineWidth = style.lineWidth;
     ctx.setLineDash(style.dash);
     ctx.beginPath();
-    ctx.moveTo(toCanvasX(ann.xInt, w, scale), toCanvasY(0, h, scale));
-    ctx.lineTo(toCanvasX(0, w, scale), toCanvasY(ann.yInt, h, scale));
+    ctx.moveTo(mapper.toCanvasX(ann.xInt), mapper.toCanvasY(0));
+    ctx.lineTo(mapper.toCanvasX(0), mapper.toCanvasY(ann.yInt));
     ctx.stroke();
     ctx.setLineDash([]);
   }
 
-  function renderAnnotations(ctx, w, h, annotations, scale) {
+  function renderAnnotations(ctx, w, h, annotations, mapper) {
     annotations.forEach((ann) => {
-      if (ann.type === "point") drawPointAnnotation(ctx, w, h, ann, scale);
-      else if (ann.type === "verticalLine") drawVerticalLineAnnotation(ctx, w, h, ann, scale);
-      else if (ann.type === "text") drawTextAnnotation(ctx, w, h, ann, scale);
-      else if (ann.type === "slopeTriangle") drawSlopeTriangle(ctx, w, h, ann, scale);
-      else if (ann.type === "noRoots") drawNoRootsAnnotation(ctx, w, h, ann);
-      else if (ann.type === "interceptLine") drawInterceptLineAnnotation(ctx, w, h, ann, scale);
+      if (ann.type === "point") drawPointAnnotation(ctx, mapper, ann);
+      else if (ann.type === "verticalLine") drawVerticalLineAnnotation(ctx, w, h, mapper, ann);
+      else if (ann.type === "text") drawTextAnnotation(ctx, mapper, ann);
+      else if (ann.type === "slopeTriangle") drawSlopeTriangle(ctx, mapper, ann);
+      else if (ann.type === "noRoots") drawNoRootsAnnotation(ctx, w, h, ann, mapper);
+      else if (ann.type === "interceptLine") drawInterceptLineAnnotation(ctx, mapper, ann);
     });
   }
 
@@ -255,8 +290,13 @@ export function createGraphHandlers(deps) {
     if (el) el.textContent = getGraphAnnotationNote(selection);
   }
 
-  function drawSampledCurve(ctx, w, h, adapter, params, viewport) {
-    const scale = viewport.pixelScale ?? 22;
+  function yInView(y, mapper) {
+    if (mapper.mode !== "bounds") return Number.isFinite(y);
+    const margin = (mapper.yMax - mapper.yMin) * 0.35;
+    return y >= mapper.yMin - margin && y <= mapper.yMax + margin;
+  }
+
+  function drawSampledCurve(ctx, adapter, params, viewport, mapper) {
     const { xMin, xMax, sampleStep } = viewport;
     ctx.strokeStyle = "#111827";
     ctx.lineWidth = 2;
@@ -264,9 +304,12 @@ export function createGraphHandlers(deps) {
     let first = true;
     for (let x = xMin; x <= xMax; x += sampleStep) {
       const y = adapter.evaluate(x, params);
-      if (y === null || !Number.isFinite(y)) continue;
-      const px = toCanvasX(x, w, scale);
-      const py = toCanvasY(y, h, scale);
+      if (y === null || !Number.isFinite(y) || !yInView(y, mapper)) {
+        first = true;
+        continue;
+      }
+      const px = mapper.toCanvasX(x);
+      const py = mapper.toCanvasY(y);
       if (first) {
         ctx.moveTo(px, py);
         first = false;
@@ -275,7 +318,31 @@ export function createGraphHandlers(deps) {
       }
     }
     ctx.stroke();
-    return scale;
+  }
+
+  function drawVerticalGraph(ctx, w, h, viewport, mapper) {
+    const xConst = viewport.xConst;
+    const px = mapper.toCanvasX(xConst);
+    ctx.strokeStyle = "#111827";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(px, 0);
+    ctx.lineTo(px, h);
+    ctx.stroke();
+  }
+
+  function drawLinearSegment(ctx, adapter, params, viewport, mapper) {
+    const lf = adapter.getFeatures(params);
+    const x1 = viewport.xMin;
+    const y1 = lf.m * x1 + lf.b;
+    const x2 = viewport.xMax;
+    const y2 = lf.m * x2 + lf.b;
+    ctx.strokeStyle = "#111827";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(mapper.toCanvasX(x1), mapper.toCanvasY(y1));
+    ctx.lineTo(mapper.toCanvasX(x2), mapper.toCanvasY(y2));
+    ctx.stroke();
   }
 
   function drawMainGraph() {
@@ -283,17 +350,23 @@ export function createGraphHandlers(deps) {
     const ctx = canvas.getContext("2d");
     const w = canvas.width;
     const h = canvas.height;
-    drawAxes(ctx, w, h);
 
     const adapter = getActiveAdapter();
-    if (!adapter) return;
+    if (!adapter) {
+      drawWorldAxes(ctx, w, h, createCoordMapper({ pixelScale: 22 }, w, h));
+      return;
+    }
 
     const t = i18n[currentLang()];
     const params = graphState.paramsByAdapter?.[adapter.id];
-    if (!params) return;
+    if (!params) {
+      drawWorldAxes(ctx, w, h, createCoordMapper({ pixelScale: 22 }, w, h));
+      return;
+    }
     const features = adapter.getFeatures(params, currentLang(), i18n);
 
     if (!adapter.isValidParams(features)) {
+      drawWorldAxes(ctx, w, h, createCoordMapper({ pixelScale: 22 }, w, h));
       ctx.fillStyle = "#6b7280";
       ctx.font = "13px Segoe UI";
       ctx.textAlign = "center";
@@ -302,35 +375,20 @@ export function createGraphHandlers(deps) {
       return;
     }
 
-    const viewport = adapter.getViewport(params, features);
-    let scale = viewport.pixelScale ?? 22;
+    const viewport = adapter.getViewport(params, features, { auto: true });
+    const mapper = createCoordMapper(viewport, w, h);
+    drawWorldAxes(ctx, w, h, mapper);
 
-    if (viewport.kind === "vertical") {
-      ctx.strokeStyle = "#111827";
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      const px = toCanvasX(viewport.xConst, w, scale);
-      ctx.moveTo(px, 0);
-      ctx.lineTo(px, h);
-      ctx.stroke();
-    } else if (viewport.kind === "segment") {
-      const lf = features;
-      ctx.strokeStyle = "#111827";
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      const x1 = viewport.xMin;
-      const y1 = lf.m * x1 + lf.b;
-      const x2 = viewport.xMax;
-      const y2 = lf.m * x2 + lf.b;
-      ctx.moveTo(toCanvasX(x1, w, scale), toCanvasY(y1, h, scale));
-      ctx.lineTo(toCanvasX(x2, w, scale), toCanvasY(y2, h, scale));
-      ctx.stroke();
+    if (viewport.kind === "vertical" && features.isVertical) {
+      drawVerticalGraph(ctx, w, h, viewport, mapper);
+    } else if (viewport.kind === "segment" && !features.isVertical) {
+      drawLinearSegment(ctx, adapter, params, viewport, mapper);
     } else {
-      scale = drawSampledCurve(ctx, w, h, adapter, params, viewport);
+      drawSampledCurve(ctx, adapter, params, viewport, mapper);
     }
 
     const annotations = getDirectGraphAnnotations(getLastSelected());
-    renderAnnotations(ctx, w, h, annotations, scale);
+    renderAnnotations(ctx, w, h, annotations, mapper);
   }
 
   return {

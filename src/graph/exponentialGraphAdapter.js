@@ -5,6 +5,7 @@ import {
   getExponentialFeatures,
   validateExponentialParams
 } from "../math/exponential.js";
+import { buildViewportFromFocus } from "./viewport.js";
 
 export const exponentialGraphAdapter = {
   id: "exponential",
@@ -25,8 +26,31 @@ export const exponentialGraphAdapter = {
     return evaluateExponential(x, check);
   },
 
-  getViewport() {
-    return { xMin: -6, xMax: 6, sampleStep: 0.03, pixelScale: 28 };
+  getFocusPoints(params, features) {
+    const g = features?.valid === true ? features : getExponentialFeatures(params, "en");
+    if (!g.valid) return [];
+    const { a, b, h, k } = g;
+    const evalAt = (x) => evaluateExponential(x, { a, b, h, k });
+    const pts = [
+      { x: 0, y: g.yIntercept },
+      { x: h, y: evalAt(h) },
+      { x: h - 2, y: evalAt(h - 2) },
+      { x: h + 2, y: evalAt(h + 2) },
+      { x: h, y: k },
+      { x: h + 3, y: k }
+    ];
+    return pts.filter((p) => Number.isFinite(p.y));
+  },
+
+  getViewport(params, features, options = {}) {
+    if (options.auto === false) {
+      return { xMin: -6, xMax: 6, sampleStep: 0.03, pixelScale: 28, kind: "legacy" };
+    }
+    const focusPoints = this.getFocusPoints(params, features);
+    return {
+      ...buildViewportFromFocus(focusPoints, { minXSpan: 10, minYSpan: 8, paddingRatio: 0.2 }),
+      kind: "bounds"
+    };
   },
 
   getExampleForms(features, t) {
