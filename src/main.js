@@ -203,7 +203,7 @@ function onFlowRuleClick(ruleId) {
   const topicFlowContent = topic.transformations.flowContent;
   const flowEl = document.getElementById("flowText");
   if (topicFlowContent[ruleId]) {
-    flowEl.innerHTML = renderFlowHtml({ ruleId, flowContent: topicFlowContent, currentLang });
+    flowEl.innerHTML = renderFlowHtml({ ruleId, flowContent: topicFlowContent, currentLang, i18n });
   } else {
     flowEl.textContent = i18n[currentLang].flowDefault;
   }
@@ -268,7 +268,8 @@ function switchLang(lang) {
     document.getElementById("flowText").innerHTML = renderFlowHtml({
       ruleId: lastFlowRuleId,
       flowContent: topicFlowContent,
-      currentLang
+      currentLang,
+      i18n
     });
   } else {
     const flowDefaults = {
