@@ -1,5 +1,5 @@
 import { getGraphAdapter } from "../graph/graphAdapterRegistry.js";
-import { deriveForms } from "../functionRegistry/index.js";
+import { deriveRepresentationsForRoot } from "../functionRegistry/index.js";
 function bindParamEnterKeysLocal(mount, applyGraphParams) {
   mount.querySelectorAll("input:not([disabled])").forEach(input => {
     input.addEventListener("keydown", e => {
@@ -73,7 +73,7 @@ function updateCurrentExampleForms() {
   }
   const features =
     root?.functionType === adapter.id
-      ? deriveForms(root, currentLang(), i18n).features
+      ? deriveRepresentationsForRoot(root, currentLang(), i18n).algebraic.features
       : adapter.getFeatures(params, currentLang(), i18n);
   if (!adapter.isValidParams(features)) {
     const errText = adapter.getCanvasError(features, t);

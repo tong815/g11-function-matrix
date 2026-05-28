@@ -1,6 +1,8 @@
-import { validateExponentialParams, getExponentialFeatures } from "../math/exponential.js";
+import { validateExponentialParams } from "../math/exponential.js";
 import { conversionDefaultParams } from "../conversion/conversionParamSchemas.js";
 import { createRootFunction } from "../state/RootFunction.js";
+import { deriveExponentialFeatures } from "../features/exponentialFeatures.js";
+import { buildAlgebraicRepresentation } from "../representations/algebraic.js";
 
 const FORM_ID = "eTransformed";
 
@@ -21,6 +23,9 @@ export const exponentialDefinition = {
   initialByForm(formId) {
     const d = conversionDefaultParams[formId] || conversionDefaultParams[FORM_ID];
     const norm = normalizeFromForm(FORM_ID, d);
+    if (!norm.valid) {
+      return createRootFunction("exponential", { a: 1, b: 2, h: 0, k: 0 }, formId);
+    }
     return createRootFunction("exponential", norm.canonical, formId);
   },
 
@@ -28,8 +33,19 @@ export const exponentialDefinition = {
     return normalizeFromForm(formId, params);
   },
 
-  deriveForms(root, currentLang) {
-    const features = getExponentialFeatures(root.canonicalParams, currentLang);
+  deriveFeatures(root, currentLang, i18n) {
+    return deriveExponentialFeatures(root.canonicalParams, currentLang);
+  },
+
+  deriveRepresentations(root, currentLang, i18n) {
+    return {
+      algebraic: buildAlgebraicRepresentation(root, currentLang, i18n),
+      features: this.deriveFeatures(root, currentLang, i18n)
+    };
+  },
+
+  deriveForms(root, currentLang, i18n) {
+    const features = this.deriveFeatures(root, currentLang, i18n);
     return { valid: features.valid, error: features.error, features };
   },
 
@@ -42,8 +58,7 @@ export const exponentialDefinition = {
   },
 
   paramsForForm(root) {
-    const { a, b, h, k } = root.canonicalParams;
-    return { a, b, h, k };
+    return { ...root.canonicalParams };
   },
 
   updateFromFormInput(root, formId, params) {
@@ -56,10 +71,8 @@ export const exponentialDefinition = {
     return createRootFunction("exponential", { ...adapterParams }, activeFormId);
   },
 
-  equationForForm(root, formId, currentLang) {
-    const { features, valid } = this.deriveForms(root, currentLang);
-    if (!valid || !features?.valid) return null;
-    if (formId === FORM_ID) return features.transformedFormText;
-    return features.transformedFormText;
+  equationForForm(root, formId, currentLang, i18n) {
+    const rep = buildAlgebraicRepresentation(root, currentLang, i18n);
+    return rep.forms[formId]?.equationText ?? rep.forms[FORM_ID]?.equationText ?? null;
   }
 };

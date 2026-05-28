@@ -1,4 +1,4 @@
-import { EPS, fmt } from "../../math/format.js";
+import { EPS, fmt, buildFactoredExpression } from "../../math/format.js";
 import { flowMistakesByRule } from "../../data/flowMistakes.js";
 import {
   L,
@@ -216,7 +216,7 @@ export function factToStd(p, lang) {
     { label: L(lang, "Read", "读取"), lines: [`a = ${fmt(a)},  r₁ = ${fmt(r1)},  r₂ = ${fmt(r2)}`] },
     {
       label: L(lang, "Expand", "展开"),
-      lines: [`(x − ${fmt(r1)})(x − ${fmt(r2)}) = x² − ${fmt(sum)}x + ${fmt(expanded)}`]
+      lines: [`${buildFactoredExpression(1, r1, r2)} = x² − ${fmt(sum)}x + ${fmt(expanded)}`]
     },
     {
       label: L(lang, "Multiply by a", "乘 a"),

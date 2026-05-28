@@ -13,17 +13,27 @@ import {
   renderConversionWorkspace,
   getDefaultConversionState
 } from "./conversion/conversionWorkspaceRenderer.js";
-import { initialRootForForm, validateRoot, getDefinitionForTopic } from "./functionRegistry/index.js";
+import { validateRoot, getDefinitionForTopic } from "./functionRegistry/index.js";
 import {
   applyRootToGraphState,
   buildConversionParamsFromRoot,
   commitGraphAdapterToRoot,
-  mergeConversionWithRoot
+  mergeConversionWithRoot,
+  persistActiveRootFromGraph,
+  syncActiveRootToGraph
 } from "./state/rootSync.js";
 import {
   ensureValidTransformationState,
   getDefaultTransformationPair
 } from "./data/transformationLookup.js";
+import {
+  getActiveRoot,
+  getRoot,
+  replaceActiveRoot,
+  resetRootForForm,
+  setActiveFunctionType,
+  setRoot
+} from "./state/rootStore.js";
 import { renderCards } from "./render/formulaRenderer.js";
 import { renderIntuition } from "./render/intuitionRenderer.js";
 
@@ -31,33 +41,28 @@ let currentLang = "en";
 let lastSelected = null;
 let currentTopicId = "quadratic";
 
-/** Single source of truth for the active function (all topics). */
-let rootFunction = initialRootForForm("quadratic", "qStandard");
+const getCurrentTopic = () => topicRegistry[currentTopicId];
+const getRootFunction = () => getActiveRoot();
 
 let conversionState = {
   fromFormId: "qStandard",
   toFormId: "qFactored",
-  params: buildConversionParamsFromRoot(rootFunction, "qStandard")
+  params: buildConversionParamsFromRoot(getActiveRoot(), "qStandard")
 };
 
 const graphState = {
   mode: "quadratic",
-  paramsByAdapter: {
-    quadratic: { a: 1, b: 0, c: 0 },
-    linear: { mode: "normal", m: 1, b: 0, point: [0, 0], A: 1, B: -1, C: 0, xConst: null },
-    exponential: { a: 1, b: 2, h: 0, k: 0 }
-  },
+  paramsByAdapter: {},
   activeFormByAdapter: {
     quadratic: "qStandard",
     linear: "lSlope",
     exponential: "eTransformed"
-  }
+  },
+  view: {}
 };
 
 const getLang = () => currentLang;
 const getLastSelected = () => lastSelected;
-const getCurrentTopic = () => topicRegistry[currentTopicId];
-const getRootFunction = () => rootFunction;
 const matrixByKey = Object.fromEntries(
   topicOrder.map((topicId) => [topicRegistry[topicId].matrixKey, topicRegistry[topicId].matrix])
 );
@@ -71,37 +76,32 @@ const graphHandlers = createGraphHandlers({
 });
 
 function syncRootToGraph() {
-  applyRootToGraphState(graphState, rootFunction);
-}
-
-function resetRootForTopic(topic, formId) {
-  rootFunction = initialRootForForm(topic.id, formId);
-  rootFunction.activeForm = formId;
-  syncRootToGraph();
+  syncActiveRootToGraph(graphState);
 }
 
 function onGraphRootCommit(adapterId) {
-  const topic = getCurrentTopic();
-  if (topic.graph.adapterId !== adapterId) return;
-  const next = commitGraphAdapterToRoot(topic, graphState);
+  const t = getCurrentTopic();
+  if (t.graph.adapterId !== adapterId) return;
+  const next = commitGraphAdapterToRoot(t, graphState);
   if (!next) return;
-  rootFunction = next;
+  replaceActiveRoot(next);
   syncRootToGraph();
   conversionState = {
     ...conversionState,
-    params: buildConversionParamsFromRoot(rootFunction, conversionState.fromFormId)
+    params: buildConversionParamsFromRoot(getActiveRoot(), conversionState.fromFormId)
   };
   renderConversionUI();
 }
 
 function onGraphRootReset(adapterId) {
-  const topic = getCurrentTopic();
-  if (topic.graph.adapterId !== adapterId) return;
+  const t = getCurrentTopic();
+  if (t.graph.adapterId !== adapterId) return;
   const formId = graphState.activeFormByAdapter[adapterId];
-  resetRootForTopic(topic, formId);
+  resetRootForForm(t.id, formId);
+  syncRootToGraph();
   conversionState = {
     ...conversionState,
-    params: buildConversionParamsFromRoot(rootFunction, conversionState.fromFormId)
+    params: buildConversionParamsFromRoot(getActiveRoot(), conversionState.fromFormId)
   };
   renderConversionUI();
 }
@@ -123,29 +123,33 @@ function pill(level) {
 }
 
 function panel(matrixKey, formId, infoKey) {
-  const topic = getCurrentTopic();
+  const t = getCurrentTopic();
   return buildInfoPanel({
     matrixKey,
     formId,
     infoKey,
     i18n,
     currentLang,
-    matrix: topic.matrix,
-    topicId: topic.id,
+    matrix: t.matrix,
+    topicId: t.id,
     readableLevel: (level) => readableLevel(level, i18n, currentLang),
     getDetail: (_mk, fid, ik) =>
-      getDetail(topic.details.namespace, fid, ik, topic.details.library, currentLang)
+      getDetail(t.details.namespace, fid, ik, t.details.library, currentLang)
   });
 }
 
-function syncGraphModeFromTopic(topic) {
-  graphState.mode = topic.graph.adapterId;
+function syncGraphModeFromTopic(t) {
+  graphState.mode = t.graph.adapterId;
 }
 
-function applyFormSelectionToGraphState(topic, formId) {
-  const adapterId = topic.graph.adapterId;
+function applyFormSelectionToGraphState(t, formId) {
+  const adapterId = t.graph.adapterId;
   graphState.activeFormByAdapter[adapterId] = formId;
-  rootFunction.activeForm = formId;
+  const root = getRoot(t.id);
+  if (root) {
+    root.activeForm = formId;
+    setRoot(t.id, root);
+  }
 }
 
 function bindMatrixClicks() {
@@ -160,9 +164,17 @@ function bindMatrixClicks() {
       lastSelected = { matrixKey, formId, infoKey };
       document.getElementById("infoPanelText").innerHTML = panel(matrixKey, formId, infoKey);
 
-      const topic = getCurrentTopic();
-      syncGraphModeFromTopic(topic);
-      applyFormSelectionToGraphState(topic, formId);
+      const t = getCurrentTopic();
+      syncGraphModeFromTopic(t);
+      applyFormSelectionToGraphState(t, formId);
+      const def = getDefinitionForTopic(t);
+      if (def?.supportsConversion) {
+        conversionState = {
+          ...conversionState,
+          params: buildConversionParamsFromRoot(getActiveRoot(), conversionState.fromFormId)
+        };
+        renderConversionUI();
+      }
       graphHandlers.updateGraphLabel(matrixKey, formId);
       controlsHandlers.renderParameterInputs();
       controlsHandlers.updateCurrentExampleForms();
@@ -177,12 +189,12 @@ function renderTopicSelector() {
   const t = i18n[currentLang];
   mount.innerHTML = topicOrder
     .map((topicId) => {
-      const topic = topicRegistry[topicId];
+      const top = topicRegistry[topicId];
       const active = topicId === currentTopicId ? " active" : "";
       return `
       <button type="button" class="topic-btn${active}" data-topic="${topicId}">
-        <div class="topic-btn-title">${t[topic.titleKey]}</div>
-        <div class="topic-btn-subtitle">${t[topic.subtitleKey]}</div>
+        <div class="topic-btn-title">${t[top.titleKey]}</div>
+        <div class="topic-btn-subtitle">${t[top.subtitleKey]}</div>
       </button>
     `;
     })
@@ -191,14 +203,21 @@ function renderTopicSelector() {
     btn.addEventListener("click", () => {
       const nextTopicId = btn.dataset.topic;
       if (nextTopicId === currentTopicId) return;
+
+      persistActiveRootFromGraph(getCurrentTopic(), graphState);
+
       currentTopicId = nextTopicId;
-      const topic = getCurrentTopic();
-      lastSelected = { ...topic.graph.defaultSelection };
-      applyFormSelectionToGraphState(topic, lastSelected.formId);
-      const pair = getDefaultTransformationPair(topic.matrix, topic.transformations.rules);
-      resetRootForTopic(topic, pair.fromFormId);
-      conversionState = getDefaultConversionState(topic, (fromFormId) =>
-        buildConversionParamsFromRoot(rootFunction, fromFormId)
+      const nextTopic = getCurrentTopic();
+      setActiveFunctionType(nextTopicId);
+      lastSelected = { ...nextTopic.graph.defaultSelection };
+      applyFormSelectionToGraphState(nextTopic, lastSelected.formId);
+      syncGraphModeFromTopic(nextTopic);
+      syncRootToGraph();
+
+      const pair = getDefaultTransformationPair(nextTopic.matrix, nextTopic.transformations.rules);
+      const fromFormId = pair.fromFormId;
+      conversionState = getDefaultConversionState(nextTopic, (fid) =>
+        buildConversionParamsFromRoot(getActiveRoot(), fid ?? fromFormId)
       );
       switchLang(currentLang);
     });
@@ -249,33 +268,34 @@ function localizeStaticText() {
 }
 
 function renderConversionUI() {
-  const topic = getCurrentTopic();
+  const t = getCurrentTopic();
   renderConversionWorkspace({
     mountId: "conversionWorkspaceMount",
-    topic,
+    topic: t,
     conversionState,
     i18n,
     currentLang,
     onStateChange: handleConversionStateChange,
-    rootFunction
+    rootFunction: getActiveRoot()
   });
 }
 
 function handleConversionStateChange(partial) {
-  const topic = getCurrentTopic();
+  const t = getCurrentTopic();
   const fromFormId = partial.fromFormId ?? conversionState.fromFormId;
   const pair = ensureValidTransformationState(
     { fromFormId, toFormId: partial.toFormId ?? conversionState.toFormId },
-    topic.matrix,
-    topic.transformations.rules
+    t.matrix,
+    t.transformations.rules
   );
 
-  const merged = mergeConversionWithRoot(topic, conversionState, partial, rootFunction);
-  const def = getDefinitionForTopic(topic);
+  const merged = mergeConversionWithRoot(t, conversionState, partial, getActiveRoot());
+  const def = getDefinitionForTopic(t);
 
   if (def?.supportsConversion) {
     if (validateRoot(merged.root)) {
-      rootFunction = merged.root;
+      setRoot(t.id, merged.root);
+      replaceActiveRoot(merged.root);
       syncRootToGraph();
       conversionState = {
         fromFormId: pair.fromFormId,
@@ -298,17 +318,17 @@ function handleConversionStateChange(partial) {
 
 function switchLang(lang) {
   currentLang = lang;
-  const topic = getCurrentTopic();
-  const t = i18n[currentLang];
+  const t = getCurrentTopic();
+  const tr = i18n[currentLang];
   localizeStaticText();
   renderTopicSelector();
-  renderIntuition({ mountId: "intuitionMount", topic, i18n, currentLang });
-  applyOptionalPanels(topic);
-  document.getElementById("matrixTitle").textContent = t[topic.matrixTitleKey];
-  document.getElementById("matrixNote").textContent = t[topic.matrixNoteKey];
+  renderIntuition({ mountId: "intuitionMount", topic: t, i18n, currentLang });
+  applyOptionalPanels(t);
+  document.getElementById("matrixTitle").textContent = tr[t.matrixTitleKey];
+  document.getElementById("matrixNote").textContent = tr[t.matrixNoteKey];
   renderMatrix({
     targetId: "matrixMount",
-    matrixData: topic.matrix,
+    matrixData: t.matrix,
     i18n,
     currentLang,
     LevelClass,
@@ -320,8 +340,8 @@ function switchLang(lang) {
     mountId: "cardsMount",
     i18n,
     currentLang,
-    formulas: topic.formulaCards,
-    title: t[topic.formulasTitleKey]
+    formulas: t.formulaCards,
+    title: tr[t.formulasTitleKey]
   });
   if (lastSelected) {
     document.getElementById("infoPanelText").innerHTML = panel(
@@ -333,11 +353,11 @@ function switchLang(lang) {
   } else {
     document.getElementById("infoPanelText").textContent = i18n[currentLang].infoPanelDefault;
     graphHandlers.updateGraphLabel(
-      topic.graph.defaultSelection.matrixKey,
-      topic.graph.defaultSelection.formId
+      t.graph.defaultSelection.matrixKey,
+      t.graph.defaultSelection.formId
     );
   }
-  syncGraphModeFromTopic(topic);
+  syncGraphModeFromTopic(t);
   controlsHandlers.renderParameterInputs();
   controlsHandlers.updateCurrentExampleForms();
   requestAnimationFrame(() => {
@@ -345,7 +365,7 @@ function switchLang(lang) {
     graphHandlers.drawMainGraph();
     graphHandlers.updateGraphAnnotationText(lastSelected);
   });
-  if (topicHasOptionalPanel(topic, "discriminant")) {
+  if (topicHasOptionalPanel(t, "discriminant")) {
     renderDiscriminantPanels();
   }
 }
@@ -359,14 +379,17 @@ function init() {
   controlsHandlers.bindGraphParamControls();
   document.getElementById("btnEN").addEventListener("click", () => switchLang("en"));
   document.getElementById("btnZH").addEventListener("click", () => switchLang("zh"));
-  const topic = getCurrentTopic();
-  syncGraphModeFromTopic(topic);
-  lastSelected = { ...topic.graph.defaultSelection };
-  applyFormSelectionToGraphState(topic, lastSelected.formId);
-  const pair = getDefaultTransformationPair(topic.matrix, topic.transformations.rules);
-  resetRootForTopic(topic, pair.fromFormId);
-  conversionState = getDefaultConversionState(topic, (fromFormId) =>
-    buildConversionParamsFromRoot(rootFunction, fromFormId)
+
+  const t = getCurrentTopic();
+  setActiveFunctionType(t.id);
+  syncGraphModeFromTopic(t);
+  lastSelected = { ...t.graph.defaultSelection };
+  applyFormSelectionToGraphState(t, lastSelected.formId);
+  syncRootToGraph();
+
+  const pair = getDefaultTransformationPair(t.matrix, t.transformations.rules);
+  conversionState = getDefaultConversionState(t, (fromFormId) =>
+    buildConversionParamsFromRoot(getActiveRoot(), fromFormId)
   );
   switchLang("en");
 }

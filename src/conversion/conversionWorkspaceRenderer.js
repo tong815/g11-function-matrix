@@ -228,8 +228,7 @@ export function renderConversionWorkspace({
     }
     onStateChange({
       fromFormId: nextFrom,
-      toFormId: nextTo,
-      params: getDefaultParamsForForm(nextFrom)
+      toFormId: nextTo
     });
   });
 

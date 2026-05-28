@@ -1,6 +1,8 @@
 import { quadraticDefinition } from "./quadratic.js";
 import { linearDefinition } from "./linear.js";
 import { exponentialDefinition } from "./exponential.js";
+import { deriveFeatures } from "../features/index.js";
+import { deriveRepresentations } from "../representations/index.js";
 
 export const functionRegistry = {
   quadratic: quadraticDefinition,
@@ -25,6 +27,14 @@ export function initialRootForForm(functionType, formId) {
 export function deriveForms(root, currentLang, i18n) {
   const def = getFunctionDefinition(root.functionType);
   return def ? def.deriveForms(root, currentLang, i18n) : { valid: false };
+}
+
+export function deriveFeaturesForRoot(root, currentLang, i18n) {
+  return deriveFeatures(root, currentLang, i18n);
+}
+
+export function deriveRepresentationsForRoot(root, currentLang, i18n) {
+  return deriveRepresentations(root, currentLang, i18n);
 }
 
 export function equationForForm(root, formId, currentLang, i18n) {
@@ -54,7 +64,10 @@ export function updateRootFromFormInput(root, formId, params) {
 
 export function fromGraphAdapterParams(functionType, adapterParams, activeFormId) {
   const def = getFunctionDefinition(functionType);
-  return def ? def.fromGraphAdapterParams(adapterParams, activeFormId) : null;
+  if (!def) return null;
+  const root = def.fromGraphAdapterParams(adapterParams, activeFormId);
+  if (!root || !def.validate(root)) return null;
+  return root;
 }
 
 export function validateRoot(root) {

@@ -1,16 +1,21 @@
 import {
   getDefinitionForTopic,
-  initialRootForForm,
   paramsForForm,
   toGraphData,
   updateRootFromFormInput,
-  validateRoot
+  validateRoot,
+  fromGraphAdapterParams
 } from "../functionRegistry/index.js";
 import { getGraphAdapter } from "../graph/graphAdapterRegistry.js";
+import {
+  getActiveRoot,
+  replaceActiveRoot,
+  setRoot,
+  getActiveFunctionType
+} from "./rootStore.js";
 
 /**
  * Derived graph cache only — not a second mathematical source.
- * paramsByAdapter is written exclusively from RootFunction.
  */
 export function applyRootToGraphState(graphState, root) {
   const def = getDefinitionForTopic(root.functionType);
@@ -18,6 +23,9 @@ export function applyRootToGraphState(graphState, root) {
   const data = toGraphData(root);
   if (!graphState.paramsByAdapter) graphState.paramsByAdapter = {};
   graphState.paramsByAdapter[def.adapterId] = { ...data };
+  if (root.activeForm) {
+    graphState.activeFormByAdapter[def.adapterId] = root.activeForm;
+  }
 }
 
 export function buildConversionParamsFromRoot(root, fromFormId) {
@@ -35,8 +43,7 @@ export function mergeConversionWithRoot(topic, conversionState, partial, rootFun
   let params = partial.params;
 
   if (fromFormId !== conversionState.fromFormId && params === undefined) {
-    root = initialRootForForm(topic.id, fromFormId);
-    root.activeForm = fromFormId;
+    root = { ...root, activeForm: fromFormId };
     params = buildConversionParamsFromRoot(root, fromFormId);
   } else if (params) {
     root = updateRootFromFormInput(root, fromFormId, params);
@@ -54,9 +61,24 @@ export function commitGraphAdapterToRoot(topic, graphState) {
   if (!def) return null;
   const adapter = getGraphAdapter(def.adapterId);
   const adapterParams = graphState.paramsByAdapter?.[def.adapterId];
-  const formId = adapter?.getActiveFormId(graphState) ?? graphState.activeFormByAdapter?.[def.adapterId];
+  const formId =
+    adapter?.getActiveFormId(graphState) ?? graphState.activeFormByAdapter?.[def.adapterId];
   if (!adapterParams) return null;
-  const root = def.fromGraphAdapterParams(adapterParams, formId);
+  const root = fromGraphAdapterParams(topic.id, adapterParams, formId);
+  if (!root) return null;
   root.activeForm = formId;
   return validateRoot(root) ? root : null;
+}
+
+export function persistActiveRootFromGraph(topic, graphState) {
+  const next = commitGraphAdapterToRoot(topic, graphState);
+  if (next) {
+    setRoot(topic.id, next);
+    return next;
+  }
+  return getActiveRoot();
+}
+
+export function syncActiveRootToGraph(graphState) {
+  applyRootToGraphState(graphState, getActiveRoot());
 }
