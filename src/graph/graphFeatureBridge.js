@@ -1,5 +1,11 @@
 import { deriveFeaturesForRoot, fromGraphAdapterParams } from "../functionRegistry/index.js";
-import { getGraphAdapter } from "./graphAdapterRegistry.js";
+import { linearGraphAdapter } from "./linearGraphAdapter.js";
+import { exponentialGraphAdapter } from "./exponentialGraphAdapter.js";
+
+const legacyFeatureAdapters = {
+  linear: linearGraphAdapter,
+  exponential: exponentialGraphAdapter
+};
 
 export function featuresForRoot(root, lang, i18n) {
   if (!root) return { valid: false, error: "noRoot" };
@@ -13,7 +19,7 @@ export function featuresForAdapterParams(adapterId, params, formId, lang, i18n) 
     if (!root) return { valid: false, error: "invalid" };
     return deriveFeaturesForRoot(root, lang, i18n);
   }
-  const adapter = getGraphAdapter(adapterId);
+  const adapter = legacyFeatureAdapters[adapterId];
   if (!adapter?.getFeatures) return { valid: false, error: "invalid" };
   return adapter.getFeatures(params, lang, i18n);
 }
