@@ -1,9 +1,14 @@
+import { formatVertexTransformExample } from "../math/vertexTransformations.js";
+
 export function D(whyEN, stepsEN, exEN, misEN, whyZH, stepsZH, exZH, misZH) {
   return {
     en: { why: whyEN, steps: stepsEN, example: exEN, mistake: misEN },
     zh: { why: whyZH, steps: stepsZH, example: exZH, mistake: misZH }
   };
 }
+
+const qVertexTransformExampleEN = formatVertexTransformExample(-2, -3, 4, "en");
+const qVertexTransformExampleZH = formatVertexTransformExample(-2, -3, 4, "zh");
 
 export const detailLibrary = {
   "quadratic|qStandard|vertex": D(
@@ -208,12 +213,22 @@ export const detailLibrary = {
   ),
   "quadratic|qVertex|transform": D(
     "Vertex form is the best transformation view.",
-    ["Read y=a(x-h)²+k", "h: horizontal shift", "k: vertical shift", "a: reflection/stretch-compression"],
-    "y=-2(x+3)²+4 -> left 3, up 4, reflect over x-axis, vertical stretch 2",
+    [
+      "Read y=a(x-h)²+k",
+      "h → horizontal shift",
+      "a<0 → reflect over x-axis; |a|≠1 → vertical stretch/compression",
+      "k → vertical shift"
+    ],
+    qVertexTransformExampleEN,
     "(x-3) is right 3; (x+3) is left 3.",
     "顶点式最适合读变换。",
-    ["读取 y=a(x-h)²+k", "h: 水平平移", "k: 竖直平移", "a: 翻折与伸缩"],
-    "y=-2(x+3)²+4 -> 左移3，上移4，关于x轴翻折，纵向拉伸2倍",
+    [
+      "读取 y=a(x-h)²+k",
+      "h → 水平平移",
+      "a<0 → 关于x轴翻折；|a|≠1 → 纵向伸缩",
+      "k → 竖直平移"
+    ],
+    qVertexTransformExampleZH,
     "(x-3) 是右移3，(x+3) 是左移3。"
   ),
   "linear|lSlope|slope": D(
