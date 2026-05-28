@@ -64,6 +64,12 @@ function renderExamFlow(data, labels) {
     html += "</div>";
   }
 
+  if (data.mistakes?.length) {
+    html += `<div class="flow-section flow-mistakes"><span class="flow-heading flow-heading-warn">${escapeHtml(labels.mistakes)}</span>`;
+    html += `<ul class="flow-mistakes-list">${data.mistakes.map((m) => `<li>${escapeHtml(m)}</li>`).join("")}</ul>`;
+    html += "</div>";
+  }
+
   if (data.notes?.length) {
     html += `<div class="flow-section flow-notes"><span class="flow-heading">${escapeHtml(labels.notes)}</span>`;
     html += renderLines(data.notes);
@@ -100,48 +106,69 @@ export function renderFlowHtml({ ruleId, flowContent, currentLang, i18n }) {
     formulas: t.flowFormulas,
     algorithm: t.flowAlgorithm,
     example: t.flowExample,
+    mistakes: t.flowMistakes,
     notes: t.flowNotes,
     intuition: t.flowIntuition
   };
   return renderExamFlow(data, labels);
 }
 
-function localizeNodeName(name, i18n, currentLang) {
-  if (currentLang !== "zh") return name;
-  const map = {
-    Standard: i18n[currentLang].nodeStandard,
-    Factored: i18n[currentLang].nodeFactored,
-    Vertex: i18n[currentLang].nodeVertex,
-    "Slope-Intercept": "斜截式",
-    "Point-Slope": "点斜式",
-    Basic: "基础式",
-    Transformed: "变换式"
-  };
-  return map[name] || name;
+export function renderFlowUnavailable({ i18n, currentLang }) {
+  return `<div class="flow-no-rule">${escapeHtml(i18n[currentLang].flowNoDirectRule)}</div>`;
 }
 
-export function renderNetwork({ mountId, i18n, currentLang, onRuleClick, transformations }) {
+function formLabel(form, i18n, currentLang) {
+  return i18n[currentLang][form.labelKey] || form.id;
+}
+
+function buildSelectOptions(forms, selectedId, i18n, currentLang, { excludeId } = {}) {
+  return forms
+    .filter((f) => f.id !== excludeId)
+    .map((f) => {
+      const selected = f.id === selectedId ? " selected" : "";
+      return `<option value="${escapeHtml(f.id)}"${selected}>${escapeHtml(formLabel(f, i18n, currentLang))}</option>`;
+    })
+    .join("");
+}
+
+/**
+ * From / To form selectors. Calls onChange when either selection changes.
+ */
+export function renderTransformationSelectors({
+  mountId,
+  matrix,
+  transformationState,
+  i18n,
+  currentLang,
+  onChange
+}) {
   const mount = document.getElementById(mountId);
-  const rules = transformations?.rules || [];
-  const html = `
-    <div class="transform-diagram">
-      ${rules
-        .map(
-          (rule) => `
-        <div class="transform-path">
-          <div class="node">${localizeNodeName(rule.from, i18n, currentLang)}</div>
-          <button type="button" class="edge-tag" data-edge="${rule.id}">${currentLang === "zh" ? rule.labelZH : rule.labelEN} →</button>
-          <div class="node">${localizeNodeName(rule.to, i18n, currentLang)}</div>
-        </div>
-      `
-        )
-        .join("")}
+  const forms = matrix?.forms ?? [];
+  const t = i18n[currentLang];
+  const { fromFormId, toFormId } = transformationState;
+  const toDisabled = forms.length < 2;
+
+  mount.innerHTML = `
+    <div class="trans-selector-row">
+      <label class="trans-selector-field">
+        <span class="trans-selector-label">${escapeHtml(t.transFromLabel)}</span>
+        <select id="transFromSelect" class="trans-select">${buildSelectOptions(forms, fromFormId, i18n, currentLang)}</select>
+      </label>
+      <span class="trans-arrow" aria-hidden="true">→</span>
+      <label class="trans-selector-field">
+        <span class="trans-selector-label">${escapeHtml(t.transToLabel)}</span>
+        <select id="transToSelect" class="trans-select${toDisabled ? " trans-select-disabled" : ""}"${toDisabled ? " disabled" : ""}>${buildSelectOptions(forms, toFormId, i18n, currentLang, { excludeId: fromFormId })}</select>
+      </label>
     </div>
   `;
-  mount.innerHTML = html;
-  mount.querySelectorAll(".edge-tag, .edge-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      onRuleClick(btn.dataset.edge);
-    });
+
+  const fromSelect = mount.querySelector("#transFromSelect");
+  const toSelect = mount.querySelector("#transToSelect");
+
+  fromSelect.addEventListener("change", () => {
+    onChange({ fromFormId: fromSelect.value, toFormId: toSelect.value, fromChanged: true });
+  });
+  toSelect.addEventListener("change", () => {
+    onChange({ fromFormId: fromSelect.value, toFormId: toSelect.value, fromChanged: false });
   });
 }

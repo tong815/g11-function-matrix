@@ -1,3 +1,5 @@
+import { flowMistakesByRule } from "./flowMistakes.js";
+
 /** Exam-style mechanical flow cards (en/zh per rule id). */
 export const flowContent = {
   std_to_vertex: {
@@ -606,3 +608,11 @@ export const flowContent = {
     }
   }
 };
+
+for (const [ruleId, mistakes] of Object.entries(flowMistakesByRule)) {
+  const entry = flowContent[ruleId];
+  if (!entry) continue;
+  for (const lang of ["en", "zh"]) {
+    if (entry[lang] && mistakes[lang]) entry[lang].mistakes = mistakes[lang];
+  }
+}

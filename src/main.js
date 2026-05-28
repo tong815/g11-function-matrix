@@ -9,15 +9,24 @@ import { detectDeviceMode, createGraphHandlers } from "./render/graphRenderer.js
 import { createControlsHandlers } from "./render/controlsRenderer.js";
 import { renderMatrix, statusPill, getDetail, readableLevel } from "./render/matrixRenderer.js";
 import { buildInfoPanel } from "./render/panelRenderer.js";
-import { renderNetwork, renderFlowHtml } from "./render/networkRenderer.js";
+import {
+  ensureValidTransformationState,
+  getDefaultTransformationPair,
+  resolveTransformationRuleId
+} from "./data/transformationLookup.js";
+import {
+  renderTransformationSelectors,
+  renderFlowHtml,
+  renderFlowUnavailable
+} from "./render/networkRenderer.js";
 import { renderCards } from "./render/formulaRenderer.js";
 import { renderProblemRouter } from "./render/routerRenderer.js";
 import { renderIntuition } from "./render/intuitionRenderer.js";
 
 let currentLang = "en";
 let lastSelected = null;
-let lastFlowRuleId = "std_to_fact";
 let currentTopicId = "quadratic";
+let transformationState = { fromFormId: "qStandard", toFormId: "qFactored" };
 
 const graphState = {
   mode: "quadratic",
@@ -141,7 +150,7 @@ function renderTopicSelector() {
       currentTopicId = nextTopicId;
       const topic = getCurrentTopic();
       lastSelected = { ...topic.graph.defaultSelection };
-      lastFlowRuleId = topic.transformations.defaultFlowRuleId;
+      transformationState = getDefaultTransformationPair(topic.matrix, topic.transformations.rules);
       switchLang(currentLang);
     });
   });
@@ -181,6 +190,7 @@ function localizeStaticText() {
   }
   document.getElementById("transRulesTitle").textContent = t.transRulesTitle;
   document.getElementById("transRulesNote").textContent = t.transRulesNote;
+  document.getElementById("transShowStepsBtn").textContent = t.transShowStepsBtn;
   document.getElementById("formulaCardsTitle").textContent = t.formulaCardsTitle;
   document.getElementById("problemRouterTitle").textContent = t.problemRouterTitle;
   document.getElementById("infoPanelTitle").textContent = t.infoPanelTitle;
@@ -197,15 +207,50 @@ function localizeStaticText() {
   controlsHandlers.updateCurrentExampleForms();
 }
 
-function onFlowRuleClick(ruleId) {
-  lastFlowRuleId = ruleId;
+function resetTransformationStateForTopic(topic) {
+  transformationState = getDefaultTransformationPair(topic.matrix, topic.transformations.rules);
+}
+
+function renderTransformationUI() {
   const topic = getCurrentTopic();
-  const topicFlowContent = topic.transformations.flowContent;
+  renderTransformationSelectors({
+    mountId: "transSelectorMount",
+    matrix: topic.matrix,
+    transformationState,
+    i18n,
+    currentLang,
+    onChange: handleTransformationSelectionChange
+  });
+}
+
+function handleTransformationSelectionChange({ fromFormId, toFormId }) {
+  const topic = getCurrentTopic();
+  transformationState = ensureValidTransformationState(
+    { fromFormId, toFormId },
+    topic.matrix,
+    topic.transformations.rules
+  );
+  renderTransformationUI();
+  updateTransformationFlowPanel();
+}
+
+function updateTransformationFlowPanel() {
+  const topic = getCurrentTopic();
   const flowEl = document.getElementById("flowText");
-  if (topicFlowContent[ruleId]) {
-    flowEl.innerHTML = renderFlowHtml({ ruleId, flowContent: topicFlowContent, currentLang, i18n });
+  const ruleId = resolveTransformationRuleId(
+    topic.transformations.rules,
+    transformationState.fromFormId,
+    transformationState.toFormId
+  );
+  if (ruleId && topic.transformations.flowContent[ruleId]) {
+    flowEl.innerHTML = renderFlowHtml({
+      ruleId,
+      flowContent: topic.transformations.flowContent,
+      currentLang,
+      i18n
+    });
   } else {
-    flowEl.textContent = i18n[currentLang].flowDefault;
+    flowEl.innerHTML = renderFlowUnavailable({ i18n, currentLang });
   }
 }
 
@@ -213,7 +258,6 @@ function switchLang(lang) {
   currentLang = lang;
   const topic = getCurrentTopic();
   const t = i18n[currentLang];
-  const topicFlowContent = topic.transformations.flowContent;
   localizeStaticText();
   renderTopicSelector();
   renderIntuition({ mountId: "intuitionMount", topic, i18n, currentLang });
@@ -229,13 +273,7 @@ function switchLang(lang) {
     statusPill: pill
   });
   bindMatrixClicks();
-  renderNetwork({
-    mountId: "networkMount",
-    i18n,
-    currentLang,
-    onRuleClick: onFlowRuleClick,
-    transformations: topic.transformations
-  });
+  renderTransformationUI();
   renderCards({
     mountId: "cardsMount",
     i18n,
@@ -264,20 +302,7 @@ function switchLang(lang) {
       topic.graph.defaultSelection.formId
     );
   }
-  if (topicFlowContent[lastFlowRuleId]) {
-    document.getElementById("flowText").innerHTML = renderFlowHtml({
-      ruleId: lastFlowRuleId,
-      flowContent: topicFlowContent,
-      currentLang,
-      i18n
-    });
-  } else {
-    const flowDefaults = {
-      linear: i18n[currentLang].linearFlowDefault,
-      exponential: i18n[currentLang].exponentialFlowDefault
-    };
-    document.getElementById("flowText").textContent = flowDefaults[currentTopicId] || i18n[currentLang].flowDefault;
-  }
+  updateTransformationFlowPanel();
   syncGraphModeFromTopic(topic);
   graphHandlers.drawMainGraph();
   graphHandlers.updateGraphAnnotationText(lastSelected);
@@ -298,7 +323,11 @@ function init() {
   const topic = getCurrentTopic();
   syncGraphModeFromTopic(topic);
   lastSelected = { ...topic.graph.defaultSelection };
-  lastFlowRuleId = topic.transformations.defaultFlowRuleId;
+  resetTransformationStateForTopic(topic);
+  document.getElementById("transShowStepsBtn").addEventListener("click", () => {
+    updateTransformationFlowPanel();
+    document.getElementById("flowText").scrollIntoView({ behavior: "smooth", block: "nearest" });
+  });
   switchLang("en");
 }
 

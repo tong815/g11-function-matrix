@@ -529,6 +529,94 @@ html.device-desktop td.active-cell {
   border: 1px solid var(--line) !important;
 }
 
+.trans-selector-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px 12px;
+  margin-top: 8px;
+}
+.trans-selector-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1 1 120px;
+}
+.trans-selector-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.trans-select {
+  width: 100%;
+  max-width: 100%;
+  padding: 7px 10px;
+  font-size: 13px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--text);
+}
+.trans-select:disabled,
+.trans-select.trans-select-disabled {
+  opacity: 0.55;
+  background: #f0f0f0;
+  cursor: not-allowed;
+}
+.trans-arrow {
+  flex: 0 0 auto;
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 1;
+  padding-bottom: 8px;
+  color: var(--muted);
+}
+.btn-trans-steps {
+  margin-top: 10px;
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 1px solid #1d4ed8;
+  background: #2563eb;
+  color: #fff;
+  cursor: pointer;
+}
+.btn-trans-steps:hover {
+  background: #1d4ed8;
+}
+.flow-no-rule {
+  padding: 12px;
+  font-size: 13px;
+  color: var(--muted);
+  text-align: center;
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+.flow-mistakes {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #fcd34d;
+  background: #fffbeb;
+}
+.flow-heading-warn {
+  color: #b45309;
+}
+.flow-mistakes-list {
+  margin: 6px 0 0;
+  padding-left: 1.2rem;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.flow-mistakes-list li {
+  margin: 3px 0;
+}
+
 .transform-flow {
   font-size: 13px;
   color: var(--text);
