@@ -15,7 +15,6 @@ import {
   getDefaultConversionState
 } from "./conversion/conversionWorkspaceRenderer.js";
 import { renderCards } from "./render/formulaRenderer.js";
-import { renderProblemRouter } from "./render/routerRenderer.js";
 import { renderIntuition } from "./render/intuitionRenderer.js";
 import { ensureValidTransformationState } from "./data/transformationLookup.js";
 
@@ -187,7 +186,6 @@ function localizeStaticText() {
   document.getElementById("conversionWorkspaceTitle").textContent = t.conversionWorkspaceTitle;
   document.getElementById("conversionWorkspaceNote").textContent = t.conversionWorkspaceNote;
   document.getElementById("formulaCardsTitle").textContent = t.formulaCardsTitle;
-  document.getElementById("problemRouterTitle").textContent = t.problemRouterTitle;
   document.getElementById("infoPanelTitle").textContent = t.infoPanelTitle;
   document.getElementById("graphPreviewTitle").textContent = t.graphPreviewTitle;
   document.getElementById("graphPreviewNote").textContent = t.graphPreviewNote;
@@ -260,13 +258,6 @@ function switchLang(lang) {
     currentLang,
     formulas: topic.formulaCards,
     title: t[topic.formulasTitleKey]
-  });
-  renderProblemRouter({
-    mountId: "problemRouterMount",
-    i18n,
-    currentLang,
-    router: topic.problemRouter,
-    title: t[topic.routerTitleKey]
   });
   if (lastSelected) {
     document.getElementById("infoPanelText").innerHTML = panel(

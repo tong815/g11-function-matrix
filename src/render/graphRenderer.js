@@ -180,6 +180,23 @@ export function createGraphHandlers(deps) {
     ctx.fillText(ann.label, px + 7, py - 7);
   }
 
+  function drawHorizontalLineAnnotation(ctx, w, h, mapper, ann) {
+    const style = getAnnStyle(ann.strength);
+    const py = mapper.toCanvasY(ann.y);
+    if (py < 0 || py > h) return;
+    ctx.strokeStyle = style.color;
+    ctx.lineWidth = style.lineWidth;
+    ctx.setLineDash(style.dash);
+    ctx.beginPath();
+    ctx.moveTo(0, py);
+    ctx.lineTo(w, py);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = style.color;
+    ctx.font = style.font;
+    ctx.fillText(ann.label, 8, py - 6);
+  }
+
   function drawVerticalLineAnnotation(ctx, w, h, mapper, ann) {
     const style = getAnnStyle(ann.strength);
     const px = mapper.toCanvasX(ann.x);
@@ -263,6 +280,7 @@ export function createGraphHandlers(deps) {
     annotations.forEach((ann) => {
       if (ann.type === "point") drawPointAnnotation(ctx, mapper, ann);
       else if (ann.type === "verticalLine") drawVerticalLineAnnotation(ctx, w, h, mapper, ann);
+      else if (ann.type === "horizontalLine") drawHorizontalLineAnnotation(ctx, w, h, mapper, ann);
       else if (ann.type === "text") drawTextAnnotation(ctx, mapper, ann);
       else if (ann.type === "slopeTriangle") drawSlopeTriangle(ctx, mapper, ann);
       else if (ann.type === "noRoots") drawNoRootsAnnotation(ctx, w, h, ann, mapper);

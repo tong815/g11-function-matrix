@@ -14,23 +14,133 @@ function finitePoint(p) {
   );
 }
 
-/**
- * Build world bounds from focus points with optional origin inclusion.
- */
-export function buildAutoViewport({
-  focusPoints = [],
-  preferredOrigin = { x: 0, y: 0 },
-  minXSpan = 8,
-  minYSpan = 8,
-  paddingRatio = 0.15,
-  originNearFactor = 1.35
-}) {
-  const points = focusPoints.filter(finitePoint);
+function allPointsInBounds(bounds, points) {
+  return points.every(
+    (p) =>
+      p.x >= bounds.xMin &&
+      p.x <= bounds.xMax &&
+      p.y >= bounds.yMin &&
+      p.y <= bounds.yMax
+  );
+}
 
-  if (!points.length) {
-    const hx = minXSpan / 2;
-    const hy = minYSpan / 2;
-    return { xMin: -hx, xMax: hx, yMin: -hy, yMax: hy };
+function boundsForCenter(cx, cy, halfX, halfY) {
+  return {
+    xMin: cx - halfX,
+    xMax: cx + halfX,
+    yMin: cy - halfY,
+    yMax: cy + halfY
+  };
+}
+
+/** Nudge fixed-span viewport toward axes without losing required points. */
+function tryIncludeAxes(bounds, requiredPoints, halfX, halfY) {
+  if (!requiredPoints.length) return bounds;
+
+  const tryCenter = (ncx, ncy) => {
+    const b = boundsForCenter(ncx, ncy, halfX, halfY);
+    return allPointsInBounds(b, requiredPoints) ? b : null;
+  };
+
+  let cx = (bounds.xMin + bounds.xMax) / 2;
+  let cy = (bounds.yMin + bounds.yMax) / 2;
+  let next = bounds;
+
+  if (bounds.xMin > 0) {
+    const b = tryCenter(Math.min(cx, halfX), cy);
+    if (b) next = b;
+  } else if (bounds.xMax < 0) {
+    const b = tryCenter(Math.max(cx, -halfX), cy);
+    if (b) next = b;
+  }
+
+  cx = (next.xMin + next.xMax) / 2;
+  cy = (next.yMin + next.yMax) / 2;
+
+  if (next.yMin > 0) {
+    const b = tryCenter(cx, Math.min(cy, halfY));
+    if (b) next = b;
+  } else if (next.yMax < 0) {
+    const b = tryCenter(cx, Math.max(cy, -halfY));
+    if (b) next = b;
+  }
+
+  return next;
+}
+
+/**
+ * Fixed-scale viewport: pan only (no zoom). Prefer origin-centered when possible.
+ */
+export function buildPannedViewport({
+  centerCandidate = { x: 0, y: 0 },
+  requiredPoints = [],
+  baseXSpan = 20,
+  baseYSpan = 20,
+  preferredOriginCentered = true
+}) {
+  const points = requiredPoints.filter(finitePoint);
+  const halfX = baseXSpan / 2;
+  const halfY = baseYSpan / 2;
+
+  if (preferredOriginCentered) {
+    const originBounds = boundsForCenter(0, 0, halfX, halfY);
+    if (!points.length || allPointsInBounds(originBounds, points)) {
+      return { ...originBounds, originCentered: true, panOnly: true };
+    }
+  }
+
+  let cx = centerCandidate.x ?? 0;
+  let cy = centerCandidate.y ?? 0;
+  if (points.length) {
+    cx = points.reduce((s, p) => s + p.x, 0) / points.length;
+    cy = points.reduce((s, p) => s + p.y, 0) / points.length;
+  }
+
+  let bounds = boundsForCenter(cx, cy, halfX, halfY);
+
+  if (points.length && !allPointsInBounds(bounds, points)) {
+    let xMin = Infinity;
+    let xMax = -Infinity;
+    let yMin = Infinity;
+    let yMax = -Infinity;
+    for (const p of points) {
+      xMin = Math.min(xMin, p.x);
+      xMax = Math.max(xMax, p.x);
+      yMin = Math.min(yMin, p.y);
+      yMax = Math.max(yMax, p.y);
+    }
+    cx = (xMin + xMax) / 2;
+    cy = (yMin + yMax) / 2;
+    bounds = boundsForCenter(cx, cy, halfX, halfY);
+  }
+
+  bounds = tryIncludeAxes(bounds, points, halfX, halfY);
+
+  return { ...bounds, originCentered: false, panOnly: true };
+}
+
+/**
+ * Exponential: try pan-only first; scale only if required points do not fit.
+ */
+export function buildExponentialViewport({
+  requiredPoints = [],
+  baseXSpan = 20,
+  baseYSpan = 20,
+  paddingRatio = 0.18,
+  maxXSpan = 48,
+  maxYSpan = 120,
+  minXSpan = 12,
+  minYSpan = 12
+}) {
+  const points = requiredPoints.filter(finitePoint);
+  const panned = buildPannedViewport({
+    requiredPoints: points,
+    baseXSpan,
+    baseYSpan,
+    preferredOriginCentered: true
+  });
+  if (!points.length || allPointsInBounds(panned, points)) {
+    return { ...panned, panOnly: true };
   }
 
   let xMin = Infinity;
@@ -44,68 +154,25 @@ export function buildAutoViewport({
     yMax = Math.max(yMax, p.y);
   }
 
-  let xSpan = Math.max(xMax - xMin, minXSpan * 0.25);
-  let ySpan = Math.max(yMax - yMin, minYSpan * 0.25);
-  xSpan = Math.max(xSpan, minXSpan);
-  ySpan = Math.max(ySpan, minYSpan);
+  let xSpan = Math.max(xMax - xMin, minXSpan);
+  let ySpan = Math.max(yMax - yMin, minYSpan);
+  xSpan = Math.min(Math.max(xSpan * (1 + paddingRatio * 2), minXSpan), maxXSpan);
+  ySpan = Math.min(Math.max(ySpan * (1 + paddingRatio * 2), minYSpan), maxYSpan);
 
-  const padX = xSpan * paddingRatio;
-  const padY = ySpan * paddingRatio;
-  xMin -= padX;
-  xMax += padX;
-  yMin -= padY;
-  yMax += padY;
+  let cx = (xMin + xMax) / 2;
+  let cy = (yMin + yMax) / 2;
+  const halfX = xSpan / 2;
+  const halfY = ySpan / 2;
 
-  const ox = preferredOrigin.x ?? 0;
-  const oy = preferredOrigin.y ?? 0;
-  const cx = (xMin + xMax) / 2;
-  const cy = (yMin + yMax) / 2;
-  const focusRadius = Math.max(xSpan, ySpan) / 2;
-  const distOrigin = Math.hypot(cx - ox, cy - oy);
-  const includeOrigin = distOrigin <= focusRadius * originNearFactor;
-
-  if (includeOrigin) {
-    xMin = Math.min(xMin, ox);
-    xMax = Math.max(xMax, ox);
-    yMin = Math.min(yMin, oy);
-    yMax = Math.max(yMax, oy);
-  } else {
-    const axisMargin = focusRadius * 0.45;
-    if (ox >= xMin - axisMargin && ox <= xMax + axisMargin) {
-      xMin = Math.min(xMin, ox);
-      xMax = Math.max(xMax, ox);
-    }
-    if (oy >= yMin - axisMargin && oy <= yMax + axisMargin) {
-      yMin = Math.min(yMin, oy);
-      yMax = Math.max(yMax, oy);
-    }
+  const originBounds = boundsForCenter(0, 0, halfX, halfY);
+  if (allPointsInBounds(originBounds, points)) {
+    return { ...originBounds, originCentered: true, panOnly: false };
   }
 
-  const expandToMinSpan = (min, max, minSpan) => {
-    const span = max - min;
-    if (span >= minSpan) return [min, max];
-    const mid = (min + max) / 2;
-    return [mid - minSpan / 2, mid + minSpan / 2];
-  };
+  let bounds = boundsForCenter(cx, cy, halfX, halfY);
+  bounds = tryIncludeAxes(bounds, points, halfX, halfY);
 
-  [xMin, xMax] = expandToMinSpan(xMin, xMax, minXSpan);
-  [yMin, yMax] = expandToMinSpan(yMin, yMax, minYSpan);
-
-  xMin = clamp(xMin, -MAX_ABS, MAX_ABS);
-  xMax = clamp(xMax, -MAX_ABS, MAX_ABS);
-  yMin = clamp(yMin, -MAX_ABS, MAX_ABS);
-  yMax = clamp(yMax, -MAX_ABS, MAX_ABS);
-
-  if (xMax <= xMin) {
-    xMin -= minXSpan / 2;
-    xMax += minXSpan / 2;
-  }
-  if (yMax <= yMin) {
-    yMin -= minYSpan / 2;
-    yMax += minYSpan / 2;
-  }
-
-  return { xMin, xMax, yMin, yMax };
+  return { ...bounds, originCentered: false, panOnly: false };
 }
 
 export function isBoundsViewport(viewport) {
@@ -122,6 +189,13 @@ export function adaptiveSampleStep(xMin, xMax, fallback = 0.05) {
   const span = xMax - xMin;
   if (!Number.isFinite(span) || span <= 0) return fallback;
   return clamp(span / 400, 0.02, 0.25);
+}
+
+export function viewportWithSampleStep(bounds, fallbackStep = 0.05) {
+  return {
+    ...bounds,
+    sampleStep: adaptiveSampleStep(bounds.xMin, bounds.xMax, fallbackStep)
+  };
 }
 
 /**
@@ -176,20 +250,5 @@ export function createCoordMapper(viewport, w, h) {
     showsYAxis: true,
     showsOrigin: true,
     originCanvas: { ox: w / 2, oy: h / 2 }
-  };
-}
-
-export function buildViewportFromFocus(focusPoints, options = {}) {
-  const bounds = buildAutoViewport({
-    focusPoints,
-    preferredOrigin: { x: 0, y: 0 },
-    minXSpan: options.minXSpan ?? 8,
-    minYSpan: options.minYSpan ?? 8,
-    paddingRatio: options.paddingRatio ?? 0.15,
-    originNearFactor: options.originNearFactor ?? 1.35
-  });
-  return {
-    ...bounds,
-    sampleStep: adaptiveSampleStep(bounds.xMin, bounds.xMax, options.sampleStep ?? 0.05)
   };
 }

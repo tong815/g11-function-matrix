@@ -1,6 +1,6 @@
 import { exponentialMatrix } from "../matrices.js";
 import { detailLibrary } from "../details.js";
-import { formulaCards, problemRouterData } from "../formulas.js";
+import { formulaCards } from "../formulas.js";
 import { buildRepresentations } from "../representations.js";
 import { exponentialGraphAdapter } from "../../graph/exponentialGraphAdapter.js";
 
@@ -18,7 +18,6 @@ export const exponentialTopic = {
     library: detailLibrary
   },
   formulaCards: formulas,
-  problemRouter: problemRouterData.exponential,
   transformations: {
     rules: [],
     flowContent: {}
@@ -45,7 +44,5 @@ export const exponentialTopic = {
   matrixTitleKey: "eMatrixTitle",
   matrixNoteKey: "eMatrixNote",
   formulasTitleKey: "formulaGroupExponential",
-  routerTitleKey: "formulaGroupExponential",
-  formulas,
-  router: problemRouterData.exponential
+  formulas
 };

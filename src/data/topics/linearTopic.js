@@ -1,6 +1,6 @@
 import { linearMatrix } from "../matrices.js";
 import { detailLibrary } from "../details.js";
-import { formulaCards, problemRouterData } from "../formulas.js";
+import { formulaCards } from "../formulas.js";
 import { transformationRules, flowContent } from "../transformationRules.js";
 import { buildRepresentations } from "../representations.js";
 import { linearGraphAdapter } from "../../graph/linearGraphAdapter.js";
@@ -25,7 +25,6 @@ export const linearTopic = {
     library: detailLibrary
   },
   formulaCards: formulas,
-  problemRouter: problemRouterData.linear,
   transformations: {
     rules,
     flowContent: topicFlowContent,
@@ -53,7 +52,5 @@ export const linearTopic = {
   matrixTitleKey: "lMatrixTitle",
   matrixNoteKey: "lMatrixNote",
   formulasTitleKey: "formulaGroupLinear",
-  routerTitleKey: "formulaGroupLinear",
-  formulas,
-  router: problemRouterData.linear
+  formulas
 };

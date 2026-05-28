@@ -8,7 +8,7 @@ import {
   abcFromVertex
 } from "../math/quadratic.js";
 import { EPS, fmt } from "../math/format.js";
-import { buildViewportFromFocus } from "./viewport.js";
+import { buildPannedViewport, viewportWithSampleStep } from "./viewport.js";
 import { buildQuadraticAnnotations, getQuadraticAnnotationNote } from "./quadraticGraphAnnotations.js";
 
 export const quadraticGraphAdapter = {
@@ -29,34 +29,27 @@ export const quadraticGraphAdapter = {
     return a * x * x + b * x + c;
   },
 
-  getFocusPoints(params, features) {
+  getRequiredPoints(params, features) {
     const g =
       features?.valid === true
         ? features
         : getQuadraticFeatures(params, "en", { en: { noRealFactored: "" }, zh: { noRealFactored: "" } });
     if (!g.valid) return [];
-    const pts = [{ x: g.h, y: g.k }];
-    const localHeight = Math.max(Math.abs(g.a) * 4, 3);
-    if (Math.abs(g.h) <= 6 || Math.abs(g.c - g.k) <= localHeight * 6 + 12) {
-      pts.push({ x: 0, y: g.c });
-    }
-    for (const r of g.roots) pts.push({ x: r, y: 0 });
-    for (const dx of [-2, 2]) {
-      const x = g.h + dx;
-      pts.push({ x, y: g.a * x * x + g.b * x + g.c });
-    }
-    return pts;
+    return [{ x: g.h, y: g.k }];
   },
 
   getViewport(params, features, options = {}) {
     if (options.auto === false) {
       return { xMin: -10, xMax: 10, sampleStep: 0.05, pixelScale: 22, kind: "legacy" };
     }
-    const focusPoints = this.getFocusPoints(params, features);
-    return {
-      ...buildViewportFromFocus(focusPoints, { minXSpan: 8, minYSpan: 8, paddingRatio: 0.18 }),
-      kind: "bounds"
-    };
+    const requiredPoints = this.getRequiredPoints(params, features);
+    const bounds = buildPannedViewport({
+      requiredPoints,
+      baseXSpan: 20,
+      baseYSpan: 20,
+      preferredOriginCentered: true
+    });
+    return { ...viewportWithSampleStep(bounds), kind: "bounds" };
   },
 
   getExampleForms(features, t) {

@@ -8,7 +8,7 @@ import {
   linearFromStandard
 } from "../math/linear.js";
 import { fmt } from "../math/format.js";
-import { buildViewportFromFocus } from "./viewport.js";
+import { buildPannedViewport, viewportWithSampleStep } from "./viewport.js";
 import { buildLinearAnnotations, getLinearAnnotationNote } from "./linearGraphAnnotations.js";
 
 export const linearGraphAdapter = {
@@ -30,26 +30,18 @@ export const linearGraphAdapter = {
     return lf.m * x + lf.b;
   },
 
-  getFocusPoints(params, features) {
+  getRequiredPoints(params, features) {
     const lf = features?.valid === true ? features : getLinearFeatures(params);
     if (!lf.valid) return [];
     if (lf.isVertical) {
       const x = lf.xConst;
-      return [
-        { x, y: 0 },
-        { x, y: -6 },
-        { x, y: 6 }
-      ];
+      if (lf.point) return [{ x, y: lf.point[1] }];
+      return [{ x, y: 0 }];
     }
-    const pts = [];
-    if (Number.isFinite(lf.b)) pts.push({ x: 0, y: lf.b });
-    if (lf.xInt !== null && Number.isFinite(lf.xInt)) pts.push({ x: lf.xInt, y: 0 });
-    if (lf.point) pts.push({ x: lf.point[0], y: lf.point[1] });
-    const xA = -5;
-    const xB = 5;
-    pts.push({ x: xA, y: lf.m * xA + lf.b });
-    pts.push({ x: xB, y: lf.m * xB + lf.b });
-    return pts;
+    if (Number.isFinite(lf.b)) return [{ x: 0, y: lf.b }];
+    if (lf.xInt !== null && Number.isFinite(lf.xInt)) return [{ x: lf.xInt, y: 0 }];
+    if (lf.point) return [{ x: lf.point[0], y: lf.point[1] }];
+    return [];
   },
 
   getViewport(params, features, options = {}) {
@@ -60,12 +52,18 @@ export const linearGraphAdapter = {
       }
       return { kind: "segment", xMin: -12, xMax: 12, pixelScale: 22 };
     }
-    const focusPoints = this.getFocusPoints(params, features);
-    const bounds = buildViewportFromFocus(focusPoints, { minXSpan: 10, minYSpan: 10, paddingRatio: 0.15 });
+    const requiredPoints = this.getRequiredPoints(params, features);
+    const bounds = buildPannedViewport({
+      requiredPoints,
+      baseXSpan: 20,
+      baseYSpan: 20,
+      preferredOriginCentered: true
+    });
+    const vp = { ...viewportWithSampleStep(bounds), kind: "bounds" };
     if (lf.valid && lf.isVertical) {
-      return { ...bounds, kind: "vertical", xConst: lf.xConst };
+      return { ...vp, kind: "vertical", xConst: lf.xConst };
     }
-    return { ...bounds, kind: "segment" };
+    return { ...vp, kind: "segment" };
   },
 
   getExampleForms(features, t) {

@@ -1,11 +1,11 @@
 import { fmt } from "../math/format.js";
 
 export function labelVertex(g) {
-  return "(h,k)≈(" + fmt(g.h) + "," + fmt(g.k) + ")";
+  return "V(" + fmt(g.h) + "," + fmt(g.k) + ")";
 }
 
 export function labelYInt(g) {
-  return "(0,c)=(" + fmt(0) + "," + fmt(g.c) + ")";
+  return "(0," + fmt(g.c) + ")";
 }
 
 export function labelAxis(g) {

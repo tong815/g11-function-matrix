@@ -1,6 +1,6 @@
 import { quadraticMatrix } from "../matrices.js";
 import { detailLibrary } from "../details.js";
-import { formulaCards, problemRouterData } from "../formulas.js";
+import { formulaCards } from "../formulas.js";
 import { transformationRules, flowContent } from "../transformationRules.js";
 import { buildRepresentations } from "../representations.js";
 import { quadraticGraphAdapter } from "../../graph/quadraticGraphAdapter.js";
@@ -25,7 +25,6 @@ export const quadraticTopic = {
     library: detailLibrary
   },
   formulaCards: formulas,
-  problemRouter: problemRouterData.quadratic,
   transformations: {
     rules,
     flowContent: topicFlowContent,
@@ -53,9 +52,6 @@ export const quadraticTopic = {
   matrixTitleKey: "qMatrixTitle",
   matrixNoteKey: "qMatrixNote",
   formulasTitleKey: "formulaGroupQuadratic",
-  routerTitleKey: "formulaGroupQuadratic",
   /** @deprecated use formulaCards */
-  formulas,
-  /** @deprecated use problemRouter */
-  router: problemRouterData.quadratic
+  formulas
 };

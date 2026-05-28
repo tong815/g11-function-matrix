@@ -5,7 +5,10 @@ import {
   getExponentialFeatures,
   validateExponentialParams
 } from "../math/exponential.js";
-import { buildViewportFromFocus } from "./viewport.js";
+import { buildExponentialViewport, viewportWithSampleStep } from "./viewport.js";
+import { buildExponentialAnnotations, getExponentialAnnotationNote } from "./exponentialGraphAnnotations.js";
+
+const MAX_VIEW_Y = 1e5;
 
 export const exponentialGraphAdapter = {
   id: "exponential",
@@ -26,31 +29,32 @@ export const exponentialGraphAdapter = {
     return evaluateExponential(x, check);
   },
 
-  getFocusPoints(params, features) {
+  getRequiredPoints(params, features) {
     const g = features?.valid === true ? features : getExponentialFeatures(params, "en");
     if (!g.valid) return [];
     const { a, b, h, k } = g;
     const evalAt = (x) => evaluateExponential(x, { a, b, h, k });
     const pts = [
       { x: 0, y: g.yIntercept },
-      { x: h, y: evalAt(h) },
-      { x: h - 2, y: evalAt(h - 2) },
-      { x: h + 2, y: evalAt(h + 2) },
       { x: h, y: k },
-      { x: h + 3, y: k }
+      { x: h - 2, y: evalAt(h - 2) },
+      { x: h, y: evalAt(h) },
+      { x: h + 2, y: evalAt(h + 2) }
     ];
-    return pts.filter((p) => Number.isFinite(p.y));
+    return pts.filter((p) => Number.isFinite(p.y) && Math.abs(p.y) <= MAX_VIEW_Y);
   },
 
   getViewport(params, features, options = {}) {
     if (options.auto === false) {
       return { xMin: -6, xMax: 6, sampleStep: 0.03, pixelScale: 28, kind: "legacy" };
     }
-    const focusPoints = this.getFocusPoints(params, features);
-    return {
-      ...buildViewportFromFocus(focusPoints, { minXSpan: 10, minYSpan: 8, paddingRatio: 0.2 }),
-      kind: "bounds"
-    };
+    const requiredPoints = this.getRequiredPoints(params, features);
+    const bounds = buildExponentialViewport({
+      requiredPoints,
+      baseXSpan: 20,
+      baseYSpan: 20
+    });
+    return { ...viewportWithSampleStep(bounds, 0.03), kind: "bounds" };
   },
 
   getExampleForms(features, t) {
@@ -129,37 +133,11 @@ export const exponentialGraphAdapter = {
     return t.expErrorInvalid;
   },
 
-  getAnnotationNote({ graphState, selection, currentLang, i18n }) {
-    const t = i18n[currentLang];
-    const isZH = currentLang === "zh";
-    const params = this.getCurrentParams(graphState);
-    const g = getExponentialFeatures(params, currentLang);
-    if (!g.valid) {
-      return g.error === "aZero" ? t.expErrorAZero : g.error === "bInvalid" ? t.expErrorBInvalid : t.expErrorInvalid;
-    }
-    const key = selection.formId + "|" + selection.infoKey;
-    if (key === "eTransformed|base") {
-      return isZH
-        ? "底数 b≈" + fmt(g.b) + " 决定曲线形状。"
-        : "Base b≈" + fmt(g.b) + " controls the curve shape.";
-    }
-    if (key === "eTransformed|asymptote") {
-      return isZH
-        ? "水平渐近线 y=" + fmt(g.asymptoteY) + "（参数 k）。"
-        : "Horizontal asymptote y=" + fmt(g.asymptoteY) + " (parameter k).";
-    }
-    if (key === "eTransformed|initialValue") {
-      return isZH
-        ? "x=0 时 y≈" + fmt(g.yIntercept) + "（代入变换式可得）。"
-        : "At x=0, y≈" + fmt(g.yIntercept) + " (substitute into transformed form).";
-    }
-    if (key === "eTransformed|growthDecay") {
-      return isZH
-        ? "当前为" + g.growthOrDecay + "：比较 b 与 1，b≈" + fmt(g.b) + "。"
-        : "This example shows " + g.growthOrDecay + ": compare b to 1, b≈" + fmt(g.b) + ".";
-    }
-    return isZH
-      ? g.domainText + "；" + g.rangeText + "。"
-      : g.domainText + "; " + g.rangeText + ".";
+  getAnnotations(ctx) {
+    return buildExponentialAnnotations(ctx);
+  },
+
+  getAnnotationNote(ctx) {
+    return getExponentialAnnotationNote(ctx);
   }
 };

@@ -1,6 +1,6 @@
 # Topic Module Schema
 
-本项目的「函数知识可视化」以 **topic module** 为扩展单元。通用 UI（矩阵、变换网络、公式卡、问题路由、图像预览）由框架渲染；仅二次函数等 topic 才挂载可选面板。
+本项目的「函数知识可视化」以 **topic module** 为扩展单元。通用 UI（矩阵、变换网络、公式卡、图像预览）由框架渲染；仅二次函数等 topic 才挂载可选面板。
 
 ## Topic 对象字段
 
@@ -12,7 +12,6 @@
 | `matrix` | 信息读取矩阵（forms × info × level） |
 | `details` | `{ namespace, library }`，可读信息文案 |
 | `formulaCards` | 公式卡数据 |
-| `problemRouter` | 问题 → 最佳形式 路由表 |
 | `transformations` | `{ rules, flowContent, defaultFlowRuleId }` |
 | `graphAdapter` | 图像与参数适配器，见下文 |
 | `optionalPanels` | 可选面板 ID 列表，如 `["sameGeometry", "discriminant"]` |
@@ -47,7 +46,6 @@
 | `render/matrixRenderer.js` | `optionalPanels` 中的面板 |
 | `render/networkRenderer.js` | `graph/discriminantPanel.js`（仅 quadratic） |
 | `render/formulaRenderer.js` | `graph/quadraticGraphAnnotations.js` |
-| `render/routerRenderer.js` | `math/quadratic.js` |
 | `render/graphRenderer.js`（画布、坐标、调度 adapter） | index.html 中 `.block-disc` / `.block-same-geo` DOM（隐藏由 topic 控制） |
 | `data/optionalPanels.js` | |
 | `graph/*GraphAdapter.js`（按 topic 注册） | |
