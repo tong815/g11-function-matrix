@@ -33,6 +33,12 @@ export const linearTopic = {
   },
   graphAdapter: linearGraphAdapter,
   optionalPanels: [],
+  intuition: {
+    titleKey: "intuitionLinearTitle",
+    oneLineKey: "intuitionLinearOneLine",
+    bullets: ["intuitionLinearB1", "intuitionLinearB2", "intuitionLinearB3"],
+    contrastKey: "intuitionLinearContrast"
+  },
   graph: {
     adapterId: "linear",
     defaultFormId: "lSlope",

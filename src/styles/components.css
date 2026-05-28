@@ -16,6 +16,41 @@
   margin-bottom: 8px;
 }
 
+.intuition-topic-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 6px;
+}
+.intuition-oneline {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 10px;
+  line-height: 1.45;
+}
+.intuition-bullets {
+  margin: 0 0 10px;
+  padding-left: 1.2rem;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #374151;
+}
+.intuition-bullets li {
+  margin-bottom: 6px;
+}
+.intuition-bullets li:last-child {
+  margin-bottom: 0;
+}
+.intuition-contrast {
+  margin: 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
 .topic-selector-list {
   display: flex;
   flex-direction: column;
@@ -64,6 +99,17 @@ td.label {
   font-weight: 600;
   background: #fcfcfc;
   width: 160px;
+}
+td.matrix-cell-empty {
+  background: #f3f4f6;
+  color: #9ca3af;
+  cursor: default;
+  text-align: center;
+  vertical-align: middle;
+}
+.matrix-cell-empty-label {
+  font-size: 12px;
+  user-select: none;
 }
 td.clickable {
   cursor: pointer;

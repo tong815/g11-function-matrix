@@ -1,5 +1,6 @@
 import { fmt } from "../math/format.js";
 import { getGraphAdapter } from "../graph/graphAdapterRegistry.js";
+import { getMatrixCellLevel } from "../data/matrixCells.js";
 
 export function syncCanvasSize() {
   const canvas = document.getElementById("graphCanvas");
@@ -72,7 +73,9 @@ export function createGraphHandlers(deps) {
   }
 
   function getCellLevel(matrixKey, formId, infoKey) {
-    return matrixByKey[matrixKey].cells[infoKey][formId];
+    const matrix = matrixByKey[matrixKey];
+    if (!matrix) return null;
+    return getMatrixCellLevel(matrix, infoKey, formId);
   }
 
   function getAnnotationStrength(matrixKey, formId, targetInfo, clickedInfo) {

@@ -33,6 +33,12 @@ export const quadraticTopic = {
   },
   graphAdapter: quadraticGraphAdapter,
   optionalPanels: ["sameGeometry", "discriminant"],
+  intuition: {
+    titleKey: "intuitionQuadraticTitle",
+    oneLineKey: "intuitionQuadraticOneLine",
+    bullets: ["intuitionQuadraticB1", "intuitionQuadraticB2", "intuitionQuadraticB3"],
+    contrastKey: "intuitionQuadraticContrast"
+  },
   graph: {
     adapterId: "quadratic",
     defaultFormId: "qVertex",

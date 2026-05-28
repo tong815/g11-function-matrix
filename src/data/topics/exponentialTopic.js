@@ -33,6 +33,12 @@ export const exponentialTopic = {
   },
   graphAdapter: exponentialGraphAdapter,
   optionalPanels: [],
+  intuition: {
+    titleKey: "intuitionExponentialTitle",
+    oneLineKey: "intuitionExponentialOneLine",
+    bullets: ["intuitionExponentialB1", "intuitionExponentialB2", "intuitionExponentialB3"],
+    contrastKey: "intuitionExponentialContrast"
+  },
   graph: {
     adapterId: "exponential",
     defaultFormId: exponentialGraphAdapter.defaultFormId,

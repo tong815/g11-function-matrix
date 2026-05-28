@@ -12,6 +12,7 @@ import { buildInfoPanel } from "./render/panelRenderer.js";
 import { renderNetwork, renderFlowHtml } from "./render/networkRenderer.js";
 import { renderCards } from "./render/formulaRenderer.js";
 import { renderProblemRouter } from "./render/routerRenderer.js";
+import { renderIntuition } from "./render/intuitionRenderer.js";
 
 let currentLang = "en";
 let lastSelected = null;
@@ -171,6 +172,7 @@ function localizeStaticText() {
   document.documentElement.lang = currentLang === "zh" ? "zh-CN" : "en";
   document.getElementById("pageTitle").textContent = t.pageTitle;
   document.getElementById("topicSelectorTitle").textContent = t.topicSelectorTitle;
+  document.getElementById("coreIntuitionTitle").textContent = t.coreIntuitionTitle;
   const subtitleEl = document.getElementById("pageSubtitle");
   if (document.documentElement.classList.contains("device-desktop")) {
     subtitleEl.textContent = i18n.en.pageSubtitle + " " + i18n.zh.pageSubtitle;
@@ -214,6 +216,7 @@ function switchLang(lang) {
   const topicFlowContent = topic.transformations.flowContent;
   localizeStaticText();
   renderTopicSelector();
+  renderIntuition({ mountId: "intuitionMount", topic, i18n, currentLang });
   applyOptionalPanels(topic);
   document.getElementById("matrixTitle").textContent = t[topic.matrixTitleKey];
   document.getElementById("matrixNote").textContent = t[topic.matrixNoteKey];
