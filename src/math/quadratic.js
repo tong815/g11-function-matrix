@@ -1,4 +1,4 @@
-import { EPS, fmt, signedTerm, rootBracket } from "./format.js";
+import { EPS, fmt, signedTerm, buildFactoredExpression } from "./format.js";
 
 export const DEFAULT_QUADRATIC = { a: 1, b: 0, c: 0 };
 
@@ -20,8 +20,8 @@ export function buildVertexFormText(a, h, k) {
 
 export function buildFactoredFormText(a, delta, roots, noRealFactoredLabel) {
   if (delta < -EPS) return noRealFactoredLabel;
-  if (Math.abs(delta) <= EPS) return "y = " + fmt(a) + rootBracket(roots[0]) + "²";
-  return "y = " + fmt(a) + rootBracket(roots[0]) + rootBracket(roots[1]);
+  if (Math.abs(delta) <= EPS) return "y = " + buildFactoredExpression(a, roots[0], roots[0]);
+  return "y = " + buildFactoredExpression(a, roots[0], roots[1]);
 }
 
 export function getQuadraticFeatures(quadratic, currentLang, i18n) {

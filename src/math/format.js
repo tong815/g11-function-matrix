@@ -17,8 +17,31 @@ export function signedTerm(coeff, variable) {
   return sign + abs + variable;
 }
 
-export function rootBracket(root) {
+/** Linear factor (x − r) or (x + |r|) with parentheses. */
+export function formatFactor(root) {
   if (Math.abs(root) < EPS) return "(x)";
-  if (root > 0) return "(x - " + fmt(root) + ")";
-  return "(x + " + fmt(-root) + ")";
+  if (root > 0) return `(x - ${fmt(root)})`;
+  return `(x + ${fmt(-root)})`;
+}
+
+/** Leading coefficient in factored form: omit 1, use − for −1. */
+export function formatLeadingCoefficient(a) {
+  if (Math.abs(a - 1) < EPS) return "";
+  if (Math.abs(a + 1) < EPS) return "-";
+  return fmt(a);
+}
+
+/** Factored quadratic body without "y = " prefix, e.g. (x - 2)(x - 3) or -(x - 1)(x + 4). */
+export function buildFactoredExpression(a, r1, r2) {
+  const aPart = formatLeadingCoefficient(a);
+  const factor1 = formatFactor(r1);
+  if (Math.abs(r1 - r2) < EPS) {
+    return `${aPart}${factor1}²`;
+  }
+  const factor2 = formatFactor(r2);
+  return `${aPart}${factor1}${factor2}`;
+}
+
+export function rootBracket(root) {
+  return formatFactor(root);
 }

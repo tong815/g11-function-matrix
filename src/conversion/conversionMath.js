@@ -1,4 +1,4 @@
-import { EPS, fmt, rootBracket } from "../math/format.js";
+import { EPS, fmt, buildFactoredExpression } from "../math/format.js";
 
 export function L(lang, en, zh) {
   return lang === "zh" ? zh : en;
@@ -51,11 +51,7 @@ export function buildStandardFromVertex(a, h, k) {
 }
 
 export function buildFactoredText(a, r1, r2) {
-  if (Math.abs(r1 - r2) < EPS) {
-    const inner = rootBracket(r1).replace(/^\(|\)$/g, "");
-    return "y = " + fmt(a) + inner + "²";
-  }
-  return "y = " + fmt(a) + rootBracket(r1) + rootBracket(r2);
+  return "y = " + buildFactoredExpression(a, r1, r2);
 }
 
 export function buildSlopeIntercept(m, b) {
