@@ -1,35 +1,22 @@
+/* Desktop-first layout: one DOM; narrow viewports use @media in responsive.css */
+
 .layout {
   display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: 18px;
-  min-height: 75vh;
+  grid-template-columns: minmax(0, 52fr) minmax(0, 48fr);
+  gap: 16px;
   align-items: start;
+  min-height: 75vh;
 }
 
-.left, .right {
-  min-width: 0;
-}
-
-html.device-desktop .left,
-html.device-desktop .right {
+.left,
+.right {
   display: flex;
   flex-direction: column;
   gap: 14px;
   min-width: 0;
 }
 
-html.device-desktop body {
-  background: #f8fafc;
-}
-
-html.device-desktop .layout {
-  display: grid;
-  grid-template-columns: 52fr 48fr;
-  gap: 16px;
-  align-items: start;
-}
-
-html.device-desktop .block {
+.block {
   border-radius: 14px;
   border: 1px solid #dbe3ef;
   background: #ffffff;
@@ -38,45 +25,53 @@ html.device-desktop .block {
   margin-bottom: 0;
 }
 
-html.device-desktop .block-graph {
+.block-graph {
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
 }
 
-html.device-desktop h1 {
-  font-weight: 800;
-}
-
-html.device-desktop header {
+header {
   border-bottom: 1px solid #e2e8f0;
   margin-bottom: 16px;
 }
 
-html.device-desktop #graphCanvas {
+#graphCanvas {
+  width: 100%;
   height: 360px;
+  display: block;
 }
 
-html.device-desktop .graph-params {
+.graph-params {
   background: #f8fafc;
   border-color: #dbe3ef;
 }
 
-html.device-desktop .graph-params-inner {
+.graph-params-inner {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 10px;
 }
 
-html.device-desktop .graph-params-title {
+.graph-params-title {
   margin-bottom: 0;
   white-space: nowrap;
 }
 
-html.device-desktop .graph-params-row {
+.graph-params-row {
   margin-bottom: 0;
   display: contents;
 }
 
-html.device-desktop .graph-params-actions {
+.graph-params-actions {
   display: contents;
+}
+
+@media (min-width: 901px) {
+  body {
+    background: #f8fafc;
+  }
+
+  h1 {
+    font-weight: 800;
+  }
 }

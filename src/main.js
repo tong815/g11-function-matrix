@@ -5,7 +5,7 @@ import { LevelClass } from "./data/matrices.js";
 import { topicRegistry, topicOrder } from "./data/topicRegistry.js";
 import { applyOptionalPanels, topicHasOptionalPanel } from "./data/optionalPanels.js";
 import { renderDiscriminantPanels } from "./graph/discriminantPanel.js";
-import { detectDeviceMode, createGraphHandlers } from "./render/graphRenderer.js";
+import { onViewportResize, createGraphHandlers } from "./render/graphRenderer.js";
 import { createControlsHandlers } from "./render/controlsRenderer.js";
 import { renderMatrix, statusPill, getDetail, readableLevel } from "./render/matrixRenderer.js";
 import { buildInfoPanel } from "./render/panelRenderer.js";
@@ -177,12 +177,7 @@ function localizeStaticText() {
   document.getElementById("pageTitle").textContent = t.pageTitle;
   document.getElementById("topicSelectorTitle").textContent = t.topicSelectorTitle;
   document.getElementById("coreIntuitionTitle").textContent = t.coreIntuitionTitle;
-  const subtitleEl = document.getElementById("pageSubtitle");
-  if (document.documentElement.classList.contains("device-desktop")) {
-    subtitleEl.textContent = i18n.en.pageSubtitle + " " + i18n.zh.pageSubtitle;
-  } else {
-    subtitleEl.textContent = t.pageSubtitle;
-  }
+  document.getElementById("pageSubtitle").textContent = t.pageSubtitle;
   document.getElementById("conversionWorkspaceTitle").textContent = t.conversionWorkspaceTitle;
   document.getElementById("conversionWorkspaceNote").textContent = t.conversionWorkspaceNote;
   document.getElementById("formulaCardsTitle").textContent = t.formulaCardsTitle;
@@ -276,17 +271,20 @@ function switchLang(lang) {
   syncGraphModeFromTopic(topic);
   controlsHandlers.renderParameterInputs();
   controlsHandlers.updateCurrentExampleForms();
-  graphHandlers.drawMainGraph();
-  graphHandlers.updateGraphAnnotationText(lastSelected);
+  requestAnimationFrame(() => {
+    onViewportResize();
+    graphHandlers.drawMainGraph();
+    graphHandlers.updateGraphAnnotationText(lastSelected);
+  });
   if (topicHasOptionalPanel(topic, "discriminant")) {
     renderDiscriminantPanels();
   }
 }
 
 function init() {
-  detectDeviceMode();
+  onViewportResize();
   window.addEventListener("resize", () => {
-    detectDeviceMode();
+    onViewportResize();
     graphHandlers.drawMainGraph();
   });
   controlsHandlers.bindGraphParamControls();

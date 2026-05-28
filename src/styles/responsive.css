@@ -1,0 +1,108 @@
+/* Narrow viewports: same DOM, single column + block reorder via display:contents */
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    min-height: 0;
+  }
+
+  .left,
+  .right {
+    display: contents;
+  }
+
+  .block-topic-selector {
+    order: 1;
+  }
+  .block-intuition {
+    order: 2;
+  }
+  .block-matrix {
+    order: 3;
+  }
+  .block-info {
+    order: 4;
+  }
+  .block-graph {
+    order: 5;
+  }
+  .block-conversion {
+    order: 6;
+  }
+  .block-same-geo {
+    order: 7;
+  }
+  .block-disc {
+    order: 8;
+  }
+  .block-cards {
+    order: 9;
+  }
+
+  .app {
+    padding: 14px;
+  }
+
+  h1 {
+    font-size: 22px;
+  }
+
+  #graphCanvas {
+    height: 280px;
+  }
+
+  .matrix-scroll table {
+    min-width: 520px;
+  }
+
+  .axis-grid,
+  .disc-wrap {
+    grid-template-columns: 1fr;
+  }
+
+  .graph-params-inner {
+    display: block;
+  }
+
+  .graph-params-title {
+    margin-bottom: 8px;
+    white-space: normal;
+  }
+
+  .graph-params-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .graph-params-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .network,
+  .transform-path {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .network .node,
+  .network .edge-btn,
+  .transform-path .node,
+  .transform-path .edge-tag {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .cw-representation-cards {
+    flex-direction: column;
+  }
+
+  .cw-representation-arrow {
+    align-self: center;
+  }
+}

@@ -10,7 +10,7 @@ export function applyOptionalPanels(topic) {
   const enabled = new Set(topic.optionalPanels || []);
   for (const [panelId, config] of Object.entries(optionalPanelRegistry)) {
     const el = document.querySelector(config.selector);
-    if (el) el.style.display = enabled.has(panelId) ? "block" : "none";
+    if (el) el.hidden = !enabled.has(panelId);
   }
 }
 

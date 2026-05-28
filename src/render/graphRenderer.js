@@ -2,25 +2,18 @@ import { getGraphAdapter } from "../graph/graphAdapterRegistry.js";
 import { getMatrixCellLevel } from "../data/matrixCells.js";
 import { createCoordMapper } from "../graph/viewport.js";
 
+/** Match CSS #graphCanvas height for correct bitmap resolution (layout.css / responsive.css). */
 export function syncCanvasSize() {
   const canvas = document.getElementById("graphCanvas");
   if (!canvas) return;
-  const isDesktop = document.documentElement.classList.contains("device-desktop");
-  canvas.height = isDesktop ? 360 : 280;
-  canvas.width = 560;
+  const rect = canvas.getBoundingClientRect();
+  const h = Math.round(rect.height) || 360;
+  if (canvas.height !== h) canvas.height = h;
+  if (canvas.width !== 560) canvas.width = 560;
 }
 
-export function detectDeviceMode() {
-  const ua = navigator.userAgent || "";
-  const isPhone = /iPhone|iPod|Android.*Mobile|Windows Phone|webOS|BlackBerry|Opera Mini/i.test(ua);
-  const isTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
-  const isCoarse = window.matchMedia("(pointer: coarse)").matches;
-  const isNarrow = window.innerWidth <= 1100;
-  const isMobile = isPhone || (isNarrow && isTouch && isCoarse) || window.innerWidth <= 768;
-  document.documentElement.classList.remove("device-mobile", "device-desktop");
-  document.documentElement.classList.add(isMobile ? "device-mobile" : "device-desktop");
+export function onViewportResize() {
   syncCanvasSize();
-  return isMobile ? "mobile" : "desktop";
 }
 
 function drawArrowLine(ctx, x1, y1, x2, y2) {

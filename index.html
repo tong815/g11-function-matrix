@@ -4,21 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>G11 Function Matrix</title>
-  <script>
-    (function () {
-      var ua = navigator.userAgent || "";
-      var isPhone = /iPhone|iPod|Android.*Mobile|Windows Phone|webOS|BlackBerry|Opera Mini/i.test(ua);
-      var isTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
-      var isCoarse = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
-      var isNarrow = window.innerWidth <= 1100;
-      var isMobile = isPhone || (isNarrow && isTouch && isCoarse) || window.innerWidth <= 768;
-      document.documentElement.classList.add(isMobile ? "device-mobile" : "device-desktop");
-    })();
-  </script>
   <link rel="stylesheet" href="./src/styles/base.css">
   <link rel="stylesheet" href="./src/styles/layout.css">
   <link rel="stylesheet" href="./src/styles/components.css">
-  <link rel="stylesheet" href="./src/styles/mobile.css">
+  <link rel="stylesheet" href="./src/styles/responsive.css">
 </head>
 <body>
   <div class="app">
