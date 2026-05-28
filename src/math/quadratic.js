@@ -1,6 +1,6 @@
 import { EPS, fmt, signedTerm, rootBracket } from "./format.js";
 
-export const DEFAULT_QUADRATIC = { a: 1, b: 0, c: -4 };
+export const DEFAULT_QUADRATIC = { a: 1, b: 0, c: 0 };
 
 export function buildStandardFormText(a, b, c) {
   let text = "y = ";

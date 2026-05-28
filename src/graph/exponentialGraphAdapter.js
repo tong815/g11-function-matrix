@@ -66,9 +66,8 @@ export const exponentialGraphAdapter = {
     };
   },
 
-  getActiveFormId(graphState, lastSelected) {
-    if (lastSelected?.matrixKey === "exponential") return lastSelected.formId;
-    return graphState.activeFormByAdapter?.exponential || "eTransformed";
+  getActiveFormId(graphState) {
+    return graphState.activeFormByAdapter?.exponential ?? this.defaultFormId;
   },
 
   getCurrentParams(graphState) {
@@ -86,7 +85,6 @@ export const exponentialGraphAdapter = {
   },
 
   renderParameterFields({ graphState, formId, mount, t, bindEnter }) {
-    this.setActiveFormId(graphState, formId);
     document.getElementById("graphParamsSubtitle").textContent = t.paramSubtitle_eTransformed || "";
     const params = this.getCurrentParams(graphState) || this.getDefaultParams();
     const num = (label, id, val) =>

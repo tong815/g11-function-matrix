@@ -27,18 +27,18 @@ let conversionState = { fromFormId: "qStandard", toFormId: "qFactored", params: 
 const graphState = {
   mode: "quadratic",
   paramsByAdapter: {
-    quadratic: { a: 1, b: 0, c: -4 },
-    linear: { mode: "normal", m: 2, b: -1, point: [1, 1], A: 2, B: -1, C: -1, xConst: null },
+    quadratic: { a: 1, b: 0, c: 0 },
+    linear: { mode: "normal", m: 1, b: 0, point: [0, 0], A: 1, B: -1, C: 0, xConst: null },
     exponential: { a: 1, b: 2, h: 0, k: 0 }
   },
   activeFormByAdapter: {
-    quadratic: "qVertex",
+    quadratic: "qStandard",
     linear: "lSlope",
     exponential: "eTransformed"
   },
-  quadratic: { a: 1, b: 0, c: -4 },
-  quadraticForm: "qVertex",
-  linear: { mode: "normal", m: 2, b: -1, point: [1, 1], A: 2, B: -1, C: -1, xConst: null },
+  quadratic: { a: 1, b: 0, c: 0 },
+  quadraticForm: "qStandard",
+  linear: { mode: "normal", m: 1, b: 0, point: [0, 0], A: 1, B: -1, C: 0, xConst: null },
   linearForm: "lSlope"
 };
 
@@ -145,6 +145,7 @@ function renderTopicSelector() {
       currentTopicId = nextTopicId;
       const topic = getCurrentTopic();
       lastSelected = { ...topic.graph.defaultSelection };
+      applyFormSelectionToGraphState(topic, lastSelected.formId);
       conversionState = getDefaultConversionState(topic);
       switchLang(currentLang);
     });
@@ -282,6 +283,8 @@ function switchLang(lang) {
     );
   }
   syncGraphModeFromTopic(topic);
+  controlsHandlers.renderParameterInputs();
+  controlsHandlers.updateCurrentExampleForms();
   graphHandlers.drawMainGraph();
   graphHandlers.updateGraphAnnotationText(lastSelected);
   if (topicHasOptionalPanel(topic, "discriminant")) {

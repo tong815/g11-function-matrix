@@ -41,11 +41,11 @@ export const quadraticTopic = {
   },
   graph: {
     adapterId: "quadratic",
-    defaultFormId: "qVertex",
+    defaultFormId: "qStandard",
     parameterForms: quadraticGraphAdapter.parameterForms,
     defaultSelection: {
       matrixKey: "quadratic",
-      formId: "qVertex",
+      formId: "qStandard",
       infoKey: "vertex"
     }
   },

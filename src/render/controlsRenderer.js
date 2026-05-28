@@ -23,7 +23,7 @@ export function createControlsHandlers(deps) {
   }
 
   function getActiveFormId(adapter) {
-    return adapter?.getActiveFormId(graphState, getLastSelected()) || adapter?.defaultFormId;
+    return graphState.activeFormByAdapter?.[adapter.id] ?? adapter?.defaultFormId;
   }
 
   function getAdapterParams(adapter) {

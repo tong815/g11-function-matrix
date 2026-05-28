@@ -97,13 +97,12 @@ export const linearGraphAdapter = {
   syncLinearFromNormal,
   linearFromStandard,
 
-  getActiveFormId(graphState, lastSelected) {
-    if (lastSelected?.matrixKey === "linear") return lastSelected.formId;
-    return graphState.activeFormByAdapter?.linear || graphState.linearForm || "lSlope";
+  getActiveFormId(graphState) {
+    return graphState.activeFormByAdapter?.linear ?? graphState.linearForm ?? this.defaultFormId;
   },
 
   getCurrentParams(graphState) {
-    return graphState.paramsByAdapter?.linear || graphState.linear;
+    return graphState.paramsByAdapter?.linear;
   },
 
   setCurrentParams(graphState, next) {
@@ -119,7 +118,6 @@ export const linearGraphAdapter = {
   },
 
   renderParameterFields({ graphState, formId, mount, t, setNote, bindEnter }) {
-    this.setActiveFormId(graphState, formId);
     document.getElementById("graphParamsSubtitle").textContent = t["paramSubtitle_" + formId] || "";
     const params = this.getCurrentParams(graphState);
     const numInput = (label, id, val) =>

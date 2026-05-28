@@ -1,6 +1,15 @@
 import { EPS, fmt } from "./format.js";
 
-export const DEFAULT_LINEAR = { mode: "normal", m: 2, b: -1, point: [1, 1], A: 2, B: -1, C: -1, xConst: null };
+export const DEFAULT_LINEAR = {
+  mode: "normal",
+  m: 1,
+  b: 0,
+  point: [0, 0],
+  A: 1,
+  B: -1,
+  C: 0,
+  xConst: null
+};
 
 export function buildLinearSlopeInterceptText(m, b) {
   if (Math.abs(m) < EPS) return "y = " + fmt(b);

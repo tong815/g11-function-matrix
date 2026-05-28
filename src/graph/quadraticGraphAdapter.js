@@ -14,7 +14,7 @@ import { buildQuadraticAnnotations, getQuadraticAnnotationNote } from "./quadrat
 export const quadraticGraphAdapter = {
   id: "quadratic",
   parameterForms: ["qStandard", "qFactored", "qVertex"],
-  defaultFormId: "qVertex",
+  defaultFormId: "qStandard",
 
   getDefaultParams() {
     return { ...DEFAULT_QUADRATIC };
@@ -76,13 +76,12 @@ export const quadraticGraphAdapter = {
   abcFromFactored,
   abcFromVertex,
 
-  getActiveFormId(graphState, lastSelected) {
-    if (lastSelected?.matrixKey === "quadratic") return lastSelected.formId;
-    return graphState.activeFormByAdapter?.quadratic || graphState.quadraticForm || "qVertex";
+  getActiveFormId(graphState) {
+    return graphState.activeFormByAdapter?.quadratic ?? graphState.quadraticForm ?? this.defaultFormId;
   },
 
   getCurrentParams(graphState) {
-    return graphState.paramsByAdapter?.quadratic || graphState.quadratic;
+    return graphState.paramsByAdapter?.quadratic;
   },
 
   setCurrentParams(graphState, next) {
@@ -98,7 +97,6 @@ export const quadraticGraphAdapter = {
   },
 
   renderParameterFields({ graphState, formId, mount, t, currentLang, i18n, setNote, bindEnter }) {
-    this.setActiveFormId(graphState, formId);
     document.getElementById("graphParamsSubtitle").textContent = t["paramSubtitle_" + formId] || "";
     const params = this.getCurrentParams(graphState);
     const aInput = (val) =>

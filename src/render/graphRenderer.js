@@ -82,12 +82,12 @@ export function createGraphHandlers(deps) {
 
   function getActiveQuadraticFormId() {
     const adapter = getGraphAdapter("quadratic");
-    return adapter?.getActiveFormId(graphState, getLastSelected()) || "qVertex";
+    return adapter?.getActiveFormId(graphState) || "qStandard";
   }
 
   function getActiveLinearFormId() {
     const adapter = getGraphAdapter("linear");
-    return adapter?.getActiveFormId(graphState, getLastSelected()) || "lSlope";
+    return adapter?.getActiveFormId(graphState) || "lSlope";
   }
 
   function updateGraphLabel(matrixKey, formId) {
