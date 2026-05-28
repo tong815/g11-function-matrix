@@ -17,7 +17,7 @@ import { validateRoot, getDefinitionForTopic } from "./functionRegistry/index.js
 import {
   applyRootToGraphState,
   buildConversionParamsFromRoot,
-  commitGraphAdapterToRoot,
+  commitGraphFormParams,
   mergeConversionWithRoot,
   persistActiveRootFromGraph,
   syncActiveRootToGraph
@@ -72,20 +72,24 @@ const graphHandlers = createGraphHandlers({
   getLang,
   i18n,
   matrixByKey,
-  getLastSelected
+  getLastSelected,
+  getRootFunction
 });
 
 function syncRootToGraph() {
   syncActiveRootToGraph(graphState);
 }
 
-function onGraphRootCommit(adapterId) {
+function onGraphRootCommit(adapterId, { formId, formParams } = {}) {
   const t = getCurrentTopic();
   if (t.graph.adapterId !== adapterId) return;
-  const next = commitGraphAdapterToRoot(t, graphState);
-  if (!next) return;
-  replaceActiveRoot(next);
-  syncRootToGraph();
+  if (formParams && formId) {
+    const next = commitGraphFormParams(t, graphState, formId, formParams);
+    if (!next) return;
+  } else {
+    const next = persistActiveRootFromGraph(t, graphState);
+    if (!next) return;
+  }
   conversionState = {
     ...conversionState,
     params: buildConversionParamsFromRoot(getActiveRoot(), conversionState.fromFormId)

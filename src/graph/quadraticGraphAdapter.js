@@ -1,6 +1,5 @@
 import {
   DEFAULT_QUADRATIC,
-  getQuadraticFeatures,
   getStandardParams,
   getFactoredParams,
   getVertexParams,
@@ -10,6 +9,7 @@ import {
 import { EPS, fmt } from "../math/format.js";
 import { buildPannedViewport, viewportWithSampleStep } from "./viewport.js";
 import { buildQuadraticAnnotations, getQuadraticAnnotationNote } from "./quadraticGraphAnnotations.js";
+import { featuresForAdapterParams } from "./graphFeatureBridge.js";
 
 export const quadraticGraphAdapter = {
   id: "quadratic",
@@ -20,8 +20,9 @@ export const quadraticGraphAdapter = {
     return { ...DEFAULT_QUADRATIC };
   },
 
-  getFeatures(params, lang, i18n) {
-    return getQuadraticFeatures(params, lang, i18n);
+  /** @deprecated Prefer featuresForRoot from graphFeatureBridge */
+  getFeatures(params, lang, i18n, formId = "qStandard") {
+    return featuresForAdapterParams("quadratic", params, formId, lang, i18n);
   },
 
   evaluate(x, params) {
@@ -29,13 +30,9 @@ export const quadraticGraphAdapter = {
     return a * x * x + b * x + c;
   },
 
-  getRequiredPoints(params, features) {
-    const g =
-      features?.valid === true
-        ? features
-        : getQuadraticFeatures(params, "en", { en: { noRealFactored: "" }, zh: { noRealFactored: "" } });
-    if (!g.valid) return [];
-    return [{ x: g.h, y: g.k }];
+  getRequiredPoints(_params, features) {
+    if (!features?.valid) return [];
+    return [{ x: features.h, y: features.k }];
   },
 
   getViewport(params, features, options = {}) {
@@ -122,17 +119,19 @@ export const quadraticGraphAdapter = {
     bindEnter(mount);
   },
 
-  applyParameterInputs({ graphState, formId, t, setError }) {
+  applyParameterInputs({ graphState, formId, t, setError, getRootFunction }) {
     const aEl = document.getElementById("quadInputA");
     if (!aEl) return { changed: false };
     const a = Number(aEl.value);
-    let next = null;
     const current = this.getCurrentParams(graphState);
+    const rootCanon = getRootFunction?.()?.canonicalParams ?? current;
 
     if (!Number.isFinite(a)) {
       setError(t.quadErrorInvalid);
       return { changed: false };
     }
+    let formParams = null;
+
     if (formId === "qStandard") {
       const b = Number(document.getElementById("quadInputB").value);
       const c = Number(document.getElementById("quadInputC").value);
@@ -140,20 +139,21 @@ export const quadraticGraphAdapter = {
         setError(t.quadErrorInvalid);
         return { changed: false };
       }
-      next = { a, b, c };
+      formParams = { a, b, c };
     } else if (formId === "qFactored") {
       const fp = this.getFactoredParams(current);
       if (!fp.hasRealRoots) {
-        next = { a, b: current.b, c: current.c };
-      } else {
-        const r1 = Number(document.getElementById("quadInputR1").value);
-        const r2 = Number(document.getElementById("quadInputR2").value);
-        if (!Number.isFinite(r1) || !Number.isFinite(r2)) {
-          setError(t.quadErrorInvalid);
-          return { changed: false };
-        }
-        next = this.abcFromFactored(a, r1, r2);
+        formParams = { a, b: rootCanon.b, c: rootCanon.c };
+        setError("");
+        return { changed: true, formId: "qStandard", formParams };
       }
+      const r1 = Number(document.getElementById("quadInputR1").value);
+      const r2 = Number(document.getElementById("quadInputR2").value);
+      if (!Number.isFinite(r1) || !Number.isFinite(r2)) {
+        setError(t.quadErrorInvalid);
+        return { changed: false };
+      }
+      formParams = { a, r1, r2 };
     } else {
       const h = Number(document.getElementById("quadInputH").value);
       const k = Number(document.getElementById("quadInputK").value);
@@ -161,16 +161,15 @@ export const quadraticGraphAdapter = {
         setError(t.quadErrorInvalid);
         return { changed: false };
       }
-      next = this.abcFromVertex(a, h, k);
+      formParams = { a, h, k };
     }
 
-    this.setCurrentParams(graphState, next);
-    if (Math.abs(next.a) < EPS) {
+    if (Math.abs(formParams.a) < EPS) {
       setError(t.quadErrorAZero);
-      return { changed: true };
+      return { changed: false };
     }
     setError("");
-    return { changed: true };
+    return { changed: true, formId, formParams };
   },
 
   isValidParams(features) {
@@ -183,10 +182,11 @@ export const quadraticGraphAdapter = {
   },
 
   getAnnotations(ctx) {
-    return buildQuadraticAnnotations({ ...ctx, getQuadraticFeatures });
+    if (!ctx.features) return [];
+    return buildQuadraticAnnotations(ctx);
   },
 
   getAnnotationNote(ctx) {
-    return getQuadraticAnnotationNote({ ...ctx, getQuadraticFeatures });
+    return getQuadraticAnnotationNote(ctx);
   }
 };

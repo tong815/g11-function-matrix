@@ -70,6 +70,15 @@ export function commitGraphAdapterToRoot(topic, graphState) {
   return validateRoot(root) ? root : null;
 }
 
+export function commitGraphFormParams(topic, graphState, formId, formParams) {
+  const root = updateRootFromFormInput(getActiveRoot(), formId, formParams);
+  if (!validateRoot(root)) return null;
+  setRoot(topic.id, root);
+  replaceActiveRoot(root);
+  applyRootToGraphState(graphState, root);
+  return root;
+}
+
 export function persistActiveRootFromGraph(topic, graphState) {
   const next = commitGraphAdapterToRoot(topic, graphState);
   if (next) {

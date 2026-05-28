@@ -10,9 +10,8 @@ import {
 } from "./quadraticGraphShared.js";
 
 export function buildQuadraticAnnotations({
-  graphState,
+  features,
   selection,
-  getQuadraticFeatures,
   currentLang,
   i18n,
   getCellLevel,
@@ -20,10 +19,9 @@ export function buildQuadraticAnnotations({
 }) {
   const { formId, infoKey } = selection;
   const t = i18n[currentLang];
-  const currentParams = graphState.paramsByAdapter?.quadratic;
-  const g = getQuadraticFeatures(currentParams, currentLang, i18n);
+  const g = features;
   const annotations = [];
-  if (!g.valid) return annotations;
+  if (!g?.valid) return annotations;
 
   const s = (target) => {
     let strength = getAnnotationStrength("quadratic", formId, target, infoKey);
@@ -79,13 +77,12 @@ export function buildQuadraticAnnotations({
   return annotations;
 }
 
-export function getQuadraticAnnotationNote({ graphState, selection, currentLang, i18n, getQuadraticFeatures, getCellLevel }) {
+export function getQuadraticAnnotationNote({ features, selection, currentLang, i18n, getCellLevel }) {
   const t = i18n[currentLang];
   const isZH = currentLang === "zh";
-  const currentParams = graphState.paramsByAdapter?.quadratic;
-  const g = getQuadraticFeatures(currentParams, currentLang, i18n);
-  if (!g.valid) {
-    return g.error === "aZero" ? t.quadErrorAZero : t.quadErrorInvalid;
+  const g = features;
+  if (!g?.valid) {
+    return g?.error === "aZero" ? t.quadErrorAZero : t.quadErrorInvalid;
   }
   const key = selection.formId + "|" + selection.infoKey;
 

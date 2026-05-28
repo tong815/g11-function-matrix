@@ -1,6 +1,8 @@
 import { getGraphAdapter } from "../graph/graphAdapterRegistry.js";
 import { getMatrixCellLevel } from "../data/matrixCells.js";
 import { createCoordMapper } from "../graph/viewport.js";
+import { featuresForRoot } from "../graph/graphFeatureBridge.js";
+import { buildGraphRepresentation } from "../representations/graph.js";
 
 /** Match CSS #graphCanvas height for correct bitmap resolution (layout.css / responsive.css). */
 export function syncCanvasSize() {
@@ -66,7 +68,7 @@ function drawWorldAxes(ctx, w, h, mapper) {
 }
 
 export function createGraphHandlers(deps) {
-  const { graphState, getLang, i18n, matrixByKey, getLastSelected } = deps;
+  const { graphState, getLang, i18n, matrixByKey, getLastSelected, getRootFunction } = deps;
   const currentLang = () => getLang();
 
   function getActiveAdapter() {
@@ -134,7 +136,7 @@ export function createGraphHandlers(deps) {
   }
 
   function getAnnotationContext(selection) {
-    return {
+    const ctx = {
       graphState,
       selection,
       currentLang: currentLang(),
@@ -142,6 +144,11 @@ export function createGraphHandlers(deps) {
       getCellLevel,
       getAnnotationStrength
     };
+    if (selection?.matrixKey === "quadratic") {
+      const root = getRootFunction?.();
+      if (root) ctx.features = featuresForRoot(root, currentLang(), i18n);
+    }
+    return ctx;
   }
 
   function getDirectGraphAnnotations(selection) {
@@ -285,13 +292,18 @@ export function createGraphHandlers(deps) {
     if (!selection) return i18n[currentLang()].graphAnnotationDefault;
     const adapter = getGraphAdapter(selection.matrixKey);
     if (adapter?.getAnnotationNote) {
-      return adapter.getAnnotationNote({
+      const noteCtx = {
         graphState,
         selection,
         currentLang: currentLang(),
         i18n,
         getCellLevel
-      });
+      };
+      if (selection.matrixKey === "quadratic") {
+        const root = getRootFunction?.();
+        if (root) noteCtx.features = featuresForRoot(root, currentLang(), i18n);
+      }
+      return adapter.getAnnotationNote(noteCtx);
     }
     return i18n[currentLang()].graphAnnotationDefault;
   }
@@ -305,6 +317,30 @@ export function createGraphHandlers(deps) {
     if (mapper.mode !== "bounds") return Number.isFinite(y);
     const margin = (mapper.yMax - mapper.yMin) * 0.35;
     return y >= mapper.yMin - margin && y <= mapper.yMax + margin;
+  }
+
+  function drawSampledCurveWithEvaluate(ctx, evaluate, viewport, mapper) {
+    const { xMin, xMax, sampleStep } = viewport;
+    ctx.strokeStyle = "#111827";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    let first = true;
+    for (let x = xMin; x <= xMax; x += sampleStep) {
+      const y = evaluate(x);
+      if (y === null || !Number.isFinite(y) || !yInView(y, mapper)) {
+        first = true;
+        continue;
+      }
+      const px = mapper.toCanvasX(x);
+      const py = mapper.toCanvasY(y);
+      if (first) {
+        ctx.moveTo(px, py);
+        first = false;
+      } else {
+        ctx.lineTo(px, py);
+      }
+    }
+    ctx.stroke();
   }
 
   function drawSampledCurve(ctx, adapter, params, viewport, mapper) {
@@ -369,12 +405,33 @@ export function createGraphHandlers(deps) {
     }
 
     const t = i18n[currentLang()];
-    const params = graphState.paramsByAdapter?.[adapter.id];
-    if (!params) {
-      drawWorldAxes(ctx, w, h, createCoordMapper({ pixelScale: 22 }, w, h));
-      return;
+    let params;
+    let features;
+    let evaluateFn = null;
+
+    if (adapter.id === "quadratic" && getRootFunction?.()) {
+      const graphRep = buildGraphRepresentation(getRootFunction(), currentLang(), i18n);
+      if (!graphRep.valid) {
+        drawWorldAxes(ctx, w, h, createCoordMapper({ pixelScale: 22 }, w, h));
+        ctx.fillStyle = "#6b7280";
+        ctx.font = "13px Segoe UI";
+        ctx.textAlign = "center";
+        ctx.fillText(adapter.getCanvasError(graphRep.features ?? { error: graphRep.error }, t), w / 2, h / 2);
+        ctx.textAlign = "left";
+        return;
+      }
+      features = graphRep.features;
+      params = graphRep.adapterParams;
+      evaluateFn = graphRep.evaluate;
+    } else {
+      // TODO: migrate linear/exp to buildGraphRepresentation when feature paths unified
+      params = graphState.paramsByAdapter?.[adapter.id];
+      if (!params) {
+        drawWorldAxes(ctx, w, h, createCoordMapper({ pixelScale: 22 }, w, h));
+        return;
+      }
+      features = adapter.getFeatures(params, currentLang(), i18n);
     }
-    const features = adapter.getFeatures(params, currentLang(), i18n);
 
     if (!adapter.isValidParams(features)) {
       drawWorldAxes(ctx, w, h, createCoordMapper({ pixelScale: 22 }, w, h));
@@ -394,6 +451,8 @@ export function createGraphHandlers(deps) {
       drawVerticalGraph(ctx, w, h, viewport, mapper);
     } else if (viewport.kind === "segment" && !features.isVertical) {
       drawLinearSegment(ctx, adapter, params, viewport, mapper);
+    } else if (evaluateFn) {
+      drawSampledCurveWithEvaluate(ctx, evaluateFn, viewport, mapper);
     } else {
       drawSampledCurve(ctx, adapter, params, viewport, mapper);
     }

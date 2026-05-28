@@ -1,4 +1,5 @@
 import { EPS, fmt, signedTerm, buildFactoredExpression } from "./format.js";
+import { deriveQuadraticFeatures } from "../features/quadraticFeatures.js";
 
 export const DEFAULT_QUADRATIC = { a: 1, b: 0, c: 0 };
 
@@ -25,30 +26,7 @@ export function buildFactoredFormText(a, delta, roots, noRealFactoredLabel) {
 }
 
 export function getQuadraticFeatures(quadratic, currentLang, i18n) {
-  const a = Number(quadratic.a);
-  const b = Number(quadratic.b);
-  const c = Number(quadratic.c);
-  if (!Number.isFinite(a) || !Number.isFinite(b) || !Number.isFinite(c)) return { valid: false, error: "invalid", a, b, c };
-  if (Math.abs(a) < EPS) return { valid: false, error: "aZero", a, b, c };
-  const h = -b / (2 * a);
-  const k = a * h * h + b * h + c;
-  const delta = b * b - 4 * a * c;
-  let roots = [];
-  if (delta > EPS) {
-    const r1 = (-b - Math.sqrt(delta)) / (2 * a);
-    const r2 = (-b + Math.sqrt(delta)) / (2 * a);
-    roots = r1 < r2 ? [r1, r2] : [r2, r1];
-  } else if (Math.abs(delta) <= EPS) {
-    roots = [-b / (2 * a)];
-  }
-  const openingText = a > 0 ? (currentLang === "zh" ? "开口向上" : "opens up") : (currentLang === "zh" ? "开口向下" : "opens down");
-  return {
-    valid: true, a, b, c, delta, h, k, roots, yIntercept: c, openingText,
-    standardFormText: buildStandardFormText(a, b, c),
-    vertexFormText: buildVertexFormText(a, h, k),
-    factoredFormText: buildFactoredFormText(a, delta, roots, i18n[currentLang].noRealFactored),
-    hasTwoRoots: delta > EPS, hasDoubleRoot: Math.abs(delta) <= EPS && roots.length === 1, noRealRoots: delta < -EPS
-  };
+  return deriveQuadraticFeatures(quadratic, currentLang, i18n);
 }
 
 export function getStandardParams(quadratic) {

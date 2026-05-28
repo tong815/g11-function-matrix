@@ -158,7 +158,7 @@ export const linearGraphAdapter = {
   },
 
   applyParameterInputs({ graphState, formId, t, setError }) {
-    let next = null;
+    let formParams = null;
     const current = this.getCurrentParams(graphState);
     if (formId === "lSlope") {
       const p = this.getSlopeInterceptParams(current);
@@ -172,7 +172,7 @@ export const linearGraphAdapter = {
         setError(t.linearErrorInvalid);
         return { changed: false };
       }
-      next = this.syncLinearFromNormal(m, b, [1, m + b]);
+      formParams = { m, b };
     } else if (formId === "lPoint") {
       const p = this.getPointSlopeParams(current);
       if (p.isVertical) {
@@ -186,8 +186,7 @@ export const linearGraphAdapter = {
         setError(t.linearErrorInvalid);
         return { changed: false };
       }
-      const b = y1 - m * x1;
-      next = this.syncLinearFromNormal(m, b, [x1, y1]);
+      formParams = { m, x1, y1 };
     } else {
       const A = Number(document.getElementById("linInputA").value);
       const B = Number(document.getElementById("linInputBigB").value);
@@ -196,16 +195,14 @@ export const linearGraphAdapter = {
         setError(t.linearErrorInvalid);
         return { changed: false };
       }
-      const converted = this.linearFromStandard(A, B, C);
-      if (!converted.valid) {
-        setError(converted.error === "abZero" ? t.linearErrorABZero : t.linearErrorInvalid);
+      if (Math.abs(B) <= 1e-9) {
+        setError(t.linearErrorInvalid);
         return { changed: false };
       }
-      next = converted.state;
+      formParams = { A, B, C };
     }
-    this.setCurrentParams(graphState, next);
     setError("");
-    return { changed: true };
+    return { changed: true, formId, formParams };
   },
 
   isValidParams(features) {

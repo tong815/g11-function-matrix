@@ -88,10 +88,9 @@ export const quadraticDefinition = {
 
   deriveForms(root, currentLang, i18n) {
     const features = this.deriveFeatures(root, currentLang, i18n);
-    const checked = recomputeCanonical(root.canonicalParams);
     return {
-      valid: checked.valid && features.valid,
-      error: checked.error || features.error,
+      valid: features.valid,
+      error: features.error,
       features
     };
   },

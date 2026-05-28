@@ -107,11 +107,12 @@ function applyGraphParams() {
     graphState,
     formId,
     t,
-    setError: (text) => { errEl.textContent = text || ""; }
+    setError: (text) => { errEl.textContent = text || ""; },
+    getRootFunction
   });
-    if (!result?.changed) return;
+  if (!result?.changed) return;
   if (onGraphRootCommit) {
-    onGraphRootCommit(adapter.id);
+    onGraphRootCommit(adapter.id, { formId: result.formId ?? formId, formParams: result.formParams });
   }
   updateCurrentExampleForms();
   renderParameterInputs();

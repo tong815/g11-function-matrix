@@ -118,9 +118,8 @@ export const exponentialGraphAdapter = {
       );
       return { changed: false };
     }
-    this.setCurrentParams(graphState, { a, b, h, k });
     setError("");
-    return { changed: true };
+    return { changed: true, formId, formParams: { a, b, h, k } };
   },
 
   isValidParams(features) {

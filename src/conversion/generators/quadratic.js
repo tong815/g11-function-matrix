@@ -3,11 +3,10 @@ import { flowMistakesByRule } from "../../data/flowMistakes.js";
 import {
   L,
   formatRational,
-  evalStandard,
   buildVertexFormText,
-  buildStandardFromVertex,
   buildFactoredText
 } from "../conversionMath.js";
+import { featuresFromConversionParams } from "./quadraticFeatureHelper.js";
 
 function mistakes(ruleId, lang) {
   return flowMistakesByRule[ruleId]?.[lang] ?? [];
@@ -64,6 +63,8 @@ function invalidParams(lang) {
 export function stdToVertex(p, lang) {
   const { a, b, c } = p;
   if (![a, b, c].every(Number.isFinite)) return invalidParams(lang);
+  const features = featuresFromConversionParams("qStandard", p, lang);
+  if (!features) return invalidParams(lang);
   if (Math.abs(a) < EPS) {
     return blockedResult(
       L(lang, "Standard → Vertex", "一般式 → 顶点式"),
@@ -72,8 +73,7 @@ export function stdToVertex(p, lang) {
       lang
     );
   }
-  const h = -b / (2 * a);
-  const k = evalStandard(a, b, c, h);
+  const { h, k } = features;
   const hFrac = formatRational(-b, 2 * a);
   const steps = [
     {
@@ -112,8 +112,9 @@ export function stdToVertex(p, lang) {
 export function vertexToStd(p, lang) {
   const { a, h, k } = p;
   if (![a, h, k].every(Number.isFinite)) return invalidParams(lang);
-  const b = -2 * a * h;
-  const c = a * h * h + k;
+  const features = featuresFromConversionParams("qVertex", p, lang);
+  if (!features?.valid) return invalidParams(lang);
+  const { b, c } = features;
   const hSign = h >= 0 ? `- ${fmt(h)}` : `+ ${fmt(-h)}`;
   const steps = [
     {
@@ -157,7 +158,9 @@ export function stdToFact(p, lang) {
       lang
     );
   }
-  const delta = b * b - 4 * a * c;
+  const features = featuresFromConversionParams("qStandard", p, lang);
+  if (!features?.valid) return invalidParams(lang);
+  const { delta, r1, r2 } = features;
   const steps = [
     { label: L(lang, "Read", "读取"), lines: [`a = ${fmt(a)},  b = ${fmt(b)},  c = ${fmt(c)}`] },
     {
@@ -183,14 +186,14 @@ export function stdToFact(p, lang) {
     );
   }
   const sqrtD = Math.sqrt(Math.max(0, delta));
-  const r1 = (-b - sqrtD) / (2 * a);
-  const r2 = (-b + sqrtD) / (2 * a);
+  const root1 = r1 ?? (-b - sqrtD) / (2 * a);
+  const root2 = r2 ?? (-b + sqrtD) / (2 * a);
   steps.push(
     {
       label: L(lang, "Compute roots", "求根"),
-      lines: ["r = (−b ± √Δ) / (2a)", `r₁ = ${fmt(r1)},  r₂ = ${fmt(r2)}`]
+      lines: ["r = (−b ± √Δ) / (2a)", `r₁ = ${fmt(root1)},  r₂ = ${fmt(root2)}`]
     },
-    { label: L(lang, "Final", "结果"), lines: [buildFactoredText(a, r1, r2)] }
+    { label: L(lang, "Final", "结果"), lines: [buildFactoredText(a, root1, root2)] }
   );
   return baseResult(
     L(lang, "Standard → Factored", "一般式 → 因式分解式"),
@@ -198,7 +201,7 @@ export function stdToFact(p, lang) {
     ["r₁", "r₂"],
     ["Δ = b² − 4ac", "r = (−b ± √Δ) / (2a)"],
     steps,
-    buildFactoredText(a, r1, r2),
+    buildFactoredText(a, root1, root2),
     "std_to_fact",
     lang,
     [L(lang, "Factored form encodes root positions.", "因式式表示根的位置。")]
@@ -208,10 +211,11 @@ export function stdToFact(p, lang) {
 export function factToStd(p, lang) {
   const { a, r1, r2 } = p;
   if (![a, r1, r2].every(Number.isFinite)) return invalidParams(lang);
+  const features = featuresFromConversionParams("qFactored", p, lang);
+  if (!features?.valid) return invalidParams(lang);
+  const { b, c } = features;
   const expanded = r1 * r2;
   const sum = r1 + r2;
-  const b = -a * sum;
-  const c = a * expanded;
   const steps = [
     { label: L(lang, "Read", "读取"), lines: [`a = ${fmt(a)},  r₁ = ${fmt(r1)},  r₂ = ${fmt(r2)}`] },
     {
@@ -243,8 +247,9 @@ export function factToStd(p, lang) {
 export function factToVertex(p, lang) {
   const { a, r1, r2 } = p;
   if (![a, r1, r2].every(Number.isFinite)) return invalidParams(lang);
-  const h = (r1 + r2) / 2;
-  const k = a * (h - r1) * (h - r2);
+  const features = featuresFromConversionParams("qFactored", p, lang);
+  if (!features?.valid) return invalidParams(lang);
+  const { h, k } = features;
   const steps = [
     { label: L(lang, "Read", "读取"), lines: [`a = ${fmt(a)},  r₁ = ${fmt(r1)},  r₂ = ${fmt(r2)}`] },
     {
@@ -303,13 +308,21 @@ export function vertexToFact(p, lang) {
       steps
     );
   }
-  const sqrtRhs = Math.sqrt(Math.max(0, rhs));
-  const r1 = h - sqrtRhs;
-  const r2 = h + sqrtRhs;
+  const features = featuresFromConversionParams("qVertex", p, lang);
+  if (!features?.valid || !features.hasRealRoots) {
+    return blockedResult(
+      L(lang, "Vertex → Factored", "顶点式 → 因式分解式"),
+      L(lang, "❌ No real factored form exists (−k/a < 0).", "❌ 不存在实数因式分解式（−k/a < 0）。"),
+      "vertex_to_fact",
+      lang,
+      steps
+    );
+  }
+  const { r1, r2 } = features;
   steps.push(
     {
       label: L(lang, "Solve", "开方"),
-      lines: [`x − h = ±${fmt(sqrtRhs)}`, `r₁ = ${fmt(r1)},  r₂ = ${fmt(r2)}`]
+      lines: [`x − h = ±${fmt(Math.sqrt(Math.max(0, rhs)))}`, `r₁ = ${fmt(r1)},  r₂ = ${fmt(r2)}`]
     },
     { label: L(lang, "Final", "结果"), lines: [buildFactoredText(a, r1, r2)] }
   );
