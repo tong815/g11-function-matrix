@@ -208,8 +208,13 @@ export function createCoordMapper(viewport, w, h) {
     const { xMin, xMax, yMin, yMax } = viewport;
     const xSpan = xMax - xMin;
     const ySpan = yMax - yMin;
-    const toCanvasX = (x) => ((x - xMin) / xSpan) * w;
-    const toCanvasY = (y) => (1 - (y - yMin) / ySpan) * h;
+    const unitScale = Math.min(w / xSpan, h / ySpan);
+    const plotW = xSpan * unitScale;
+    const plotH = ySpan * unitScale;
+    const offsetX = (w - plotW) / 2;
+    const offsetY = (h - plotH) / 2;
+    const toCanvasX = (x) => offsetX + (x - xMin) * unitScale;
+    const toCanvasY = (y) => offsetY + (yMax - y) * unitScale;
     const showsYAxis = xMin <= 0 && 0 <= xMax;
     const showsXAxis = yMin <= 0 && 0 <= yMax;
     const ox = toCanvasX(0);
@@ -227,6 +232,8 @@ export function createCoordMapper(viewport, w, h) {
       xMax,
       yMin,
       yMax,
+      unitScale,
+      plotOffset: { x: offsetX, y: offsetY },
       toCanvasX,
       toCanvasY,
       showsXAxis,
