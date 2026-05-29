@@ -3,6 +3,7 @@ import { getMatrixCellLevel } from "../data/matrixCells.js";
 import { createCoordMapper } from "../graph/viewport.js";
 import { featuresForRoot } from "../graph/graphFeatureBridge.js";
 import { buildGraphRepresentation } from "../representations/graph.js";
+import { layoutGraphAnnotations } from "../graph/annotationLayout.js";
 
 /** Match CSS #graphCanvas height for correct bitmap resolution (layout.css / responsive.css). */
 export function syncCanvasSize() {
@@ -176,8 +177,9 @@ export function createGraphHandlers(deps) {
     ctx.beginPath();
     ctx.arc(px, py, style.radius, 0, Math.PI * 2);
     ctx.fill();
-    ctx.font = style.font;
-    ctx.fillText(ann.label, px + 7, py - 7);
+    ctx.font = ann._font ?? style.font;
+    const lp = ann.labelPos ?? { x: px + 7, y: py - 7 };
+    ctx.fillText(ann.label, lp.x, lp.y);
   }
 
   function drawHorizontalLineAnnotation(ctx, w, h, mapper, ann) {
@@ -193,8 +195,9 @@ export function createGraphHandlers(deps) {
     ctx.stroke();
     ctx.setLineDash([]);
     ctx.fillStyle = style.color;
-    ctx.font = style.font;
-    ctx.fillText(ann.label, 8, py - 6);
+    ctx.font = ann._font ?? style.font;
+    const lp = ann.labelPos ?? { x: 8, y: py - 6 };
+    ctx.fillText(ann.label, lp.x, lp.y);
   }
 
   function drawVerticalLineAnnotation(ctx, w, h, mapper, ann) {
@@ -209,15 +212,17 @@ export function createGraphHandlers(deps) {
     ctx.stroke();
     ctx.setLineDash([]);
     ctx.fillStyle = style.color;
-    ctx.font = style.font;
-    ctx.fillText(ann.label, px + 4, 14);
+    ctx.font = ann._font ?? style.font;
+    const lp = ann.labelPos ?? { x: px + 4, y: 14 };
+    ctx.fillText(ann.label, lp.x, lp.y);
   }
 
   function drawTextAnnotation(ctx, mapper, ann) {
     const style = getAnnStyle(ann.strength);
     ctx.fillStyle = style.color;
-    ctx.font = style.font;
-    ctx.fillText(ann.label, mapper.toCanvasX(ann.x), mapper.toCanvasY(ann.y));
+    ctx.font = ann._font ?? style.font;
+    const lp = ann.labelPos ?? { x: mapper.toCanvasX(ann.x), y: mapper.toCanvasY(ann.y) };
+    ctx.fillText(ann.label, lp.x, lp.y);
   }
 
   function drawSlopeTriangle(ctx, mapper, ann) {
@@ -245,23 +250,30 @@ export function createGraphHandlers(deps) {
     ctx.stroke();
     ctx.setLineDash([]);
     ctx.fillStyle = style.color;
-    ctx.font = style.font;
-    ctx.fillText(t.markerRun, (px0 + px1) / 2 - 12, pyBase + 12);
-    ctx.fillText(t.markerRise + "=" + m, px1 + 4, (pyBase + py1) / 2);
+    ctx.font = ann._font ?? style.font;
+    const runText = t.markerRun;
+    const riseText = t.markerRise + "=" + m;
+    const runLp = ann.runLabelPos ?? { x: (px0 + px1) / 2 - 12, y: pyBase + 12 };
+    const riseLp = ann.riseLabelPos ?? { x: px1 + 4, y: (pyBase + py1) / 2 };
+    ctx.fillText(runText, runLp.x, runLp.y);
+    ctx.fillText(riseText, riseLp.x, riseLp.y);
   }
 
   function drawNoRootsAnnotation(ctx, w, h, ann, mapper) {
     const style = getAnnStyle(ann.strength);
     const msg = currentLang() === "zh" ? "无实数 x 截距（Δ < 0）" : "No real x-intercepts (Δ < 0)";
-    const y =
-      mapper.showsXAxis && mapper.mode === "bounds"
-        ? mapper.toCanvasY(0) + 20
-        : mapper.mode === "legacy"
-          ? h / 2 + 20
-          : h - 28;
     ctx.fillStyle = style.color;
-    ctx.font = style.font;
-    ctx.fillText(msg, w / 2 - 95, y);
+    ctx.font = ann._font ?? style.font;
+    const lp = ann.labelPos ?? {
+      x: w / 2 - 95,
+      y:
+        mapper.showsXAxis && mapper.mode === "bounds"
+          ? mapper.toCanvasY(0) + 20
+          : mapper.mode === "legacy"
+            ? h / 2 + 20
+            : h - 28
+    };
+    ctx.fillText(msg, lp.x, lp.y);
   }
 
   function drawInterceptLineAnnotation(ctx, mapper, ann) {
@@ -277,7 +289,8 @@ export function createGraphHandlers(deps) {
   }
 
   function renderAnnotations(ctx, w, h, annotations, mapper) {
-    annotations.forEach((ann) => {
+    const laidOut = layoutGraphAnnotations(ctx, annotations, mapper, w, h, getAnnStyle);
+    laidOut.forEach((ann) => {
       if (ann.type === "point") drawPointAnnotation(ctx, mapper, ann);
       else if (ann.type === "verticalLine") drawVerticalLineAnnotation(ctx, w, h, mapper, ann);
       else if (ann.type === "horizontalLine") drawHorizontalLineAnnotation(ctx, w, h, mapper, ann);
